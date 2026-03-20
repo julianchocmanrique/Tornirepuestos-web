@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+:root {
+  --blue: #0f2a44;
+  --orange: #f97316;
+}
+
+html {
+  scroll-behavior: smooth;
+}

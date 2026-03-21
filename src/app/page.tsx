@@ -7,7 +7,9 @@ const brand = {
     "Fabricación, reparación y mecanizado de piezas con precisión para la industria, maquinaria y vehículos.",
   colors: {
     blue: "#0F2A44",
-    orange: "#F97316",
+    orange: "#EF4444", // red
+    // Mantengo la key "orange" para no tocar más código; ahora es el color acento (rojo).
+
     grayBg: "#F3F4F6",
     text: "#1F2937",
   },
@@ -81,7 +83,7 @@ function Button({
     "inline-flex items-center justify-center rounded-xl px-5 py-3 text-sm font-semibold transition";
   const styles =
     variant === "primary"
-      ? "bg-orange-500 text-white hover:bg-orange-600"
+      ? "bg-red-500 text-white hover:bg-red-600"
       : "border border-white/20 bg-white/5 text-white hover:bg-white/10";
   return (
     <a className={`${base} ${styles}`} href={href}>

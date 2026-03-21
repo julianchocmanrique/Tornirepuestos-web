@@ -99,16 +99,22 @@ export default function Page() {
       <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
           <div className="flex items-center gap-3">
-            <div
-              className="h-10 w-10 rounded-xl"
-              style={{ background: brand.colors.blue }}
-              aria-hidden
-            />
-            <div className="leading-tight">
-              <div className="text-sm font-extrabold tracking-wide" style={{ color: brand.colors.blue }}>
-                {brand.name}
+            <div className="flex items-center gap-3">
+              <div className="relative h-10 w-10 overflow-hidden rounded-xl border border-slate-200 bg-white">
+                <Image
+                  src="/logo-tornirepuestos.jpg"
+                  alt="Logo Tornirepuestos"
+                  fill
+                  className="object-contain p-1"
+                  priority
+                />
               </div>
-              <div className="text-xs text-slate-600">Colombia · Tornería & Repuestos</div>
+              <div className="leading-tight">
+                <div className="text-sm font-extrabold tracking-wide" style={{ color: brand.colors.blue }}>
+                  {brand.name}
+                </div>
+                <div className="text-xs text-slate-600">Colombia · Tornería & Repuestos</div>
+              </div>
             </div>
           </div>
 

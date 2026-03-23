@@ -169,6 +169,7 @@ export default function Page() {
                 fill
                 className="object-contain p-1"
                 priority
+                unoptimized
               />
             </div>
             <div className="leading-tight">
@@ -604,6 +605,7 @@ export default function Page() {
                 alt="Logo Tornirepuestos"
                 fill
                 className="object-contain p-1"
+                unoptimized
               />
             </div>
             <div>

@@ -11,6 +11,9 @@ const brand = {
   },
 };
 
+const BASE_PATH = "/tornirepuestos";
+const LOGO_SRC = `${BASE_PATH}/logo-tornirepuestos.jpg`;
+
 const WHATSAPP_PHONE_E164 = "573106531208";
 const WHATSAPP_LINK = `https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_E164}`;
 
@@ -164,7 +167,7 @@ export default function Page() {
           <a href="#inicio" className="flex items-center gap-3">
             <div className="relative h-10 w-10 overflow-hidden rounded-xl border border-slate-200 bg-white">
               <Image
-                src="/logo-tornirepuestos.jpg"
+                src={LOGO_SRC}
                 alt="Logo Tornirepuestos"
                 fill
                 className="object-contain p-1"
@@ -601,7 +604,7 @@ export default function Page() {
           <div className="flex items-center gap-3">
             <div className="relative h-9 w-9 overflow-hidden rounded-xl border border-slate-200 bg-white">
               <Image
-                src="/logo-tornirepuestos.jpg"
+                src={LOGO_SRC}
                 alt="Logo Tornirepuestos"
                 fill
                 className="object-contain p-1"

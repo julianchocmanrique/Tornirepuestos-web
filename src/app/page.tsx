@@ -28,6 +28,63 @@ const trust = [
   { k: "Stock", v: "Rotación constante" },
 ];
 
+const promoCatalog = [
+  {
+    title: "Frenos premium",
+    kicker: "DISCOS · BANDAS · VÁLVULAS",
+    desc: "Mejora frenado y seguridad. Cotiza por WhatsApp.",
+    img: "https://images.unsplash.com/photo-1621428131532-2d0ad6018c63?auto=format&fit=crop&w=1800&q=75",
+    span: "col-span-12 md:col-span-7",
+    tone: "red",
+    waText: "Hola, quiero cotizar frenos (discos/bandas/válvulas). Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
+  },
+  {
+    title: "Filtración",
+    kicker: "ACEITE · AIRE · COMBUSTIBLE",
+    desc: "Protege motor y alarga la vida útil.",
+    img: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=1400&q=75",
+    span: "col-span-12 md:col-span-5",
+    tone: "dark",
+    waText: "Hola, quiero cotizar filtros (aceite/aire/combustible). Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
+  },
+  {
+    title: "Suspensión",
+    kicker: "NEUMÁTICA · RÍGIDA",
+    desc: "Confort, estabilidad y control de carga.",
+    img: "https://images.unsplash.com/photo-1601933470928-cd037d0b045b?auto=format&fit=crop&w=1400&q=75",
+    span: "col-span-12 md:col-span-4",
+    tone: "dark",
+    waText: "Hola, quiero cotizar suspensión (neumática/rígida). Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
+  },
+  {
+    title: "Rodamientos",
+    kicker: "RETENES · KITS",
+    desc: "Repuestos de alta precisión para trabajo pesado.",
+    img: "https://images.unsplash.com/photo-1581092334651-ddf26d9a09d1?auto=format&fit=crop&w=1400&q=75",
+    span: "col-span-12 md:col-span-4",
+    tone: "red",
+    waText: "Hola, quiero cotizar rodamientos/retenerores. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
+  },
+  {
+    title: "Motor",
+    kicker: "SELLOS · EMPAQUES",
+    desc: "Consumibles y repuestos para mantenimiento.",
+    img: "https://images.unsplash.com/photo-1581579185169-55a8b1d9f4b8?auto=format&fit=crop&w=1400&q=75",
+    span: "col-span-12 md:col-span-4",
+    tone: "dark",
+    waText: "Hola, quiero cotizar repuestos de motor (sellos/empaques). Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
+  },
+  {
+    title: "Transmisión",
+    kicker: "FULLER · CRUCETAS",
+    desc: "Componentes para torque y durabilidad.",
+    img: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1400&q=75",
+    span: "col-span-12 md:col-span-4",
+    tone: "red",
+    waText: "Hola, quiero cotizar transmisión (Fuller/crucetas). Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
+  },
+];
+
 const categories = [
   { title: "Frenos", desc: "Bandas, disco, cámaras, válvulas, accesorios" },
   { title: "Filtración", desc: "Filtros de aceite, aire, combustible, separadores" },
@@ -309,45 +366,110 @@ export default function Page() {
             className="mt-2 text-3xl font-extrabold"
             style={{ color: brand.colors.blue }}
           >
-            Categorías principales
+            Catálogo destacado
           </h2>
-          <p className="mt-3 max-w-2xl text-sm text-slate-600">
-            Si no encuentras la categoría exacta, igual escríbenos. Con una foto o
-            referencia te ayudamos a ubicar la pieza.
+          <p className="mt-3 max-w-3xl text-sm text-slate-600">
+            Un catálogo visual tipo “promo” (inventado) para que se vea premium, pero
+            con links reales a WhatsApp para cotizar rápido.
           </p>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {categories.map((c) => (
+          {/* Mosaic promo grid */}
+          <div className="mt-8 grid grid-cols-12 gap-4">
+            {promoCatalog.map((item) => (
               <a
-                key={c.title}
-                href={wa(
-                  `Hola, quiero cotizar: ${c.title}. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____.`
-                )}
+                key={item.title}
+                href={wa(item.waText)}
                 target="_blank"
                 rel="noreferrer"
-                className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow"
+                className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:shadow ${item.span}`}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="text-lg font-extrabold">{c.title}</div>
-                    <p className="mt-2 text-sm text-slate-600">{c.desc}</p>
-                  </div>
-                  <div
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-2xl text-white"
-                    style={{ background: brand.colors.accent }}
-                    aria-hidden
-                  >
-                    ↗
-                  </div>
+                <div className="absolute inset-0">
+                  <Image
+                    src={item.img}
+                    alt={item.title}
+                    fill
+                    className="object-cover opacity-80 transition duration-500 group-hover:scale-[1.03]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-tr from-slate-950/85 via-slate-950/35 to-transparent" />
+                  {item.tone === "red" && (
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.45),transparent_55%)]" />
+                  )}
                 </div>
-                <div
-                  className="mt-4 inline-flex items-center gap-2 text-sm font-semibold"
-                  style={{ color: brand.colors.accent }}
-                >
-                  Cotizar esta categoría <span className="transition group-hover:translate-x-0.5">→</span>
+
+                <div className="relative flex h-full min-h-[210px] flex-col justify-between p-6 text-white">
+                  <div>
+                    <div className="text-[11px] font-semibold tracking-[0.18em] text-white/70">
+                      {item.kicker}
+                    </div>
+                    <div className="mt-2 text-2xl font-extrabold leading-tight">
+                      {item.title}
+                    </div>
+                    <p className="mt-2 max-w-[48ch] text-sm text-white/80">
+                      {item.desc}
+                    </p>
+                  </div>
+
+                  <div className="mt-6 flex items-center justify-between gap-3">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/85">
+                      <span className="text-base">💬</span>
+                      <span>Cotizar</span>
+                    </div>
+                    <div
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-2xl text-white"
+                      style={{ background: brand.colors.accent }}
+                      aria-hidden
+                    >
+                      ↗
+                    </div>
+                  </div>
                 </div>
               </a>
             ))}
+          </div>
+
+          {/* Full categories */}
+          <div className="mt-12">
+            <div className="text-xs uppercase tracking-wide text-slate-500">
+              Categorías principales
+            </div>
+            <p className="mt-3 max-w-2xl text-sm text-slate-600">
+              Si no encuentras la categoría exacta, igual escríbenos. Con una foto o
+              referencia te ayudamos a ubicar la pieza.
+            </p>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {categories.map((c) => (
+                <a
+                  key={c.title}
+                  href={wa(
+                    `Hola, quiero cotizar: ${c.title}. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____.`
+                  )}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <div className="text-lg font-extrabold">{c.title}</div>
+                      <p className="mt-2 text-sm text-slate-600">{c.desc}</p>
+                    </div>
+                    <div
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-2xl text-white"
+                      style={{ background: brand.colors.accent }}
+                      aria-hidden
+                    >
+                      ↗
+                    </div>
+                  </div>
+                  <div
+                    className="mt-4 inline-flex items-center gap-2 text-sm font-semibold"
+                    style={{ color: brand.colors.accent }}
+                  >
+                    Cotizar esta categoría <span className="transition group-hover:translate-x-0.5">→</span>
+                  </div>
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </section>

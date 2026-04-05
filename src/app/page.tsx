@@ -31,76 +31,79 @@ const trust = [
   { k: "Asesoría", v: "Compatibilidad y referencia" },
 ];
 
-const promoCatalog = [
+const categories = [
   {
-    title: "Frenos premium",
+    title: "Frenos",
     kicker: "DISCOS · BANDAS · VÁLVULAS",
-    desc: "Mejora frenado y seguridad. Cotiza por WhatsApp.",
+    desc: "Componentes de freno para trabajo pesado y alto rendimiento.",
     img: "https://images.unsplash.com/photo-1613214150384-14921ff659b2?auto=format&fit=crop&w=1800&q=75",
-    span: "col-span-12 md:col-span-7",
-    tone: "red",
-    waText: "Hola, quiero cotizar frenos (discos/bandas/válvulas). Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
   },
   {
     title: "Filtración",
     kicker: "ACEITE · AIRE · COMBUSTIBLE",
-    desc: "Protege motor y alarga la vida útil.",
-    img: "https://images.unsplash.com/photo-1650064173648-2ed372656fa3?auto=format&fit=crop&w=1400&q=75",
-    span: "col-span-12 md:col-span-5",
-    tone: "dark",
-    waText: "Hola, quiero cotizar filtros (aceite/aire/combustible). Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
+    desc: "Filtros y separadores para proteger el motor y mejorar eficiencia.",
+    img: "https://images.unsplash.com/photo-1650064173648-2ed372656fa3?auto=format&fit=crop&w=1600&q=75",
   },
   {
     title: "Suspensión",
     kicker: "NEUMÁTICA · RÍGIDA",
-    desc: "Confort, estabilidad y control de carga.",
-    img: "https://images.unsplash.com/photo-1764707016031-5f4dbd9ffe76?auto=format&fit=crop&w=1400&q=75",
-    span: "col-span-12 md:col-span-4",
-    tone: "dark",
-    waText: "Hola, quiero cotizar suspensión (neumática/rígida). Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
-  },
-  {
-    title: "Rodamientos",
-    kicker: "RETENES · KITS",
-    desc: "Repuestos de alta precisión para trabajo pesado.",
-    img: "https://images.unsplash.com/photo-1589391349202-900abe66462a?auto=format&fit=crop&w=1400&q=75",
-    span: "col-span-12 md:col-span-4",
-    tone: "red",
-    waText: "Hola, quiero cotizar rodamientos/retenerores. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
+    desc: "Confort, estabilidad y control de carga para ruta y ciudad.",
+    img: "https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?auto=format&fit=crop&w=1600&q=75",
   },
   {
     title: "Motor",
     kicker: "SELLOS · EMPAQUES",
-    desc: "Consumibles y repuestos para mantenimiento.",
-    img: "https://images.unsplash.com/photo-1763836393413-3b79e6b4560a?auto=format&fit=crop&w=1400&q=75",
-    span: "col-span-12 md:col-span-4",
-    tone: "dark",
-    waText: "Hola, quiero cotizar repuestos de motor (sellos/empaques). Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
+    desc: "Consumibles y repuestos para mantenimiento preventivo.",
+    img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1600&q=75",
+  },
+  {
+    title: "Eléctricos y luces",
+    kicker: "LUCES · CONECTORES",
+    desc: "Iluminación y eléctricos para seguridad y señalización.",
+    img: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1600&q=75",
   },
   {
     title: "Transmisión",
     kicker: "FULLER · CRUCETAS",
-    desc: "Componentes para torque y durabilidad.",
-    img: "https://images.unsplash.com/photo-1569313888792-5483b9b43fc0?auto=format&fit=crop&w=1400&q=75",
-    span: "col-span-12 md:col-span-4",
-    tone: "red",
-    waText: "Hola, quiero cotizar transmisión (Fuller/crucetas). Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
+    desc: "Componentes para torque, fuerza y durabilidad.",
+    img: "https://images.unsplash.com/photo-1519682577862-22b62b24e493?auto=format&fit=crop&w=1600&q=75",
   },
-];
-
-const categories = [
-  { title: "Frenos", desc: "Bandas, disco, cámaras, válvulas, accesorios" },
-  { title: "Filtración", desc: "Filtros de aceite, aire, combustible, separadores" },
-  { title: "Suspensión", desc: "Rígida y neumática" },
-  { title: "Motor", desc: "Componentes, sellos, empaques, consumibles" },
-  { title: "Eléctricos y luces", desc: "Lámparas, stops, bombillos, conectores" },
-  { title: "Transmisión", desc: "Fuller, crucetas, cardanes" },
-  { title: "Rodamientos y retenedores", desc: "Rodamientos, retenes, kits" },
-  { title: "Mangueras y racorería", desc: "Aire de servicio, abrazaderas, accesorios" },
-  { title: "Lubricantes y grasas", desc: "Lubricantes, grasas, aditivos" },
-  { title: "Tornillería", desc: "Tornillería en general" },
-  { title: "Herramientas", desc: "Apoyo para taller" },
-  { title: "Diferenciales", desc: "Componentes y repuestos" },
+  {
+    title: "Rodamientos y retenedores",
+    kicker: "KITS · RETENES",
+    desc: "Repuestos de precisión para reducir desgaste y vibración.",
+    img: "https://images.unsplash.com/photo-1581092334651-ddf26d9a09d1?auto=format&fit=crop&w=1600&q=75",
+  },
+  {
+    title: "Mangueras y racorería",
+    kicker: "AIRE · ABRAZADERAS",
+    desc: "Conexiones seguras para sistemas de aire y servicio.",
+    img: "https://images.unsplash.com/photo-1581579185169-55a8b1d9f4b8?auto=format&fit=crop&w=1600&q=75",
+  },
+  {
+    title: "Lubricantes y grasas",
+    kicker: "ACEITES · ADITIVOS",
+    desc: "Lubricación para trabajo pesado y protección del tren motriz.",
+    img: "https://images.unsplash.com/photo-1607603750909-408e193868c7?auto=format&fit=crop&w=1600&q=75",
+  },
+  {
+    title: "Tornillería",
+    kicker: "ANCLAJES · FIJACIÓN",
+    desc: "Tornillería y fijación para mantenimiento y montaje.",
+    img: "https://images.unsplash.com/photo-1583912268189-1c8e0c24a8cf?auto=format&fit=crop&w=1600&q=75",
+  },
+  {
+    title: "Herramientas",
+    kicker: "TALLER · SOPORTE",
+    desc: "Herramientas y apoyo para taller y servicio.",
+    img: "https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?auto=format&fit=crop&w=1600&q=75",
+  },
+  {
+    title: "Diferenciales",
+    kicker: "TRACCIÓN · CARGA",
+    desc: "Componentes y repuestos para transmisión final.",
+    img: "https://images.unsplash.com/photo-1601933470928-cd037d0b045b?auto=format&fit=crop&w=1600&q=75",
+  },
 ];
 
 const highlights = [
@@ -377,130 +380,72 @@ export default function Page() {
             className="mt-2 text-3xl font-extrabold"
             style={{ color: brand.colors.blue }}
           >
-            Catálogo destacado
+            Categorías
           </h2>
           <p className="mt-3 max-w-3xl text-sm text-slate-600">
-            Catálogo visual tipo “promo” (inventado) para que se vea premium. Cada
-            tarjeta abre WhatsApp con un mensaje prellenado para cotizar.
+            Un solo catálogo por categorías, cada una con imagen y estilo “destacado”.
+            Todas abren WhatsApp con mensaje prellenado.
           </p>
 
-          {/* Mosaic promo grid */}
           <div className="mt-8 grid grid-cols-12 gap-4">
-            {promoCatalog.map((item) => (
-              <a
-                key={item.title}
-                href={wa(item.waText)}
-                target="_blank"
-                rel="noreferrer"
-                className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:shadow ${item.span}`}
-              >
-                <div className="absolute inset-0">
-                  <Image
-                    src={item.img}
-                    alt={item.title}
-                    fill
-                    className="object-cover opacity-80 transition duration-500 group-hover:scale-[1.03]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-tr from-slate-950/85 via-slate-950/35 to-transparent" />
-                  {item.tone === "red" && (
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(225,6,0,0.45),transparent_55%)]" />
+            {categories.map((c, idx) => {
+              const tone = idx % 3 === 0 ? "red" : "dark";
+              const span =
+                idx % 7 === 0
+                  ? "col-span-12 md:col-span-8"
+                  : idx % 5 === 0
+                    ? "col-span-12 md:col-span-6"
+                    : "col-span-12 md:col-span-4";
+
+              return (
+                <a
+                  key={c.title}
+                  href={wa(
+                    `Quiero cotizar: ${c.title}. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____.`
                   )}
-                </div>
-
-                <div className="relative flex h-full min-h-[210px] flex-col justify-between p-6 text-white">
-                  <div>
-                    <div className="text-[11px] font-semibold tracking-[0.18em] text-white/70">
-                      {item.kicker}
-                    </div>
-                    <div className="mt-2 text-2xl font-extrabold leading-tight">
-                      {item.title}
-                    </div>
-                    <p className="mt-2 max-w-[48ch] text-sm text-white/80">
-                      {item.desc}
-                    </p>
-                  </div>
-
-                  <div className="mt-6 flex items-center justify-between gap-3">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/85">
-                      <span className="text-base">💬</span>
-                      <span>Cotizar</span>
-                    </div>
-                    <div
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-2xl text-white"
-                      style={{ background: brand.colors.accent }}
-                      aria-hidden
-                    >
-                      ↗
-                    </div>
-                  </div>
-                </div>
-              </a>
-            ))}
-          </div>
-
-          {/* Full catalog (same style as destacados) */}
-          <div className="mt-10">
-            <div className="text-xs uppercase tracking-wide text-slate-500">
-              Más categorías
-            </div>
-            <p className="mt-3 max-w-3xl text-sm text-slate-600">
-              Unificamos todo el catálogo con el mismo estilo “destacado”. Si no ves la
-              categoría exacta, escríbenos con una foto o referencia.
-            </p>
-
-            <div className="mt-6 grid grid-cols-12 gap-4">
-              {categories.map((c, idx) => {
-                const tone = idx % 3 === 0 ? "red" : "dark";
-                const span = idx % 7 === 0 ? "col-span-12 md:col-span-8" : idx % 5 === 0 ? "col-span-12 md:col-span-6" : "col-span-12 md:col-span-4";
-                return (
-                  <a
-                    key={c.title}
-                    href={wa(
-                      `Quiero cotizar: ${c.title}. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____.`
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:shadow ${span}`}
+                >
+                  <div className="absolute inset-0">
+                    <Image
+                      src={c.img}
+                      alt={c.title}
+                      fill
+                      className="object-cover opacity-80 transition duration-500 group-hover:scale-[1.03]"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-slate-950/85 via-slate-950/35 to-transparent" />
+                    {tone === "red" && (
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(225,6,0,0.45),transparent_55%)]" />
                     )}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:shadow ${span}`}
-                  >
-                    <div className="absolute inset-0">
-                      <div className="absolute inset-0 bg-gradient-to-tr from-slate-950/90 via-slate-950/55 to-transparent" />
-                      {tone === "red" && (
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(225,6,0,0.35),transparent_55%)]" />
-                      )}
-                      <div className="absolute inset-0 opacity-20 [background:radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.25),transparent_40%),radial-gradient(circle_at_80%_30%,rgba(225,6,0,0.25),transparent_45%),linear-gradient(to_bottom,rgba(255,255,255,0.08),transparent)]" />
+                  </div>
+
+                  <div className="relative flex h-full min-h-[210px] flex-col justify-between p-6 text-white">
+                    <div>
+                      <div className="text-[11px] font-semibold tracking-[0.18em] text-white/70">
+                        {c.kicker}
+                      </div>
+                      <div className="mt-2 text-2xl font-extrabold leading-tight">{c.title}</div>
+                      <p className="mt-2 max-w-[54ch] text-sm text-white/80">{c.desc}</p>
                     </div>
 
-                    <div className="relative flex h-full min-h-[180px] flex-col justify-between p-6 text-white">
-                      <div>
-                        <div className="text-[11px] font-semibold tracking-[0.18em] text-white/60">
-                          CATEGORÍA
-                        </div>
-                        <div className="mt-2 text-2xl font-extrabold leading-tight">
-                          {c.title}
-                        </div>
-                        <p className="mt-2 max-w-[54ch] text-sm text-white/75">
-                          {c.desc}
-                        </p>
+                    <div className="mt-6 flex items-center justify-between gap-3">
+                      <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/85">
+                        <span className="text-base">💬</span>
+                        <span>Cotizar</span>
                       </div>
-
-                      <div className="mt-6 flex items-center justify-between gap-3">
-                        <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/85">
-                          <span className="text-base">💬</span>
-                          <span>Cotizar</span>
-                        </div>
-                        <div
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-2xl text-white"
-                          style={{ background: brand.colors.accent }}
-                          aria-hidden
-                        >
-                          ↗
-                        </div>
+                      <div
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-2xl text-white"
+                        style={{ background: brand.colors.accent }}
+                        aria-hidden
+                      >
+                        ↗
                       </div>
                     </div>
-                  </a>
-                );
-              })}
-            </div>
+                  </div>
+                </a>
+              );
+            })}
           </div>
         </div>
       </section>

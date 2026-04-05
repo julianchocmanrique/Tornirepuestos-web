@@ -107,6 +107,26 @@ export default async function Page({
       {/* Detail */}
       <section id="detalle" className="mx-auto max-w-6xl px-4 py-14">
         <div className="grid gap-6 lg:grid-cols-2">
+          {/* Quick info */}
+          <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-7 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur lg:col-span-2">
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="rounded-2xl border border-slate-200 bg-white p-5">
+                <div className="text-xs uppercase tracking-wide text-slate-500">Atendemos</div>
+                <div className="mt-2 text-sm font-extrabold text-slate-900">Pesados · Buses · Maquinaria</div>
+                <div className="mt-1 text-xs text-slate-500">Cotización por WhatsApp</div>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white p-5">
+                <div className="text-xs uppercase tracking-wide text-slate-500">Envíos</div>
+                <div className="mt-2 text-sm font-extrabold text-slate-900">A todo Colombia</div>
+                <div className="mt-1 text-xs text-slate-500">(a convenir)</div>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white p-5">
+                <div className="text-xs uppercase tracking-wide text-slate-500">Asesoría</div>
+                <div className="mt-2 text-sm font-extrabold text-slate-900">Compatibilidad</div>
+                <div className="mt-1 text-xs text-slate-500">Te ayudamos con la referencia</div>
+              </div>
+            </div>
+          </div>
           <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-7 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
             <div className="text-xs uppercase tracking-wide text-slate-500">
               Qué puedes cotizar
@@ -131,6 +151,27 @@ export default async function Page({
                 Envíanos por WhatsApp: placa (si aplica), referencia o foto clara, y la
                 ciudad de destino.
               </div>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
+              <div className="text-xs uppercase tracking-wide text-slate-500">Checklist</div>
+              <div className="mt-2 text-sm font-extrabold text-slate-900">¿Qué datos enviar?</div>
+              <ul className="mt-3 space-y-2 text-sm text-slate-700">
+                {[
+                  "Placa o modelo del vehículo",
+                  "Referencia (si la tienes)",
+                  "Foto clara de la pieza / etiqueta",
+                  "Medidas (si aplica)",
+                  "Ciudad destino",
+                ].map((x) => (
+                  <li key={x} className="flex gap-2">
+                    <span className="mt-0.5" style={{ color: "#E10600" }}>
+                      •
+                    </span>
+                    <span>{x}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
@@ -163,6 +204,28 @@ export default async function Page({
               >
                 Cotizar {cat.title} →
               </a>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-700">
+              <div className="font-extrabold">Preguntas frecuentes de esta categoría</div>
+              <div className="mt-2 space-y-2">
+                <div>• ¿Tienen disponibilidad inmediata?</div>
+                <div>• ¿Sirve para mi referencia / modelo?</div>
+                <div>• ¿Cuánto tarda el envío a mi ciudad?</div>
+              </div>
+              <div className="mt-4">
+                <a
+                  href={wa(
+                    `${waText}\n\n¿Tienen disponibilidad? ¿Me confirmas compatibilidad y tiempo de envío?`
+                  )}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 text-sm font-semibold"
+                  style={{ color: "#E10600" }}
+                >
+                  Preguntar por WhatsApp →
+                </a>
+              </div>
             </div>
           </div>
         </div>

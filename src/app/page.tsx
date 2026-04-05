@@ -17,8 +17,11 @@ const LOGO_SRC = `${BASE_PATH}/logo-tornirepuestos.jpg`;
 const WHATSAPP_PHONE_E164 = "573106531208";
 const WHATSAPP_LINK = `https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_E164}`;
 
+const WA_PREFIX = "Hola, te contactamos desde tornirepuestos.com.%0A%0A";
+
 function wa(text: string) {
-  return `${WHATSAPP_LINK}&text=${encodeURIComponent(text)}`;
+  // Siempre agrega un saludo + origen del contacto (tornirepuestos.com)
+  return `${WHATSAPP_LINK}&text=${WA_PREFIX}${encodeURIComponent(text)}`;
 }
 
 const trust = [
@@ -351,7 +354,7 @@ export default function Page() {
           {highlights.map((h) => (
             <div
               key={h.title}
-              className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm"
+              className="rounded-3xl border border-slate-200/70 bg-white/70 p-7 shadow-[0_10px_30px_rgba(2,6,23,0.12)] backdrop-blur"
             >
               <div
                 className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl text-white"
@@ -454,7 +457,7 @@ export default function Page() {
                   )}
                   target="_blank"
                   rel="noreferrer"
-                  className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow"
+                  className="group rounded-3xl border border-slate-200/70 bg-white/70 p-6 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur transition hover:-translate-y-0.5 hover:shadow-[0_18px_50px_rgba(2,6,23,0.16)]"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
@@ -538,7 +541,9 @@ export default function Page() {
               <div className="relative p-8">
                 <div className="text-sm font-bold">Mensaje sugerido</div>
                 <div className="mt-3 rounded-2xl border border-white/10 bg-black/30 p-5 text-sm text-white/80">
-                  Hola, quiero cotizar un repuesto. Es para: (camión/bus/maquinaria).
+                  Hola, te contactamos desde tornirepuestos.com.
+
+                  Quiero cotizar un repuesto. Es para: (camión/bus/maquinaria).
                   Referencia o foto: ____.
                   Ciudad destino: ____.
                 </div>
@@ -630,7 +635,7 @@ export default function Page() {
             {faqs.map((f) => (
               <details
                 key={f.q}
-                className="group rounded-3xl border border-slate-200 bg-white p-6"
+                className="group rounded-3xl border border-slate-200/70 bg-white/70 p-6 backdrop-blur"
               >
                 <summary className="cursor-pointer list-none">
                   <div className="flex items-start justify-between gap-4">
@@ -649,7 +654,7 @@ export default function Page() {
             ))}
           </div>
 
-          <div className="mt-10 rounded-3xl border border-slate-200 bg-white p-7">
+          <div className="mt-10 rounded-3xl border border-slate-200/70 bg-white/70 p-7 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="text-sm font-extrabold">¿Listo para cotizar?</div>
@@ -689,7 +694,7 @@ export default function Page() {
             </p>
 
             <div className="mt-6 grid gap-3 text-slate-700">
-              <div className="rounded-3xl border border-slate-200 bg-white p-6">
+              <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-6 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
                 <div className="text-sm font-bold">WhatsApp</div>
                 <div className="mt-1 text-sm text-slate-600">+57 310 653 1208</div>
                 <a
@@ -705,7 +710,7 @@ export default function Page() {
                 </a>
               </div>
 
-              <div className="rounded-3xl border border-slate-200 bg-white p-6">
+              <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-6 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
                 <div className="text-sm font-bold">Correo</div>
                 <div className="mt-1 text-sm text-slate-600">ventas@tornirepuestos.com</div>
                 <div className="mt-3 text-xs text-slate-500">
@@ -713,7 +718,7 @@ export default function Page() {
                 </div>
               </div>
 
-              <div className="rounded-3xl border border-slate-200 bg-white p-6">
+              <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-6 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
                 <div className="text-sm font-bold">Dirección</div>
                 <div className="mt-1 text-sm text-slate-600">
                   Calle 30 N 60-250, Santa Marta, Colombia

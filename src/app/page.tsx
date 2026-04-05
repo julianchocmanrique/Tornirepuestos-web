@@ -42,19 +42,19 @@ const categories = [
     title: "Filtración",
     kicker: "ACEITE · AIRE · COMBUSTIBLE",
     desc: "Filtros y separadores para proteger el motor y mejorar eficiencia.",
-    img: "https://images.unsplash.com/photo-1650064173648-2ed372656fa3?auto=format&fit=crop&w=1600&q=75",
+    img: "https://images.unsplash.com/photo-1527383418406-f85a3b146499?auto=format&fit=crop&w=1600&q=75",
   },
   {
     title: "Suspensión",
     kicker: "NEUMÁTICA · RÍGIDA",
     desc: "Confort, estabilidad y control de carga para ruta y ciudad.",
-    img: "https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?auto=format&fit=crop&w=1600&q=75",
+    img: "https://images.unsplash.com/photo-1669136048337-5daa3adef7b2?auto=format&fit=crop&w=1600&q=75",
   },
   {
     title: "Motor",
     kicker: "SELLOS · EMPAQUES",
     desc: "Consumibles y repuestos para mantenimiento preventivo.",
-    img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1600&q=75",
+    img: "https://images.unsplash.com/photo-1429772011165-0c2e054367b8?auto=format&fit=crop&w=1600&q=75",
   },
   {
     title: "Eléctricos y luces",

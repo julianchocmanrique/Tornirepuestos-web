@@ -438,48 +438,68 @@ export default function Page() {
             ))}
           </div>
 
-          {/* Full categories */}
-          <div className="mt-12">
+          {/* Full catalog (same style as destacados) */}
+          <div className="mt-10">
             <div className="text-xs uppercase tracking-wide text-slate-500">
-              Categorías principales
+              Más categorías
             </div>
-            <p className="mt-3 max-w-2xl text-sm text-slate-600">
-              Si no encuentras la categoría exacta, igual escríbenos. Con una foto o
-              referencia te ayudamos a ubicar la pieza.
+            <p className="mt-3 max-w-3xl text-sm text-slate-600">
+              Unificamos todo el catálogo con el mismo estilo “destacado”. Si no ves la
+              categoría exacta, escríbenos con una foto o referencia.
             </p>
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {categories.map((c) => (
-                <a
-                  key={c.title}
-                  href={wa(
-                    `Hola, quiero cotizar: ${c.title}. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____.`
-                  )}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group rounded-3xl border border-slate-200/70 bg-white/70 p-6 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur transition hover:-translate-y-0.5 hover:shadow-[0_18px_50px_rgba(2,6,23,0.16)]"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="text-lg font-extrabold">{c.title}</div>
-                      <p className="mt-2 text-sm text-slate-600">{c.desc}</p>
-                    </div>
-                    <div
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-2xl text-white"
-                      style={{ background: brand.colors.accent }}
-                      aria-hidden
-                    >
-                      ↗
-                    </div>
-                  </div>
-                  <div
-                    className="mt-4 inline-flex items-center gap-2 text-sm font-semibold"
-                    style={{ color: brand.colors.accent }}
+            <div className="mt-6 grid grid-cols-12 gap-4">
+              {categories.map((c, idx) => {
+                const tone = idx % 3 === 0 ? "red" : "dark";
+                const span = idx % 7 === 0 ? "col-span-12 md:col-span-8" : idx % 5 === 0 ? "col-span-12 md:col-span-6" : "col-span-12 md:col-span-4";
+                return (
+                  <a
+                    key={c.title}
+                    href={wa(
+                      `Quiero cotizar: ${c.title}. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____.`
+                    )}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:shadow ${span}`}
                   >
-                    Cotizar esta categoría <span className="transition group-hover:translate-x-0.5">→</span>
-                  </div>
-                </a>
-              ))}
+                    <div className="absolute inset-0">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-slate-950/90 via-slate-950/55 to-transparent" />
+                      {tone === "red" && (
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.35),transparent_55%)]" />
+                      )}
+                      <div className="absolute inset-0 opacity-20 [background:radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.25),transparent_40%),radial-gradient(circle_at_80%_30%,rgba(239,68,68,0.25),transparent_45%),linear-gradient(to_bottom,rgba(255,255,255,0.08),transparent)]" />
+                    </div>
+
+                    <div className="relative flex h-full min-h-[180px] flex-col justify-between p-6 text-white">
+                      <div>
+                        <div className="text-[11px] font-semibold tracking-[0.18em] text-white/60">
+                          CATEGORÍA
+                        </div>
+                        <div className="mt-2 text-2xl font-extrabold leading-tight">
+                          {c.title}
+                        </div>
+                        <p className="mt-2 max-w-[54ch] text-sm text-white/75">
+                          {c.desc}
+                        </p>
+                      </div>
+
+                      <div className="mt-6 flex items-center justify-between gap-3">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/85">
+                          <span className="text-base">💬</span>
+                          <span>Cotizar</span>
+                        </div>
+                        <div
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-2xl text-white"
+                          style={{ background: brand.colors.accent }}
+                          aria-hidden
+                        >
+                          ↗
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
             </div>
           </div>
         </div>

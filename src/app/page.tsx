@@ -302,7 +302,7 @@ export default function Page() {
       <section id="inicio" className="relative overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=2400&q=70"
+            src="https://images.unsplash.com/photo-1565730350847-293cbe3fa4a3?auto=format&fit=crop&w=2400&q=70"
             alt="Repuestos y mantenimiento"
             fill
             className="object-cover"

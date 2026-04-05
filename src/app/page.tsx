@@ -363,19 +363,6 @@ export default function Page() {
             })}
           </div>
 
-          <div className="mt-8">
-            <a
-              href={wa(
-                "Quiero cotizar un repuesto. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
-              )}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 text-sm font-semibold"
-              style={{ color: brand.colors.accent }}
-            >
-              Cotizar por WhatsApp →
-            </a>
-          </div>
         </div>
       </section>
 

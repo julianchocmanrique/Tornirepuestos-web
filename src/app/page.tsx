@@ -66,7 +66,7 @@ const categories = [
     title: "Transmisión",
     kicker: "FULLER · CRUCETAS",
     desc: "Componentes para torque, fuerza y durabilidad.",
-    img: "https://images.unsplash.com/photo-1519682577862-22b62b24e493?auto=format&fit=crop&w=1600&q=75",
+    img: "https://images.unsplash.com/photo-1711199694531-e982a79ea381?auto=format&fit=crop&w=1600&q=75",
   },
   {
     title: "Rodamientos y retenedores",

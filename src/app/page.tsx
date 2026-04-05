@@ -221,7 +221,7 @@ export default function Page() {
       <section id="inicio" className="relative overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src={`${BASE_PATH}/hero/tractomula-roja.jpg`}
+            src={`${BASE_PATH}/hero/tractomula-roja-v2.jpg`}
             unoptimized
             alt="Repuestos y mantenimiento"
             fill

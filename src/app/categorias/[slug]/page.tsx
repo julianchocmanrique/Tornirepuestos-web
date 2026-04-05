@@ -107,26 +107,6 @@ export default async function Page({
       {/* Detail */}
       <section id="detalle" className="mx-auto max-w-6xl px-4 py-14">
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Quick info */}
-          <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-7 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur lg:col-span-2">
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-2xl border border-slate-200 bg-white p-5">
-                <div className="text-xs uppercase tracking-wide text-slate-500">Atendemos</div>
-                <div className="mt-2 text-sm font-extrabold text-slate-900">Pesados · Buses · Maquinaria</div>
-                <div className="mt-1 text-xs text-slate-500">Cotización por WhatsApp</div>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-white p-5">
-                <div className="text-xs uppercase tracking-wide text-slate-500">Envíos</div>
-                <div className="mt-2 text-sm font-extrabold text-slate-900">A todo Colombia</div>
-                <div className="mt-1 text-xs text-slate-500">(a convenir)</div>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-white p-5">
-                <div className="text-xs uppercase tracking-wide text-slate-500">Asesoría</div>
-                <div className="mt-2 text-sm font-extrabold text-slate-900">Compatibilidad</div>
-                <div className="mt-1 text-xs text-slate-500">Te ayudamos con la referencia</div>
-              </div>
-            </div>
-          </div>
           <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-7 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
             <div className="text-xs uppercase tracking-wide text-slate-500">
               Qué puedes cotizar

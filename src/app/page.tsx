@@ -1,4 +1,8 @@
 import Image from "next/image";
+import Link from "next/link";
+
+import { categories } from "@/lib/categories";
+import { wa } from "@/lib/wa";
 
 const brand = {
   name: "TORNIREPUESTOS",
@@ -7,103 +11,18 @@ const brand = {
     "Cotiza por WhatsApp en minutos. Te ayudamos a identificar la referencia correcta y coordinamos envío a todo Colombia (a convenir).",
   colors: {
     blue: "#0F2A44",
-    accent: "#E10600", // rojo promo anterior
+    accent: "#E10600", // rojo promo
   },
 };
 
 const BASE_PATH = "/tornirepuestos";
 const LOGO_SRC = `${BASE_PATH}/logo-tornirepuestos.jpg`;
 
-const WHATSAPP_PHONE_E164 = "573106531208";
-const WHATSAPP_LINK = `https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_E164}`;
-
-const WA_PREFIX = "Hola, te contactamos desde tornirepuestos.com.%0A%0A";
-
-function wa(text: string) {
-  // Siempre agrega un saludo + origen del contacto (tornirepuestos.com)
-  return `${WHATSAPP_LINK}&text=${WA_PREFIX}${encodeURIComponent(text)}`;
-}
-
 const trust = [
   { k: "+20 años", v: "Experiencia y respaldo" },
   { k: "Cotización ágil", v: "Por WhatsApp" },
   { k: "Envíos", v: "A todo Colombia (a convenir)" },
   { k: "Asesoría", v: "Compatibilidad y referencia" },
-];
-
-const categories = [
-  {
-    title: "Frenos",
-    kicker: "DISCOS · BANDAS · VÁLVULAS",
-    desc: "Componentes de freno para trabajo pesado y alto rendimiento.",
-    img: "https://images.unsplash.com/photo-1613214150384-14921ff659b2?auto=format&fit=crop&w=1800&q=75",
-  },
-  {
-    title: "Filtración",
-    kicker: "ACEITE · AIRE · COMBUSTIBLE",
-    desc: "Filtros y separadores para proteger el motor y mejorar eficiencia.",
-    img: "https://images.unsplash.com/photo-1527383418406-f85a3b146499?auto=format&fit=crop&w=1600&q=75",
-  },
-  {
-    title: "Suspensión",
-    kicker: "NEUMÁTICA · RÍGIDA",
-    desc: "Confort, estabilidad y control de carga para ruta y ciudad.",
-    img: "https://images.unsplash.com/photo-1669136048337-5daa3adef7b2?auto=format&fit=crop&w=1600&q=75",
-  },
-  {
-    title: "Motor",
-    kicker: "SELLOS · EMPAQUES",
-    desc: "Consumibles y repuestos para mantenimiento preventivo.",
-    img: "https://images.unsplash.com/photo-1429772011165-0c2e054367b8?auto=format&fit=crop&w=1600&q=75",
-  },
-  {
-    title: "Eléctricos y luces",
-    kicker: "LUCES · CONECTORES",
-    desc: "Iluminación y eléctricos para seguridad y señalización.",
-    img: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1600&q=75",
-  },
-  {
-    title: "Transmisión",
-    kicker: "FULLER · CRUCETAS",
-    desc: "Componentes para torque, fuerza y durabilidad.",
-    img: "https://images.unsplash.com/photo-1711199694531-e982a79ea381?auto=format&fit=crop&w=1600&q=75",
-  },
-  {
-    title: "Rodamientos y retenedores",
-    kicker: "KITS · RETENES",
-    desc: "Repuestos de precisión para reducir desgaste y vibración.",
-    img: "https://images.unsplash.com/photo-1589391349202-900abe66462a?auto=format&fit=crop&w=1600&q=75",
-  },
-  {
-    title: "Mangueras y racorería",
-    kicker: "AIRE · ABRAZADERAS",
-    desc: "Conexiones seguras para sistemas de aire y servicio.",
-    img: "https://images.unsplash.com/photo-1718824331840-399943ff5c1e?auto=format&fit=crop&w=1600&q=75",
-  },
-  {
-    title: "Lubricantes y grasas",
-    kicker: "ACEITES · ADITIVOS",
-    desc: "Lubricación para trabajo pesado y protección del tren motriz.",
-    img: "https://images.unsplash.com/photo-1607603750909-408e193868c7?auto=format&fit=crop&w=1600&q=75",
-  },
-  {
-    title: "Tornillería",
-    kicker: "ANCLAJES · FIJACIÓN",
-    desc: "Tornillería y fijación para mantenimiento y montaje.",
-    img: "https://images.unsplash.com/photo-1605701249987-f0bb9b505d06?auto=format&fit=crop&w=1600&q=75",
-  },
-  {
-    title: "Herramientas",
-    kicker: "TALLER · SOPORTE",
-    desc: "Herramientas y apoyo para taller y servicio.",
-    img: "https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?auto=format&fit=crop&w=1600&q=75",
-  },
-  {
-    title: "Diferenciales",
-    kicker: "TRACCIÓN · CARGA",
-    desc: "Componentes y repuestos para transmisión final.",
-    img: "https://images.unsplash.com/photo-1756888195232-69ee9c041965?auto=format&fit=crop&w=1600&q=75",
-  },
 ];
 
 const highlights = [
@@ -384,7 +303,7 @@ export default function Page() {
           </h2>
           <p className="mt-3 max-w-3xl text-sm text-slate-600">
             Un solo catálogo por categorías, cada una con imagen y estilo “destacado”.
-            Todas abren WhatsApp con mensaje prellenado.
+            Entra a cada categoría para ver el detalle y cotizar más rápido.
           </p>
 
           <div className="mt-8 grid grid-cols-12 gap-4">
@@ -398,13 +317,9 @@ export default function Page() {
                     : "col-span-12 md:col-span-4";
 
               return (
-                <a
-                  key={c.title}
-                  href={wa(
-                    `Quiero cotizar: ${c.title}. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____.`
-                  )}
-                  target="_blank"
-                  rel="noreferrer"
+                <Link
+                  key={c.slug}
+                  href={`/categorias/${c.slug}`}
                   className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:shadow ${span}`}
                 >
                   <div className="absolute inset-0">
@@ -431,21 +346,34 @@ export default function Page() {
 
                     <div className="mt-6 flex items-center justify-between gap-3">
                       <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/85">
-                        <span className="text-base">💬</span>
-                        <span>Cotizar</span>
+                        <span>Ver detalle</span>
                       </div>
                       <div
                         className="inline-flex h-10 w-10 items-center justify-center rounded-2xl text-white"
                         style={{ background: brand.colors.accent }}
                         aria-hidden
                       >
-                        ↗
+                        →
                       </div>
                     </div>
                   </div>
-                </a>
+                </Link>
               );
             })}
+          </div>
+
+          <div className="mt-8">
+            <a
+              href={wa(
+                "Quiero cotizar un repuesto. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
+              )}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-semibold"
+              style={{ color: brand.colors.accent }}
+            >
+              Cotizar por WhatsApp →
+            </a>
           </div>
         </div>
       </section>

@@ -162,7 +162,7 @@ export default async function Page({
             <h2 className="mt-2 text-2xl font-extrabold text-slate-900">
               Productos más pedidos
             </h2>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div className="mt-5 grid gap-3">
               {cat.productsExample.map((p) => (
                 <div
                   key={p.name}

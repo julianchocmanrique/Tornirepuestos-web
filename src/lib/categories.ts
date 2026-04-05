@@ -24,6 +24,9 @@ export const categories: Category[] = [
       { name: "Disco de freno", note: "Según eje, medida y referencia" },
       { name: "Banda / pastillas", note: "Por tipo de sistema y aplicación" },
       { name: "Válvula y accesorios", note: "Según sistema neumático" },
+      { name: "Cámara / diafragma", note: "Según tamaño y aplicación" },
+      { name: "Sensores / cableado", note: "Según sistema" },
+      { name: "Kit de mantenimiento", note: "Para intervención completa" },
     ],
   },
   {

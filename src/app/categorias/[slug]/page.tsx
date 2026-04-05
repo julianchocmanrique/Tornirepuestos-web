@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { categories, getCategoryBySlug } from "@/lib/categories";
 import { wa } from "@/lib/wa";
+import { seoParagraph } from "./seo";
 
 export function generateStaticParams() {
   return categories.map((c) => ({ slug: c.slug }));
@@ -88,6 +89,18 @@ export default async function Page({
               </a>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* SEO copy */}
+      <section className="mx-auto max-w-6xl px-4 pt-10">
+        <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-7 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
+          <div className="text-xs uppercase tracking-wide text-slate-500">
+            Información
+          </div>
+          <p className="mt-3 text-sm leading-relaxed text-slate-700">
+            {seoParagraph(cat)}
+          </p>
         </div>
       </section>
 

@@ -611,16 +611,42 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
+          <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-6 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
             <div className="text-sm font-extrabold" style={{ color: brand.colors.blue }}>
               Ubicación
             </div>
             <p className="mt-3 text-sm text-slate-600">
-              Si quieres, mañana dejamos el mapa integrado (Google Maps) con un link
-              directo.
+              Encuéntranos en Santa Marta. Si vienes por repuesto urgente, escríbenos por WhatsApp y te guiamos.
             </p>
-            <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-600">
-              Santa Marta, Colombia
+
+            <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+              <iframe
+                title="Mapa Tornirepuestos"
+                className="h-[280px] w-full"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                src="https://www.google.com/maps?q=Calle%2030%20N%2060-250,%20Santa%20Marta,%20Colombia&output=embed"
+              />
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-3">
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Calle%2030%20N%2060-250,%20Santa%20Marta,%20Colombia"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold text-white"
+                style={{ background: brand.colors.accent }}
+              >
+                Cómo llegar
+              </a>
+              <a
+                href={wa("Quiero ubicación. ¿Me compartes cómo llegar?")}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                Pedir ubicación por WhatsApp
+              </a>
             </div>
           </div>
         </div>

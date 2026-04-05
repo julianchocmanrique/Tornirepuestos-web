@@ -7,7 +7,7 @@ const brand = {
     "Cotiza por WhatsApp en minutos. Te ayudamos a identificar la referencia correcta y coordinamos envío a todo Colombia (a convenir).",
   colors: {
     blue: "#0F2A44",
-    accent: "#E10600", // rojo más profundo (tipo promo)
+    accent: "#670701", // rojo oscuro (según referencia)
   },
 };
 
@@ -360,7 +360,7 @@ export default function Page() {
               className="rounded-3xl border border-white/10 bg-slate-950/70 p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur"
             >
               <div
-                className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 text-white shadow-[0_10px_30px_rgba(225,6,0,0.28)]"
+                className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 text-white shadow-[0_10px_30px_rgba(103,7,1,0.32)]"
                 style={{ background: brand.colors.accent }}
               >
                 ⚙️
@@ -416,7 +416,7 @@ export default function Page() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-tr from-slate-950/85 via-slate-950/35 to-transparent" />
                     {tone === "red" && (
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(225,6,0,0.45),transparent_55%)]" />
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(103,7,1,0.48),transparent_55%)]" />
                     )}
                   </div>
 

@@ -2,12 +2,12 @@ import Image from "next/image";
 
 const brand = {
   name: "TORNIREPUESTOS",
-  tagline: "Repuestos para vehículos pesados · Buses · Maquinaria",
+  tagline: "Repuestos para vehículos pesados, buses y maquinaria",
   subtitle:
-    "Cotiza por WhatsApp en minutos. Envíos a todo Colombia (a convenir) y asesoría para encontrar la pieza correcta.",
+    "Cotiza por WhatsApp en minutos. Te ayudamos a identificar la referencia correcta y coordinamos envío a todo Colombia (a convenir).",
   colors: {
     blue: "#0F2A44",
-    accent: "#EF4444", // premium red
+    accent: "#EF4444", // rojo premium
   },
 };
 
@@ -22,10 +22,10 @@ function wa(text: string) {
 }
 
 const trust = [
-  { k: "+20 años", v: "Trayectoria" },
+  { k: "+20 años", v: "Experiencia y respaldo" },
+  { k: "Cotización ágil", v: "Por WhatsApp" },
   { k: "Envíos", v: "A todo Colombia (a convenir)" },
-  { k: "Asesoría", v: "Para flotas y talleres" },
-  { k: "Stock", v: "Rotación constante" },
+  { k: "Asesoría", v: "Compatibilidad y referencia" },
 ];
 
 const promoCatalog = [
@@ -102,53 +102,61 @@ const categories = [
 
 const highlights = [
   {
-    title: "Cotiza en 60 segundos",
-    desc: "Envíanos placa, referencia o foto. Te confirmamos disponibilidad y precio.",
+    title: "Cotiza rápido",
+    desc: "Envíanos placa, referencia o una foto. Te respondemos con disponibilidad y precio.",
   },
   {
-    title: "Acompañamiento real",
-    desc: "Si no estás seguro de la pieza, te guiamos para evitar errores de compatibilidad.",
+    title: "Te ayudamos a acertar",
+    desc: "Validamos compatibilidad para que compres la pieza correcta desde el inicio.",
   },
   {
-    title: "Envíos a todo el país",
-    desc: "Coordinamos la mejor opción según ciudad y urgencia (a convenir).",
+    title: "Entrega a convenir",
+    desc: "Coordinamos envío según tu ciudad y urgencia. También puedes recoger en tienda.",
   },
 ];
 
 const testimonials = [
   {
     quote:
-      "Excelente atención. Me ayudaron a encontrar la referencia exacta y llegó rápido.",
+      "Me ayudaron a identificar la referencia correcta y la cotización fue rápida.",
     meta: "Cliente · Transporte",
   },
   {
     quote:
-      "Muy buen servicio y cumplimiento. Recomendados para repuestos de pesado.",
+      "Buen servicio y cumplimiento. Llegó bien embalado y a tiempo.",
     meta: "Taller · Santa Marta",
   },
   {
     quote:
-      "Cotización clara y asesoría. Se nota la experiencia.",
-    meta: "Flota · Costa Caribe",
+      "Asesoría clara para compatibilidad. Recomendados para pesado y bus.",
+    meta: "Cliente · Costa Caribe",
   },
 ];
 
 const faqs = [
   {
     q: "¿Cómo hago una cotización?",
-    a: "Escríbenos por WhatsApp con placa, referencia o una foto de la pieza. Entre más datos nos compartas, más rápido cotizamos.",
+    a: "Escríbenos por WhatsApp con la placa, una referencia o una foto clara de la pieza. Si tienes medidas o marca/modelo, mejor.",
   },
   {
     q: "¿Hacen envíos a otras ciudades?",
-    a: "Sí. Envíos a todo Colombia (a convenir). Coordinamos la opción según destino y urgencia.",
+    a: "Sí. Enviamos a todo Colombia (a convenir). Te confirmamos opciones y tiempos según destino.",
   },
   {
-    q: "¿Qué tipo de vehículos atienden?",
-    a: "Vehículos pesados, buses y maquinaria. También apoyamos talleres y flotas.",
+    q: "¿Atienden qué tipo de vehículos?",
+    a: "Vehículos pesados, buses y maquinaria. También atendemos flotas y talleres.",
   },
   {
     q: "¿Puedo cotizar con solo una foto?",
-    a: "Sí. Una foto clara + medidas o referencia ayuda mucho para validar compatibilidad.",
+    a: "Sí. Una foto bien tomada + datos básicos (medidas/referencia) ayuda a validar compatibilidad.",
+  },
+  {
+    q: "¿Qué información acelera la cotización?",
+    a: "Placa, referencia, foto de la etiqueta, medidas (si aplica) y ciudad de destino.",
+  },
+  {
+    q: "¿Cómo sé si la pieza es compatible?",
+    a: "Te ayudamos a confirmar compatibilidad antes de comprar. La idea es evitar devoluciones y pérdidas de tiempo.",
   },
 ];
 
@@ -369,8 +377,8 @@ export default function Page() {
             Catálogo destacado
           </h2>
           <p className="mt-3 max-w-3xl text-sm text-slate-600">
-            Un catálogo visual tipo “promo” (inventado) para que se vea premium, pero
-            con links reales a WhatsApp para cotizar rápido.
+            Catálogo visual tipo “promo” (inventado) para que se vea premium. Cada
+            tarjeta abre WhatsApp con un mensaje prellenado para cotizar.
           </p>
 
           {/* Mosaic promo grid */}
@@ -562,26 +570,32 @@ export default function Page() {
               className="mt-2 text-3xl font-extrabold"
               style={{ color: brand.colors.blue }}
             >
-              Servicio y cumplimiento
+              Repuestos con respaldo
             </h2>
             <p className="mt-4 text-slate-600">
-              Tornirepuestos es una empresa con trayectoria en el mercado, enfocada en
-              atender necesidades de repuestos para vehículos pesados, buses y maquinaria.
-              Nuestra prioridad es que consigas la pieza correcta, con asesoría clara y
-              tiempos definidos.
+              Somos un local de repuestos en Santa Marta con experiencia en el sector.
+              Atendemos vehículos pesados, buses y maquinaria con un objetivo simple:
+              ayudarte a conseguir la pieza correcta, a tiempo y con asesoría clara.
+            </p>
+            <p className="mt-3 text-slate-600">
+              Si no tienes la referencia exacta, no pasa nada: con una foto o la placa
+              te guiamos para validar compatibilidad y darte opciones.
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              {["Asesoría para compatibilidad", "Atención a flotas y talleres", "Repuestos de calidad", "Envíos a convenir"].map(
-                (x) => (
-                  <div
-                    key={x}
-                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
-                  >
-                    <span style={{ color: brand.colors.accent }}>✔</span> {x}
-                  </div>
-                )
-              )}
+              {[
+                "Asesoría para compatibilidad",
+                "Cotización clara por WhatsApp",
+                "Atención a flotas y talleres",
+                "Envíos a todo Colombia (a convenir)",
+              ].map((x) => (
+                <div
+                  key={x}
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                >
+                  <span style={{ color: brand.colors.accent }}>✔</span> {x}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -694,12 +708,18 @@ export default function Page() {
               <div className="rounded-3xl border border-slate-200 bg-white p-6">
                 <div className="text-sm font-bold">Correo</div>
                 <div className="mt-1 text-sm text-slate-600">ventas@tornirepuestos.com</div>
+                <div className="mt-3 text-xs text-slate-500">
+                  Si es urgente, WhatsApp es más rápido.
+                </div>
               </div>
 
               <div className="rounded-3xl border border-slate-200 bg-white p-6">
                 <div className="text-sm font-bold">Dirección</div>
                 <div className="mt-1 text-sm text-slate-600">
                   Calle 30 N 60-250, Santa Marta, Colombia
+                </div>
+                <div className="mt-3 text-xs text-slate-500">
+                  (Podemos agregar el link de Google Maps cuando me confirmes la ubicación exacta.)
                 </div>
               </div>
             </div>

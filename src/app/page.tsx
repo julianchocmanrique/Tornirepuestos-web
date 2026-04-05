@@ -72,13 +72,13 @@ const categories = [
     title: "Rodamientos y retenedores",
     kicker: "KITS · RETENES",
     desc: "Repuestos de precisión para reducir desgaste y vibración.",
-    img: "https://images.unsplash.com/photo-1581092334651-ddf26d9a09d1?auto=format&fit=crop&w=1600&q=75",
+    img: "https://images.unsplash.com/photo-1589391349202-900abe66462a?auto=format&fit=crop&w=1600&q=75",
   },
   {
     title: "Mangueras y racorería",
     kicker: "AIRE · ABRAZADERAS",
     desc: "Conexiones seguras para sistemas de aire y servicio.",
-    img: "https://images.unsplash.com/photo-1581579185169-55a8b1d9f4b8?auto=format&fit=crop&w=1600&q=75",
+    img: "https://images.unsplash.com/photo-1718824331840-399943ff5c1e?auto=format&fit=crop&w=1600&q=75",
   },
   {
     title: "Lubricantes y grasas",
@@ -90,7 +90,7 @@ const categories = [
     title: "Tornillería",
     kicker: "ANCLAJES · FIJACIÓN",
     desc: "Tornillería y fijación para mantenimiento y montaje.",
-    img: "https://images.unsplash.com/photo-1583912268189-1c8e0c24a8cf?auto=format&fit=crop&w=1600&q=75",
+    img: "https://images.unsplash.com/photo-1605701249987-f0bb9b505d06?auto=format&fit=crop&w=1600&q=75",
   },
   {
     title: "Herramientas",
@@ -102,7 +102,7 @@ const categories = [
     title: "Diferenciales",
     kicker: "TRACCIÓN · CARGA",
     desc: "Componentes y repuestos para transmisión final.",
-    img: "https://images.unsplash.com/photo-1601933470928-cd037d0b045b?auto=format&fit=crop&w=1600&q=75",
+    img: "https://images.unsplash.com/photo-1756888195232-69ee9c041965?auto=format&fit=crop&w=1600&q=75",
   },
 ];
 

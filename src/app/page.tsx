@@ -271,27 +271,6 @@ export default function Page() {
         </div>
       </section>
 
-      {/* HIGHLIGHTS */}
-      <section className="mx-auto max-w-6xl px-4 py-14">
-        <div className="grid gap-4 lg:grid-cols-3">
-          {highlights.map((h) => (
-            <div
-              key={h.title}
-              className="rounded-3xl border border-white/10 bg-slate-950/70 p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur"
-            >
-              <div
-                className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 text-white shadow-[0_10px_30px_rgba(225,6,0,0.28)]"
-                style={{ background: brand.colors.accent }}
-              >
-                ⚙️
-              </div>
-              <div className="text-lg font-extrabold">{h.title}</div>
-              <p className="mt-2 text-sm text-white/75">{h.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* CATEGORIES */}
       <section id="categorias" className="bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 py-14">
@@ -363,6 +342,27 @@ export default function Page() {
             })}
           </div>
 
+        </div>
+      </section>
+
+      {/* HIGHLIGHTS */}
+      <section className="mx-auto max-w-6xl px-4 py-14">
+        <div className="grid gap-4 lg:grid-cols-3">
+          {highlights.map((h) => (
+            <div
+              key={h.title}
+              className="rounded-3xl border border-white/10 bg-slate-950/70 p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur"
+            >
+              <div
+                className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 text-white shadow-[0_10px_30px_rgba(225,6,0,0.28)]"
+                style={{ background: brand.colors.accent }}
+              >
+                ⚙️
+              </div>
+              <div className="text-lg font-extrabold">{h.title}</div>
+              <p className="mt-2 text-sm text-white/75">{h.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 

@@ -33,7 +33,7 @@ const promoCatalog = [
     title: "Frenos premium",
     kicker: "DISCOS · BANDAS · VÁLVULAS",
     desc: "Mejora frenado y seguridad. Cotiza por WhatsApp.",
-    img: "https://images.unsplash.com/photo-1621428131532-2d0ad6018c63?auto=format&fit=crop&w=1800&q=75",
+    img: "https://images.unsplash.com/photo-1613214150384-14921ff659b2?auto=format&fit=crop&w=1800&q=75",
     span: "col-span-12 md:col-span-7",
     tone: "red",
     waText: "Hola, quiero cotizar frenos (discos/bandas/válvulas). Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
@@ -42,7 +42,7 @@ const promoCatalog = [
     title: "Filtración",
     kicker: "ACEITE · AIRE · COMBUSTIBLE",
     desc: "Protege motor y alarga la vida útil.",
-    img: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=1400&q=75",
+    img: "https://images.unsplash.com/photo-1650064173648-2ed372656fa3?auto=format&fit=crop&w=1400&q=75",
     span: "col-span-12 md:col-span-5",
     tone: "dark",
     waText: "Hola, quiero cotizar filtros (aceite/aire/combustible). Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
@@ -51,7 +51,7 @@ const promoCatalog = [
     title: "Suspensión",
     kicker: "NEUMÁTICA · RÍGIDA",
     desc: "Confort, estabilidad y control de carga.",
-    img: "https://images.unsplash.com/photo-1601933470928-cd037d0b045b?auto=format&fit=crop&w=1400&q=75",
+    img: "https://images.unsplash.com/photo-1764707016031-5f4dbd9ffe76?auto=format&fit=crop&w=1400&q=75",
     span: "col-span-12 md:col-span-4",
     tone: "dark",
     waText: "Hola, quiero cotizar suspensión (neumática/rígida). Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
@@ -60,7 +60,7 @@ const promoCatalog = [
     title: "Rodamientos",
     kicker: "RETENES · KITS",
     desc: "Repuestos de alta precisión para trabajo pesado.",
-    img: "https://images.unsplash.com/photo-1581092334651-ddf26d9a09d1?auto=format&fit=crop&w=1400&q=75",
+    img: "https://images.unsplash.com/photo-1589391349202-900abe66462a?auto=format&fit=crop&w=1400&q=75",
     span: "col-span-12 md:col-span-4",
     tone: "red",
     waText: "Hola, quiero cotizar rodamientos/retenerores. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
@@ -69,7 +69,7 @@ const promoCatalog = [
     title: "Motor",
     kicker: "SELLOS · EMPAQUES",
     desc: "Consumibles y repuestos para mantenimiento.",
-    img: "https://images.unsplash.com/photo-1581579185169-55a8b1d9f4b8?auto=format&fit=crop&w=1400&q=75",
+    img: "https://images.unsplash.com/photo-1763836393413-3b79e6b4560a?auto=format&fit=crop&w=1400&q=75",
     span: "col-span-12 md:col-span-4",
     tone: "dark",
     waText: "Hola, quiero cotizar repuestos de motor (sellos/empaques). Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
@@ -78,7 +78,7 @@ const promoCatalog = [
     title: "Transmisión",
     kicker: "FULLER · CRUCETAS",
     desc: "Componentes para torque y durabilidad.",
-    img: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1400&q=75",
+    img: "https://images.unsplash.com/photo-1569313888792-5483b9b43fc0?auto=format&fit=crop&w=1400&q=75",
     span: "col-span-12 md:col-span-4",
     tone: "red",
     waText: "Hola, quiero cotizar transmisión (Fuller/crucetas). Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."

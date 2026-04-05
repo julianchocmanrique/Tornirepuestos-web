@@ -354,16 +354,16 @@ export default function Page() {
           {highlights.map((h) => (
             <div
               key={h.title}
-              className="rounded-3xl border border-slate-200/70 bg-white/70 p-7 shadow-[0_10px_30px_rgba(2,6,23,0.12)] backdrop-blur"
+              className="rounded-3xl border border-white/10 bg-slate-950/70 p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur"
             >
               <div
-                className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl text-white"
-                style={{ background: brand.colors.blue }}
+                className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 text-white shadow-[0_10px_30px_rgba(239,68,68,0.25)]"
+                style={{ background: brand.colors.accent }}
               >
                 ⚙️
               </div>
               <div className="text-lg font-extrabold">{h.title}</div>
-              <p className="mt-2 text-sm text-slate-600">{h.desc}</p>
+              <p className="mt-2 text-sm text-white/75">{h.desc}</p>
             </div>
           ))}
         </div>

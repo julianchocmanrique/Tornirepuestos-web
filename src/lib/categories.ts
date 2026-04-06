@@ -204,7 +204,7 @@ export const categories: Category[] = [
     title: "Diferenciales",
     kicker: "TRACCIÓN · CARGA",
     desc: "Componentes y repuestos para transmisión final.",
-    img: "https://images.unsplash.com/photo-1756888195232-69ee9c041965?auto=format&fit=crop&w=1600&q=75",
+    img: "https://images.unsplash.com/photo-1672954583310-e60b2ddd9998?auto=format&fit=crop&w=1600&q=80",
     whatYouCanAsk: [
       "Componentes de diferencial",
       "Kits",

@@ -459,9 +459,10 @@ export default function Page() {
               Repuestos con respaldo
             </h2>
             <p className="mt-4 text-slate-600">
-              Somos un local de repuestos en Santa Marta con experiencia en el sector.
-              Atendemos vehículos pesados, buses y maquinaria con un objetivo simple:
-              ayudarte a conseguir la pieza correcta, a tiempo y con asesoría clara.
+              Somos una empresa confiable con más de 20 años de trayectoria,
+              especializada en la comercialización de partes y piezas para vehículos
+              pesados. Nuestro objetivo es simple: ayudarte a conseguir la pieza
+              correcta, a tiempo y con asesoría clara.
             </p>
             <p className="mt-3 text-slate-600">
               Si no tienes la referencia exacta, no pasa nada: con una foto o la placa
@@ -483,6 +484,16 @@ export default function Page() {
                   <span className="text-base font-semibold">{x}</span>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-6">
+              <Link
+                href="/nosotros"
+                className="inline-flex items-center gap-2 text-sm font-semibold"
+                style={{ color: brand.colors.accent }}
+              >
+                Ver historia completa →
+              </Link>
             </div>
           </div>
 

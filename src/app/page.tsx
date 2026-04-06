@@ -575,7 +575,7 @@ export default function Page() {
             </p>
 
             <div className="mt-6 grid gap-3 text-slate-700">
-              <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-6 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
+              <div className="rounded-3xl border border-slate-900/25 bg-white/70 p-6 shadow-[0_12px_40px_rgba(2,6,23,0.14)] backdrop-blur">
                 <div className="text-sm font-bold">WhatsApp</div>
                 <div className="mt-1 text-sm text-slate-600">+57 310 653 1208</div>
                 <a
@@ -591,7 +591,7 @@ export default function Page() {
                 </a>
               </div>
 
-              <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-6 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
+              <div className="rounded-3xl border border-slate-900/25 bg-white/70 p-6 shadow-[0_12px_40px_rgba(2,6,23,0.14)] backdrop-blur">
                 <div className="text-sm font-bold">Correo</div>
                 <div className="mt-1 text-sm text-slate-600">ventas@tornirepuestos.com</div>
                 <div className="mt-3 text-xs text-slate-500">
@@ -599,7 +599,7 @@ export default function Page() {
                 </div>
               </div>
 
-              <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-6 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
+              <div className="rounded-3xl border border-slate-900/25 bg-white/70 p-6 shadow-[0_12px_40px_rgba(2,6,23,0.14)] backdrop-blur">
                 <div className="text-sm font-bold">Dirección</div>
                 <div className="mt-1 text-sm text-slate-600">
                   Calle 30 N 60-250, Santa Marta, Colombia
@@ -611,7 +611,7 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-6 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
+          <div className="rounded-3xl border border-slate-900/25 bg-white/70 p-6 shadow-[0_12px_40px_rgba(2,6,23,0.14)] backdrop-blur">
             <div className="text-sm font-extrabold" style={{ color: brand.colors.blue }}>
               Ubicación
             </div>

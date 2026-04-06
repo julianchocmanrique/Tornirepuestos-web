@@ -8,6 +8,8 @@ export const metadata = {
 
 import { COPY } from "@/lib/content";
 
+const ACCENT = "#E10600";
+
 export default function Page() {
   return (
     <div className="min-h-screen bg-white">
@@ -52,7 +54,7 @@ export default function Page() {
                   key={x}
                   className="flex items-center gap-3 rounded-3xl bg-slate-700/90 px-6 py-4 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]"
                 >
-                  <span style={{ color: "#E10600" }}>✔</span>
+                  <span style={{ color: ACCENT }}>✔</span>
                   <span className="text-base font-semibold">{x}</span>
                 </div>
               ))}

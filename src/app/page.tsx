@@ -485,13 +485,17 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
-            <div className="text-sm font-extrabold" style={{ color: brand.colors.blue }}>
+          {/* Mantener este bloque CLARO como la referencia */}
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="text-sm font-extrabold text-slate-900">
               Lo que dicen nuestros clientes
             </div>
             <div className="mt-4 grid gap-4">
               {testimonials.map((t, i) => (
-                <div key={i} className="rounded-2xl border border-slate-200 bg-white p-5">
+                <div
+                  key={i}
+                  className="rounded-2xl border border-slate-200 bg-white p-5"
+                >
                   <div className="text-sm text-slate-800">“{t.quote}”</div>
                   <div className="mt-2 text-xs text-slate-500">{t.meta}</div>
                 </div>

@@ -621,7 +621,7 @@ export default function Page() {
               Encuéntranos en Santa Marta. Si vienes por repuesto urgente, escríbenos por WhatsApp y te guiamos.
             </p>
 
-            <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+            <div className="mt-4 overflow-hidden rounded-2xl bg-white">
               <iframe
                 title="Mapa Tornirepuestos"
                 className="h-[280px] w-full"
@@ -645,7 +645,7 @@ export default function Page() {
                 href={wa("Quiero ubicación. ¿Me compartes cómo llegar?")}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-semibold text-white hover:bg-white/15"
+                className="inline-flex items-center justify-center rounded-2xl bg-slate-600/80 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-600"
               >
                 Pedir ubicación por WhatsApp
               </a>

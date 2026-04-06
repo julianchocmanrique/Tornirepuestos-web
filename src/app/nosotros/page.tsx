@@ -6,6 +6,8 @@ export const metadata = {
     "Conoce la historia de Tornirepuestos: más de 20 años comercializando repuestos para vehículos pesados en Colombia.",
 };
 
+import { COPY } from "@/lib/content";
+
 export default function Page() {
   return (
     <div className="min-h-screen bg-white">
@@ -32,19 +34,12 @@ export default function Page() {
 
         <div className="mt-10 grid gap-6 lg:grid-cols-2">
           <section className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
-            <h2 className="text-lg font-extrabold text-slate-900">¿Quiénes somos?</h2>
-            <p className="mt-3 text-sm leading-relaxed text-slate-700">
-              Somos una empresa confiable, con más de 20 años de trayectoria en el
-              mercado, líderes en el servicio de comercialización de partes y piezas
-              para vehículos tipo pesado en todo el país. Somos distribuidores directos
-              de marcas mundialmente conocidas y marcas nacionales con repuestos de
-              excelente calidad.
-            </p>
-            <p className="mt-3 text-sm leading-relaxed text-slate-700">
-              Contamos con capacidad de logística y administración para que nuestros
-              clientes tengan el respaldo y la confianza de saber que somos una empresa
-              que los apoyará y será su aliada en el camino.
-            </p>
+            <h2 className="text-lg font-extrabold text-slate-900">{COPY.quienesSomos.title}</h2>
+            {COPY.quienesSomos.paragraphs.map((p) => (
+              <p key={p} className="mt-3 text-sm leading-relaxed text-slate-700">
+                {p}
+              </p>
+            ))}
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               {[
@@ -65,44 +60,30 @@ export default function Page() {
           </section>
 
           <section className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
-            <h2 className="text-lg font-extrabold text-slate-900">Nuestra historia</h2>
-            <p className="mt-3 text-sm leading-relaxed text-slate-700">
-              En el año 2002, gracias a la poca oferta de productos en el sector donde
-              se concentraba el transporte en la ciudad de Santa Marta, nace
-              Tornirepuestos en un contenedor ubicado en el centro de talleres de
-              mecánica.
-            </p>
-            <p className="mt-3 text-sm leading-relaxed text-slate-700">
-              Tuvimos gran acogida. Con esfuerzo y dedicación fuimos creciendo. Hoy
-              somos una gran familia, incluyendo a nuestros colaboradores, proveedores
-              y clientes, y ya son más de veinte años complacidos y comprometidos en
-              seguir atendiendo a nuestra distinguida clientela.
-            </p>
+            <h2 className="text-lg font-extrabold text-slate-900">{COPY.historia.title}</h2>
+            {COPY.historia.paragraphs.map((p) => (
+              <p key={p} className="mt-3 text-sm leading-relaxed text-slate-700">
+                {p}
+              </p>
+            ))}
           </section>
 
           <section className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
-            <h2 className="text-lg font-extrabold text-slate-900">
-              Filosofía de Tornirepuestos
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-slate-700">
-              Para Tornirepuestos lo principal es la satisfacción de nuestros clientes.
-              Queremos ofrecer más que un servicio: un acompañamiento constante.
-              Queremos que siempre puedan contar con nosotros para apoyarlos en lo que
-              necesiten, y así, con esfuerzo y trabajo, mantener su credibilidad en
-              nosotros.
-            </p>
+            <h2 className="text-lg font-extrabold text-slate-900">{COPY.filosofia.title}</h2>
+            {COPY.filosofia.paragraphs.map((p) => (
+              <p key={p} className="mt-3 text-sm leading-relaxed text-slate-700">
+                {p}
+              </p>
+            ))}
           </section>
 
           <section className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
-            <h2 className="text-lg font-extrabold text-slate-900">
-              ¿Por qué elegir Tornirepuestos?
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-slate-700">
-              A lo largo de nuestra trayectoria hemos mantenido un excelente servicio y
-              cumplimiento con nuestros clientes. Estamos en constante búsqueda del
-              mejoramiento y de alternativas que faciliten la tarea de nuestros
-              clientes en su día a día.
-            </p>
+            <h2 className="text-lg font-extrabold text-slate-900">{COPY.porqueElegir.title}</h2>
+            {COPY.porqueElegir.paragraphs.map((p) => (
+              <p key={p} className="mt-3 text-sm leading-relaxed text-slate-700">
+                {p}
+              </p>
+            ))}
             <div className="mt-6 rounded-3xl bg-slate-50 p-6">
               <div className="text-sm font-extrabold text-slate-900">20+ años</div>
               <div className="mt-1 text-sm text-slate-600">

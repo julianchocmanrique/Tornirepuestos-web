@@ -525,7 +525,7 @@ export default function Page() {
               >
                 <summary className="cursor-pointer list-none">
                   <div className="flex items-start justify-between gap-4">
-                    <div className="text-sm font-extrabold text-slate-900">{f.q}</div>
+                    <div className="text-sm font-extrabold text-white/95">{f.q}</div>
                     <div
                       className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-2xl text-white"
                       style={{ background: brand.colors.accent }}
@@ -535,7 +535,7 @@ export default function Page() {
                     </div>
                   </div>
                 </summary>
-                <p className="mt-3 text-sm text-slate-600">{f.a}</p>
+                <p className="mt-3 text-sm text-white/75">{f.a}</p>
               </details>
             ))}
           </div>
@@ -544,7 +544,7 @@ export default function Page() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="text-sm font-extrabold">¿Listo para cotizar?</div>
-                <div className="mt-1 text-sm text-slate-600">
+                <div className="mt-1 text-sm text-white/75">
                   Escríbenos por WhatsApp y te respondemos.
                 </div>
               </div>
@@ -575,7 +575,7 @@ export default function Page() {
             >
               Contáctanos
             </h2>
-            <p className="mt-3 text-sm text-slate-600">
+            <p className="mt-3 text-sm text-white/75">
               Para una respuesta más rápida, envíanos la referencia o una foto.
             </p>
 

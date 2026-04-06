@@ -517,7 +517,7 @@ export default function Page() {
         </div>
       </section>
 
-      {/* FAQ */}
+      {/* FAQ (OSCURO gris premium) */}
       <section id="faq" className="bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 py-14">
           <div className="text-xs uppercase tracking-wide text-slate-500">FAQ</div>
@@ -532,7 +532,7 @@ export default function Page() {
             {faqs.map((f) => (
               <details
                 key={f.q}
-                className="group rounded-3xl border border-slate-200/70 bg-white/70 p-6 backdrop-blur"
+                className="group rounded-3xl bg-slate-700/90 p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]"
               >
                 <summary className="cursor-pointer list-none">
                   <div className="flex items-start justify-between gap-4">
@@ -551,10 +551,10 @@ export default function Page() {
             ))}
           </div>
 
-          <div className="mt-10 rounded-3xl border border-slate-200/70 bg-white/70 p-7 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
+          <div className="mt-10 rounded-3xl bg-slate-700/90 p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <div className="text-sm font-extrabold">¿Listo para cotizar?</div>
+                <div className="text-sm font-extrabold text-white/95">¿Listo para cotizar?</div>
                 <div className="mt-1 text-sm text-white/75">
                   Escríbenos por WhatsApp y te respondemos.
                 </div>

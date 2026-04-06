@@ -153,7 +153,7 @@ export const categories: Category[] = [
     title: "Lubricantes y grasas",
     kicker: "ACEITES · ADITIVOS",
     desc: "Lubricación para trabajo pesado y protección del tren motriz.",
-    img: "https://images.unsplash.com/photo-1607603750909-408e193868c7?auto=format&fit=crop&w=1600&q=75",
+    img: "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1600&q=80",
     whatYouCanAsk: [
       "Aceites",
       "Grasas",

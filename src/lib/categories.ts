@@ -133,10 +133,10 @@ export const categories: Category[] = [
   },
   {
     slug: "mangueras-y-racoreria",
-    title: "Mangueras y racorería",
+    title: "Mangueras",
     kicker: "AIRE · ABRAZADERAS",
     desc: "Conexiones seguras para sistemas de aire y servicio.",
-    img: "https://images.unsplash.com/photo-1718824331840-399943ff5c1e?auto=format&fit=crop&w=1600&q=75",
+    img: "https://images.unsplash.com/photo-1650561684000-9fb02bca02ad?auto=format&fit=crop&w=1600&q=80",
     whatYouCanAsk: [
       "Mangueras de aire y servicio",
       "Abrazaderas",

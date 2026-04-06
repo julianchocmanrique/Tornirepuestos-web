@@ -187,7 +187,7 @@ export const categories: Category[] = [
     title: "Herramientas",
     kicker: "TALLER · SOPORTE",
     desc: "Herramientas y apoyo para taller y servicio.",
-    img: "https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?auto=format&fit=crop&w=1600&q=75",
+    img: "https://images.unsplash.com/photo-1708716334127-251478e5ff37?auto=format&fit=crop&w=1600&q=80",
     whatYouCanAsk: [
       "Herramienta manual",
       "Consumibles de taller",

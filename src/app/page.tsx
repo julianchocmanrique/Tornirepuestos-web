@@ -575,9 +575,9 @@ export default function Page() {
             </p>
 
             <div className="mt-6 grid gap-3 text-slate-700">
-              <div className="rounded-3xl border border-slate-900/25 bg-white/70 p-6 shadow-[0_12px_40px_rgba(2,6,23,0.14)] backdrop-blur">
-                <div className="text-sm font-bold">WhatsApp</div>
-                <div className="mt-1 text-sm text-slate-600">+57 310 653 1208</div>
+              <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur">
+                <div className="text-sm font-bold text-white/85">WhatsApp</div>
+                <div className="mt-1 text-sm text-white/80">+57 310 653 1208</div>
                 <a
                   className="mt-3 inline-flex items-center gap-2 text-sm font-semibold"
                   style={{ color: brand.colors.accent }}
@@ -591,35 +591,33 @@ export default function Page() {
                 </a>
               </div>
 
-              <div className="rounded-3xl border border-slate-900/25 bg-white/70 p-6 shadow-[0_12px_40px_rgba(2,6,23,0.14)] backdrop-blur">
-                <div className="text-sm font-bold">Correo</div>
-                <div className="mt-1 text-sm text-slate-600">ventas@tornirepuestos.com</div>
-                <div className="mt-3 text-xs text-slate-500">
+              <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur">
+                <div className="text-sm font-bold text-white/85">Correo</div>
+                <div className="mt-1 text-sm text-white/80">ventas@tornirepuestos.com</div>
+                <div className="mt-3 text-xs text-white/60">
                   Si es urgente, WhatsApp es más rápido.
                 </div>
               </div>
 
-              <div className="rounded-3xl border border-slate-900/25 bg-white/70 p-6 shadow-[0_12px_40px_rgba(2,6,23,0.14)] backdrop-blur">
-                <div className="text-sm font-bold">Dirección</div>
-                <div className="mt-1 text-sm text-slate-600">
+              <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur">
+                <div className="text-sm font-bold text-white/85">Dirección</div>
+                <div className="mt-1 text-sm text-white/80">
                   Calle 30 N 60-250, Santa Marta, Colombia
                 </div>
-                <div className="mt-3 text-xs text-slate-500">
-                  (Podemos agregar el link de Google Maps cuando me confirmes la ubicación exacta.)
+                <div className="mt-3 text-xs text-white/60">
+                  (Si quieres, lo dejamos con pin exacto en Google Maps.)
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-900/25 bg-white/70 p-6 shadow-[0_12px_40px_rgba(2,6,23,0.14)] backdrop-blur">
-            <div className="text-sm font-extrabold" style={{ color: brand.colors.blue }}>
-              Ubicación
-            </div>
-            <p className="mt-3 text-sm text-slate-600">
+          <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur">
+            <div className="text-sm font-extrabold text-white/90">Ubicación</div>
+            <p className="mt-3 text-sm text-white/75">
               Encuéntranos en Santa Marta. Si vienes por repuesto urgente, escríbenos por WhatsApp y te guiamos.
             </p>
 
-            <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+            <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-black/30">
               <iframe
                 title="Mapa Tornirepuestos"
                 className="h-[280px] w-full"
@@ -643,7 +641,7 @@ export default function Page() {
                 href={wa("Quiero ubicación. ¿Me compartes cómo llegar?")}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-semibold text-white hover:bg-white/15"
               >
                 Pedir ubicación por WhatsApp
               </a>

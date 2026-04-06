@@ -477,7 +477,7 @@ export default function Page() {
               ].map((x) => (
                 <div
                   key={x}
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                  className="rounded-2xl bg-slate-700/90 px-4 py-3 text-white shadow-[0_18px_60px_rgba(2,6,23,0.28)]"
                 >
                   <span style={{ color: brand.colors.accent }}>✔</span> {x}
                 </div>
@@ -486,18 +486,18 @@ export default function Page() {
           </div>
 
           {/* Mantener este bloque CLARO como la referencia */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="text-sm font-extrabold text-slate-900">
+          <div className="rounded-3xl bg-slate-700/90 p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]">
+            <div className="text-sm font-extrabold text-white/90">
               Lo que dicen nuestros clientes
             </div>
             <div className="mt-4 grid gap-4">
               {testimonials.map((t, i) => (
                 <div
                   key={i}
-                  className="rounded-2xl border border-slate-200 bg-white p-5"
+                  className="rounded-2xl bg-slate-800/70 p-5 text-white shadow-[0_10px_30px_rgba(2,6,23,0.25)]"
                 >
-                  <div className="text-sm text-slate-800">“{t.quote}”</div>
-                  <div className="mt-2 text-xs text-slate-500">{t.meta}</div>
+                  <div className="text-sm text-white/90">“{t.quote}”</div>
+                  <div className="mt-2 text-xs text-white/60">{t.meta}</div>
                 </div>
               ))}
             </div>

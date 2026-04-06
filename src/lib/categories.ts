@@ -136,7 +136,7 @@ export const categories: Category[] = [
     title: "Mangueras",
     kicker: "AIRE · ABRAZADERAS",
     desc: "Conexiones seguras para sistemas de aire y servicio.",
-    img: "https://images.unsplash.com/photo-1650561684000-9fb02bca02ad?auto=format&fit=crop&w=1600&q=80",
+    img: "https://images.unsplash.com/photo-1598023707207-276835c2b5fe?auto=format&fit=crop&w=1600&q=80",
     whatYouCanAsk: [
       "Mangueras de aire y servicio",
       "Abrazaderas",

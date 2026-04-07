@@ -130,7 +130,7 @@ function SecondaryButton({
 
 export default function Page() {
   return (
-    <div className="min-h-screen bg-white text-slate-900">
+    <div className="min-h-screen bg-slate-950 text-white">
       {/* TOP BAR */}
       <div className="bg-slate-950 text-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2 text-xs">
@@ -152,10 +152,10 @@ export default function Page() {
       </div>
 
       {/* HEADER */}
-      <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/80 backdrop-blur">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/70 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
           <a href="#inicio" className="flex items-center gap-3">
-            <div className="relative h-10 w-10 overflow-hidden rounded-xl border border-slate-200 bg-white">
+            <div className="relative h-10 w-10 overflow-hidden rounded-xl border border-white/10 bg-white">
               <Image
                 src={LOGO_SRC}
                 alt="Logo Tornirepuestos"
@@ -172,31 +172,31 @@ export default function Page() {
               >
                 {brand.name}
               </div>
-              <div className="text-xs text-slate-600">Santa Marta · Repuestos</div>
+              <div className="text-xs text-white/70">Santa Marta · Repuestos</div>
             </div>
           </a>
 
-          <nav className="hidden items-center gap-6 text-sm text-slate-700 md:flex">
-            <a className="hover:text-slate-900" href="#inicio">
+          <nav className="hidden items-center gap-6 text-sm text-white/80 md:flex">
+            <a className="hover:text-white" href="#inicio">
               Inicio
             </a>
-            <a className="hover:text-slate-900" href="#categorias">
+            <a className="hover:text-white" href="#categorias">
               Categorías
             </a>
-            <a className="hover:text-slate-900" href="#nosotros">
+            <a className="hover:text-white" href="#nosotros">
               Nosotros
             </a>
-            <a className="hover:text-slate-900" href="#faq">
+            <a className="hover:text-white" href="#faq">
               Preguntas
             </a>
-            <a className="hover:text-slate-900" href="#contacto">
+            <a className="hover:text-white" href="#contacto">
               Contacto
             </a>
           </nav>
 
           <div className="flex items-center gap-2">
             <a
-              className="hidden rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 md:inline-flex"
+              className="hidden rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10 md:inline-flex"
               href="tel:+573106531208"
               title="Llamar"
             >
@@ -272,7 +272,7 @@ export default function Page() {
       </section>
 
       {/* CATEGORIES */}
-      <section id="categorias" className="bg-slate-50">
+      <section id="categorias" className="bg-slate-950">
         <div className="mx-auto max-w-6xl px-4 py-14">
           <div className="text-xs uppercase tracking-wide text-slate-500">Catálogo</div>
           <h2
@@ -281,7 +281,7 @@ export default function Page() {
           >
             Categorías
           </h2>
-          <p className="mt-3 max-w-3xl text-sm text-slate-600">
+          <p className="mt-3 max-w-3xl text-sm text-white/70">
             Un solo catálogo por categorías, cada una con imagen y estilo “destacado”.
             Entra a cada categoría para ver el detalle y cotizar más rápido.
           </p>
@@ -300,7 +300,7 @@ export default function Page() {
                 <Link
                   key={c.slug}
                   href={`/categorias/${c.slug}`}
-                  className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-700/90 shadow-sm transition hover:-translate-y-0.5 hover:shadow ${span}`}
+                  className={`group relative overflow-hidden rounded-3xl border border-white/10 bg-slate-700/90 shadow-sm transition hover:-translate-y-0.5 hover:shadow ${span}`}
                 >
                   <div className="absolute inset-0">
                     <Image
@@ -458,13 +458,13 @@ export default function Page() {
             >
               Repuestos con respaldo
             </h2>
-            <p className="mt-4 text-slate-600">
+            <p className="mt-4 text-white/75">
               Somos una empresa confiable con más de 20 años de trayectoria,
               especializada en la comercialización de partes y piezas para vehículos
               pesados. Nuestro objetivo es simple: ayudarte a conseguir la pieza
               correcta, a tiempo y con asesoría clara.
             </p>
-            <p className="mt-3 text-slate-600">
+            <p className="mt-3 text-white/75">
               Si no tienes la referencia exacta, no pasa nada: con una foto o la placa
               te guiamos para validar compatibilidad y darte opciones.
             </p>
@@ -518,7 +518,7 @@ export default function Page() {
       </section>
 
       {/* FAQ (OSCURO gris premium) */}
-      <section id="faq" className="bg-slate-50">
+      <section id="faq" className="bg-slate-950">
         <div className="mx-auto max-w-6xl px-4 py-14">
           <div className="text-xs uppercase tracking-wide text-slate-500">FAQ</div>
           <h2
@@ -590,7 +590,7 @@ export default function Page() {
               Para una respuesta más rápida, envíanos la referencia o una foto.
             </p>
 
-            <div className="mt-6 grid gap-3 text-slate-700">
+            <div className="mt-6 grid gap-3 text-white/80">
               <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur">
                 <div className="text-sm font-bold text-white/85">WhatsApp</div>
                 <div className="mt-1 text-sm text-white/80">+57 310 653 1208</div>
@@ -667,10 +667,10 @@ export default function Page() {
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-slate-200 bg-white">
+      <footer className="border-t border-white/10 bg-slate-950">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-10 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative h-9 w-9 overflow-hidden rounded-xl border border-slate-200 bg-white">
+            <div className="relative h-9 w-9 overflow-hidden rounded-xl border border-white/10 bg-white">
               <Image
                 src={LOGO_SRC}
                 alt="Logo Tornirepuestos"
@@ -683,24 +683,24 @@ export default function Page() {
               <div className="text-sm font-extrabold" style={{ color: brand.colors.blue }}>
                 {brand.name}
               </div>
-              <div className="text-xs text-slate-500">© 2026 Tornirepuestos</div>
+              <div className="text-xs text-white/60">© 2026 Tornirepuestos</div>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-4 text-sm text-slate-600">
-            <a className="hover:text-slate-900" href="#inicio">
+          <div className="flex flex-wrap gap-4 text-sm text-white/70">
+            <a className="hover:text-white" href="#inicio">
               Inicio
             </a>
-            <a className="hover:text-slate-900" href="#categorias">
+            <a className="hover:text-white" href="#categorias">
               Categorías
             </a>
-            <a className="hover:text-slate-900" href="#nosotros">
+            <a className="hover:text-white" href="#nosotros">
               Nosotros
             </a>
-            <a className="hover:text-slate-900" href="#faq">
+            <a className="hover:text-white" href="#faq">
               Preguntas
             </a>
-            <a className="hover:text-slate-900" href="#contacto">
+            <a className="hover:text-white" href="#contacto">
               Contacto
             </a>
           </div>

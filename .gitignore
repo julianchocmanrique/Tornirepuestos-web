@@ -4,3 +4,6 @@ node_modules/
 npm-debug.log*
 .env*
 !.env.example
+
+# local keys
+.keys/

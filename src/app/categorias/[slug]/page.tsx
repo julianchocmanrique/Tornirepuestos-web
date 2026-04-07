@@ -118,7 +118,7 @@ export default async function Page({
               {cat.whatYouCanAsk.map((x) => (
                 <li key={x} className="flex gap-2">
                   <span className="mt-0.5" style={{ color: "#E10600" }}>
-                    ✔
+                    ▵
                   </span>
                   <span>{x}</span>
                 </li>

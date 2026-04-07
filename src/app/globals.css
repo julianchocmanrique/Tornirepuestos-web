@@ -1,9 +1,32 @@
 @import "tailwindcss";
 
 :root {
-  --blue: #0f2a44;
-  --orange: #f97316;
-  --red: #ef4444;
+  /* Tornirepuestos brand palette (from logo) */
+  --tp-blue-800: #0f2a44;
+  --tp-red-600: #e10600;
+  --tp-ink-950: #0b0f14;
+  --tp-white: #ffffff;
+
+  /* Surfaces */
+  --tp-surface-page: var(--tp-white);
+  --tp-surface-section-dark: var(--tp-ink-950);
+  --tp-surface-card: rgba(15, 42, 68, 0.9);
+  --tp-surface-card-subtle: rgba(15, 42, 68, 0.75);
+
+  /* Text */
+  --tp-text-on-dark: rgba(255, 255, 255, 0.92);
+  --tp-text-muted-on-dark: rgba(255, 255, 255, 0.7);
+  --tp-text-on-light: rgba(2, 6, 23, 0.92);
+  --tp-text-muted-on-light: rgba(51, 65, 85, 0.9);
+
+  /* Borders */
+  --tp-border-on-dark: rgba(255, 255, 255, 0.12);
+  --tp-border-on-light: rgba(15, 23, 42, 0.12);
+
+  /* Actions */
+  --tp-action-primary: var(--tp-red-600);
+  --tp-action-primary-hover: #c90500;
+  --tp-action-secondary: rgba(255, 255, 255, 0.08);
 }
 
 html {

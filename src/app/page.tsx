@@ -10,8 +10,8 @@ const brand = {
   subtitle:
     "Cotiza por WhatsApp en minutos. Te ayudamos a identificar la referencia correcta y coordinamos envío a todo Colombia (a convenir).",
   colors: {
-    blue: "#0F2A44",
-    accent: "#E10600", // rojo promo
+    blue: "var(--tp-blue-800)",
+    accent: "var(--tp-action-primary)", // rojo promo
   },
 };
 
@@ -104,7 +104,7 @@ function PrimaryButton({
     <a
       href={href}
       className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold text-white shadow-sm transition"
-      style={{ background: brand.colors.accent }}
+      style={{ background: "var(--tp-action-primary)" }}
     >
       {children}
     </a>
@@ -168,7 +168,7 @@ export default function Page() {
             <div className="leading-tight">
               <div
                 className="text-sm font-extrabold tracking-wide"
-                style={{ color: brand.colors.blue }}
+                style={{ color: "var(--tp-blue-800)" }}
               >
                 {brand.name}
               </div>
@@ -204,7 +204,7 @@ export default function Page() {
             </a>
             <a
               className="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold text-white"
-              style={{ background: brand.colors.accent }}
+              style={{ background: "var(--tp-action-primary)" }}
               href={wa(
                 "Hola, quiero cotizar un repuesto. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
               )}
@@ -260,7 +260,7 @@ export default function Page() {
               {trust.map((t) => (
                 <div
                   key={t.k}
-                  className="rounded-2xl border border-white/15 bg-[oklch(0.14_0.05_23.65)] px-4 py-3"
+                  className="rounded-2xl border border-white/15 bg-[var(--tp-surface-card)] px-4 py-3"
                 >
                   <div className="text-sm font-extrabold">{t.k}</div>
                   <div className="text-xs text-white/70">{t.v}</div>
@@ -277,7 +277,7 @@ export default function Page() {
           <div className="text-xs uppercase tracking-wide text-slate-500">Catálogo</div>
           <h2
             className="mt-2 text-3xl font-extrabold"
-            style={{ color: brand.colors.blue }}
+            style={{ color: "var(--tp-blue-800)" }}
           >
             Categorías
           </h2>
@@ -300,7 +300,7 @@ export default function Page() {
                 <Link
                   key={c.slug}
                   href={`/categorias/${c.slug}`}
-                  className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-[oklch(0.14_0.05_23.65)] shadow-sm transition hover:-translate-y-0.5 hover:shadow ${span}`}
+                  className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-[var(--tp-surface-card)] shadow-sm transition hover:-translate-y-0.5 hover:shadow ${span}`}
                 >
                   <div className="absolute inset-0">
                     <Image
@@ -330,7 +330,7 @@ export default function Page() {
                       </div>
                       <div
                         className="inline-flex h-10 w-10 items-center justify-center rounded-2xl text-white"
-                        style={{ background: brand.colors.accent }}
+                        style={{ background: "var(--tp-action-primary)" }}
                         aria-hidden
                       >
                         →
@@ -351,11 +351,11 @@ export default function Page() {
           {highlights.map((h) => (
             <div
               key={h.title}
-              className="rounded-3xl border border-white/10 bg-[oklch(0.14_0.05_23.65)] p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur"
+              className="rounded-3xl border border-white/10 bg-[var(--tp-surface-card)] p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur"
             >
               <div
                 className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 text-white shadow-[0_10px_30px_rgba(225,6,0,0.28)]"
-                style={{ background: brand.colors.accent }}
+                style={{ background: "var(--tp-action-primary)" }}
               >
                 ⚙️
               </div>
@@ -394,22 +394,22 @@ export default function Page() {
               </div>
 
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-white/10 bg-[oklch(0.14_0.05_23.65)] p-4">
+                <div className="rounded-2xl border border-white/10 bg-[var(--tp-surface-card)] p-4">
                   <div className="text-sm font-bold">1) Envíanos datos</div>
                   <div className="mt-1 text-xs text-white/70">placa / referencia / foto</div>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-[oklch(0.14_0.05_23.65)] p-4">
+                <div className="rounded-2xl border border-white/10 bg-[var(--tp-surface-card)] p-4">
                   <div className="text-sm font-bold">2) Cotizamos</div>
                   <div className="mt-1 text-xs text-white/70">disponibilidad + precio</div>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-[oklch(0.14_0.05_23.65)] p-4">
+                <div className="rounded-2xl border border-white/10 bg-[var(--tp-surface-card)] p-4">
                   <div className="text-sm font-bold">3) Entregamos</div>
                   <div className="mt-1 text-xs text-white/70">envío a convenir</div>
                 </div>
               </div>
             </div>
 
-            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[oklch(0.14_0.05_23.65)]">
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[var(--tp-surface-card)]">
               <div className="absolute inset-0">
                 <Image
                   src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=70"
@@ -436,7 +436,7 @@ export default function Page() {
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-2 text-sm font-semibold"
-                    style={{ color: brand.colors.accent }}
+                    style={{ color: "var(--tp-action-primary)" }}
                   >
                     Usar este mensaje →
                   </a>
@@ -454,7 +454,7 @@ export default function Page() {
             <div className="text-xs uppercase tracking-wide text-slate-500">Nosotros</div>
             <h2
               className="mt-2 text-3xl font-extrabold"
-              style={{ color: brand.colors.blue }}
+              style={{ color: "var(--tp-blue-800)" }}
             >
               Repuestos con respaldo
             </h2>
@@ -478,9 +478,9 @@ export default function Page() {
               ].map((x) => (
                 <div
                   key={x}
-                  className="flex items-center gap-3 rounded-3xl bg-[oklch(0.14_0.05_23.65)] px-6 py-4 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]"
+                  className="flex items-center gap-3 rounded-3xl bg-[var(--tp-surface-card)] px-6 py-4 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]"
                 >
-                  <span style={{ color: brand.colors.accent }}>▲</span>
+                  <span style={{ color: "var(--tp-action-primary)" }}>▲</span>
                   <span className="text-base font-semibold">{x}</span>
                 </div>
               ))}
@@ -490,7 +490,7 @@ export default function Page() {
               <Link
                 href="/nosotros"
                 className="inline-flex items-center gap-2 text-sm font-semibold"
-                style={{ color: brand.colors.accent }}
+                style={{ color: "var(--tp-action-primary)" }}
               >
                 Ver historia completa →
               </Link>
@@ -498,7 +498,7 @@ export default function Page() {
           </div>
 
           {/* Mantener este bloque CLARO como la referencia */}
-          <div className="rounded-3xl border border-white/10 bg-[oklch(0.14_0.05_23.65)] p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)] backdrop-blur">
+          <div className="rounded-3xl border border-white/10 bg-[var(--tp-surface-card)] p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)] backdrop-blur">
             <div className="text-sm font-extrabold text-white/90">
               Lo que dicen nuestros clientes
             </div>
@@ -506,7 +506,7 @@ export default function Page() {
               {testimonials.map((t, i) => (
                 <div
                   key={i}
-                  className="rounded-2xl border border-white/10 bg-[oklch(0.14_0.05_23.65)] p-5 text-white shadow-[0_10px_30px_rgba(2,6,23,0.25)] backdrop-blur"
+                  className="rounded-2xl border border-white/10 bg-[var(--tp-surface-card)] p-5 text-white shadow-[0_10px_30px_rgba(2,6,23,0.25)] backdrop-blur"
                 >
                   <div className="text-sm text-white/90">“{t.quote}”</div>
                   <div className="mt-2 text-xs text-white/60">{t.meta}</div>
@@ -523,7 +523,7 @@ export default function Page() {
           <div className="text-xs uppercase tracking-wide text-slate-500">FAQ</div>
           <h2
             className="mt-2 text-3xl font-extrabold"
-            style={{ color: brand.colors.blue }}
+            style={{ color: "var(--tp-blue-800)" }}
           >
             Preguntas frecuentes
           </h2>
@@ -532,14 +532,14 @@ export default function Page() {
             {faqs.map((f) => (
               <details
                 key={f.q}
-                className="group rounded-3xl border border-white/10 bg-[oklch(0.14_0.05_23.65)] p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)] backdrop-blur"
+                className="group rounded-3xl border border-white/10 bg-[var(--tp-surface-card)] p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)] backdrop-blur"
               >
                 <summary className="cursor-pointer list-none">
                   <div className="flex items-start justify-between gap-4">
                     <div className="text-sm font-extrabold text-white/95">{f.q}</div>
                     <div
                       className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-2xl text-white"
-                      style={{ background: brand.colors.accent }}
+                      style={{ background: "var(--tp-action-primary)" }}
                       aria-hidden
                     >
                       +
@@ -551,7 +551,7 @@ export default function Page() {
             ))}
           </div>
 
-          <div className="mt-10 rounded-3xl border border-white/10 bg-[oklch(0.14_0.05_23.65)] p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)] backdrop-blur">
+          <div className="mt-10 rounded-3xl border border-white/10 bg-[var(--tp-surface-card)] p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)] backdrop-blur">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="text-sm font-extrabold text-white/95">¿Listo para cotizar?</div>
@@ -566,7 +566,7 @@ export default function Page() {
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold text-white"
-                style={{ background: brand.colors.accent }}
+                style={{ background: "var(--tp-action-primary)" }}
               >
                 Cotizar ahora
               </a>
@@ -582,7 +582,7 @@ export default function Page() {
             <div className="text-xs uppercase tracking-wide text-slate-500">Contacto</div>
             <h2
               className="mt-2 text-3xl font-extrabold"
-              style={{ color: brand.colors.blue }}
+              style={{ color: "var(--tp-blue-800)" }}
             >
               Contáctanos
             </h2>
@@ -596,7 +596,7 @@ export default function Page() {
                 <div className="mt-1 text-sm text-white/80">+57 310 653 1208</div>
                 <a
                   className="mt-3 inline-flex items-center gap-2 text-sm font-semibold"
-                  style={{ color: brand.colors.accent }}
+                  style={{ color: "var(--tp-action-primary)" }}
                   href={wa(
                     "Hola, quiero cotizar un repuesto. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
                   )}
@@ -649,7 +649,7 @@ export default function Page() {
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold text-white"
-                style={{ background: brand.colors.accent }}
+                style={{ background: "var(--tp-action-primary)" }}
               >
                 Cómo llegar
               </a>
@@ -680,7 +680,7 @@ export default function Page() {
               />
             </div>
             <div>
-              <div className="text-sm font-extrabold" style={{ color: brand.colors.blue }}>
+              <div className="text-sm font-extrabold" style={{ color: "var(--tp-blue-800)" }}>
                 {brand.name}
               </div>
               <div className="text-xs text-slate-500">© 2026 Tornirepuestos</div>
@@ -715,7 +715,7 @@ export default function Page() {
         target="_blank"
         rel="noreferrer"
         className="fixed bottom-5 right-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-        style={{ background: brand.colors.accent }}
+        style={{ background: "var(--tp-action-primary)" }}
         aria-label="WhatsApp"
         title="Cotizar por WhatsApp"
       >

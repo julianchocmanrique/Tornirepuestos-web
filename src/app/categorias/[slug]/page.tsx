@@ -77,7 +77,7 @@ export default async function Page({
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold text-white"
-                style={{ background: "#E10600" }}
+                style={{ background: "var(--tp-action-primary)" }}
               >
                 Cotizar por WhatsApp
               </a>
@@ -117,7 +117,7 @@ export default async function Page({
             <ul className="mt-4 space-y-2 text-sm text-slate-700">
               {cat.whatYouCanAsk.map((x) => (
                 <li key={x} className="flex gap-2">
-                  <span className="mt-0.5" style={{ color: "#E10600" }}>
+                  <span className="mt-0.5" style={{ color: "var(--tp-action-primary)" }}>
                     ▲
                   </span>
                   <span>{x}</span>
@@ -145,7 +145,7 @@ export default async function Page({
                   "Ciudad destino",
                 ].map((x) => (
                   <li key={x} className="flex gap-2">
-                    <span className="mt-0.5" style={{ color: "#E10600" }}>
+                    <span className="mt-0.5" style={{ color: "var(--tp-action-primary)" }}>
                       •
                     </span>
                     <span>{x}</span>
@@ -180,7 +180,7 @@ export default async function Page({
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 text-sm font-semibold"
-                style={{ color: "#E10600" }}
+                style={{ color: "var(--tp-action-primary)" }}
               >
                 Cotizar {cat.title} →
               </a>
@@ -201,7 +201,7 @@ export default async function Page({
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 text-sm font-semibold"
-                  style={{ color: "#E10600" }}
+                  style={{ color: "var(--tp-action-primary)" }}
                 >
                   Preguntar por WhatsApp →
                 </a>

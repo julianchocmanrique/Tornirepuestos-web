@@ -32,7 +32,7 @@ export default function Page() {
               <Link
                 key={c.slug}
                 href={`/categorias/${c.slug}`}
-                className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-[#0F2A44]/90 shadow-sm transition hover:-translate-y-0.5 hover:shadow ${span}`}
+                className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-white/5 shadow-sm transition hover:-translate-y-0.5 hover:shadow ${span}`}
               >
                 <div className="absolute inset-0">
                   <Image

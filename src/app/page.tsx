@@ -300,7 +300,7 @@ export default function Page() {
                 <Link
                   key={c.slug}
                   href={`/categorias/${c.slug}`}
-                  className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-[#0F2A44]/90 shadow-sm transition hover:-translate-y-0.5 hover:shadow ${span}`}
+                  className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-white/5 shadow-sm transition hover:-translate-y-0.5 hover:shadow ${span}`}
                 >
                   <div className="absolute inset-0">
                     <Image
@@ -351,7 +351,7 @@ export default function Page() {
           {highlights.map((h) => (
             <div
               key={h.title}
-              className="rounded-3xl border border-white/10 bg-[#0F2A44]/90 p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur"
+              className="rounded-3xl border border-white/10 bg-white/5 p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur"
             >
               <div
                 className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 text-white shadow-[0_10px_30px_rgba(225,6,0,0.28)]"
@@ -478,7 +478,7 @@ export default function Page() {
               ].map((x) => (
                 <div
                   key={x}
-                  className="flex items-center gap-3 rounded-3xl bg-[#0F2A44]/90 px-6 py-4 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]"
+                  className="flex items-center gap-3 rounded-3xl bg-white/5 px-6 py-4 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]"
                 >
                   <span style={{ color: brand.colors.accent }}>▲</span>
                   <span className="text-base font-semibold">{x}</span>
@@ -498,7 +498,7 @@ export default function Page() {
           </div>
 
           {/* Mantener este bloque CLARO como la referencia */}
-          <div className="rounded-3xl bg-[#0F2A44]/90 p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)] backdrop-blur">
             <div className="text-sm font-extrabold text-white/90">
               Lo que dicen nuestros clientes
             </div>
@@ -506,7 +506,7 @@ export default function Page() {
               {testimonials.map((t, i) => (
                 <div
                   key={i}
-                  className="rounded-2xl bg-[#0F2A44]/85 p-5 text-white shadow-[0_10px_30px_rgba(2,6,23,0.25)]"
+                  className="rounded-2xl border border-white/10 bg-white/5 p-5 text-white shadow-[0_10px_30px_rgba(2,6,23,0.25)] backdrop-blur"
                 >
                   <div className="text-sm text-white/90">“{t.quote}”</div>
                   <div className="mt-2 text-xs text-white/60">{t.meta}</div>
@@ -532,7 +532,7 @@ export default function Page() {
             {faqs.map((f) => (
               <details
                 key={f.q}
-                className="group rounded-3xl bg-[#0F2A44]/90 p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]"
+                className="group rounded-3xl border border-white/10 bg-white/5 p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)] backdrop-blur"
               >
                 <summary className="cursor-pointer list-none">
                   <div className="flex items-start justify-between gap-4">
@@ -551,7 +551,7 @@ export default function Page() {
             ))}
           </div>
 
-          <div className="mt-10 rounded-3xl bg-[#0F2A44]/90 p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]">
+          <div className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)] backdrop-blur">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="text-sm font-extrabold text-white/95">¿Listo para cotizar?</div>

@@ -498,7 +498,7 @@ export default function Page() {
           </div>
 
           {/* Mantener este bloque CLARO como la referencia */}
-          <div className="rounded-3xl bg-slate-700/90 p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]">
+          <div className="rounded-3xl bg-[#0F2A44]/90 p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]">
             <div className="text-sm font-extrabold text-white/90">
               Lo que dicen nuestros clientes
             </div>
@@ -506,7 +506,7 @@ export default function Page() {
               {testimonials.map((t, i) => (
                 <div
                   key={i}
-                  className="rounded-2xl bg-slate-700/90 p-5 text-white shadow-[0_10px_30px_rgba(2,6,23,0.25)]"
+                  className="rounded-2xl bg-[#0F2A44]/85 p-5 text-white shadow-[0_10px_30px_rgba(2,6,23,0.25)]"
                 >
                   <div className="text-sm text-white/90">“{t.quote}”</div>
                   <div className="mt-2 text-xs text-white/60">{t.meta}</div>

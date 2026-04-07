@@ -300,7 +300,7 @@ export default function Page() {
                 <Link
                   key={c.slug}
                   href={`/categorias/${c.slug}`}
-                  className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-700/90 shadow-sm transition hover:-translate-y-0.5 hover:shadow ${span}`}
+                  className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-[#0F2A44]/90 shadow-sm transition hover:-translate-y-0.5 hover:shadow ${span}`}
                 >
                   <div className="absolute inset-0">
                     <Image
@@ -478,7 +478,7 @@ export default function Page() {
               ].map((x) => (
                 <div
                   key={x}
-                  className="flex items-center gap-3 rounded-3xl bg-slate-700/90 px-6 py-4 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]"
+                  className="flex items-center gap-3 rounded-3xl bg-[#0F2A44]/90 px-6 py-4 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]"
                 >
                   <span style={{ color: brand.colors.accent }}>▲</span>
                   <span className="text-base font-semibold">{x}</span>
@@ -532,7 +532,7 @@ export default function Page() {
             {faqs.map((f) => (
               <details
                 key={f.q}
-                className="group rounded-3xl bg-slate-700/90 p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]"
+                className="group rounded-3xl bg-[#0F2A44]/90 p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]"
               >
                 <summary className="cursor-pointer list-none">
                   <div className="flex items-start justify-between gap-4">
@@ -551,7 +551,7 @@ export default function Page() {
             ))}
           </div>
 
-          <div className="mt-10 rounded-3xl bg-slate-700/90 p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]">
+          <div className="mt-10 rounded-3xl bg-[#0F2A44]/90 p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="text-sm font-extrabold text-white/95">¿Listo para cotizar?</div>

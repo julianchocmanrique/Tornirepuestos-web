@@ -20,7 +20,7 @@ export default async function Page({
     return (
       <div className="mx-auto max-w-4xl px-4 py-16">
         <h1 className="text-2xl font-extrabold">Categoría no encontrada</h1>
-        <p className="mt-2 text-white/70">Vuelve al catálogo.</p>
+        <p className="mt-2 text-slate-600">Vuelve al catálogo.</p>
         <Link className="mt-6 inline-block underline" href="/categorias">
           Ver categorías
         </Link>
@@ -31,7 +31,7 @@ export default async function Page({
   const waText = `Quiero cotizar: ${cat.title}. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____.`;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-white">
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
@@ -94,11 +94,11 @@ export default async function Page({
 
       {/* SEO copy */}
       <section className="mx-auto max-w-6xl px-4 pt-10">
-        <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-7 shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur">
-          <div className="text-xs uppercase tracking-wide text-white/60">
+        <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-7 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
+          <div className="text-xs uppercase tracking-wide text-slate-500">
             Información
           </div>
-          <p className="mt-3 text-sm leading-relaxed text-white/75">
+          <p className="mt-3 text-sm leading-relaxed text-slate-700">
             {seoParagraph(cat)}
           </p>
         </div>
@@ -107,14 +107,14 @@ export default async function Page({
       {/* Detail */}
       <section id="detalle" className="mx-auto max-w-6xl px-4 py-14">
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-7 shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur">
-            <div className="text-xs uppercase tracking-wide text-white/60">
+          <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-7 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
+            <div className="text-xs uppercase tracking-wide text-slate-500">
               Qué puedes cotizar
             </div>
-            <h2 className="mt-2 text-2xl font-extrabold text-white">
+            <h2 className="mt-2 text-2xl font-extrabold text-slate-900">
               {cat.title}
             </h2>
-            <ul className="mt-4 space-y-2 text-sm text-white/75">
+            <ul className="mt-4 space-y-2 text-sm text-slate-700">
               {cat.whatYouCanAsk.map((x) => (
                 <li key={x} className="flex gap-2">
                   <span className="mt-0.5" style={{ color: "#E10600" }}>
@@ -125,7 +125,7 @@ export default async function Page({
               ))}
             </ul>
 
-            <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/75">
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-700">
               <div className="font-extrabold">Para cotizar más rápido</div>
               <div className="mt-2">
                 Envíanos por WhatsApp: placa (si aplica), referencia o foto clara, y la
@@ -133,10 +133,10 @@ export default async function Page({
               </div>
             </div>
 
-            <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5">
-              <div className="text-xs uppercase tracking-wide text-white/60">Checklist</div>
-              <div className="mt-2 text-sm font-extrabold text-white">¿Qué datos enviar?</div>
-              <ul className="mt-3 space-y-2 text-sm text-white/75">
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
+              <div className="text-xs uppercase tracking-wide text-slate-500">Checklist</div>
+              <div className="mt-2 text-sm font-extrabold text-slate-900">¿Qué datos enviar?</div>
+              <ul className="mt-3 space-y-2 text-sm text-slate-700">
                 {[
                   "Placa o modelo del vehículo",
                   "Referencia (si la tienes)",
@@ -155,21 +155,21 @@ export default async function Page({
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-7 shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur">
-            <div className="text-xs uppercase tracking-wide text-white/60">
+          <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-7 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
+            <div className="text-xs uppercase tracking-wide text-slate-500">
               Ejemplos
             </div>
-            <h2 className="mt-2 text-2xl font-extrabold text-white">
+            <h2 className="mt-2 text-2xl font-extrabold text-slate-900">
               Productos más pedidos
             </h2>
             <div className="mt-5 grid gap-3">
               {cat.productsExample.map((p) => (
                 <div
                   key={p.name}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-5"
+                  className="rounded-2xl border border-slate-200 bg-white p-5"
                 >
-                  <div className="text-sm font-extrabold text-white">{p.name}</div>
-                  <div className="mt-1 text-xs text-white/60">{p.note}</div>
+                  <div className="text-sm font-extrabold text-slate-900">{p.name}</div>
+                  <div className="mt-1 text-xs text-slate-500">{p.note}</div>
                 </div>
               ))}
             </div>
@@ -186,7 +186,7 @@ export default async function Page({
               </a>
             </div>
 
-            <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/75">
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-700">
               <div className="font-extrabold">Preguntas frecuentes de esta categoría</div>
               <div className="mt-2 space-y-2">
                 <div>• ¿Tienen disponibilidad inmediata?</div>
@@ -212,19 +212,19 @@ export default async function Page({
       </section>
 
       {/* Footer nav */}
-      <footer className="border-t border-white/10 bg-slate-950">
+      <footer className="border-t border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-10 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-sm text-white/60">
+          <div className="text-sm text-slate-600">
             Tornirepuestos · Santa Marta
           </div>
-          <div className="flex flex-wrap gap-4 text-sm text-white/70">
-            <Link className="hover:text-white" href="/">
+          <div className="flex flex-wrap gap-4 text-sm text-slate-600">
+            <Link className="hover:text-slate-900" href="/">
               Inicio
             </Link>
-            <Link className="hover:text-white" href="/categorias">
+            <Link className="hover:text-slate-900" href="/categorias">
               Categorías
             </Link>
-            <a className="hover:text-white" href={wa(waText)} target="_blank" rel="noreferrer">
+            <a className="hover:text-slate-900" href={wa(waText)} target="_blank" rel="noreferrer">
               WhatsApp
             </a>
           </div>

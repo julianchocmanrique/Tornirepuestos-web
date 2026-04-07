@@ -351,7 +351,7 @@ export default function Page() {
           {highlights.map((h) => (
             <div
               key={h.title}
-              className="rounded-3xl border border-white/10 bg-slate-950/70 p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur"
+              className="rounded-3xl border border-white/10 bg-[#0F2A44]/90 p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur"
             >
               <div
                 className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 text-white shadow-[0_10px_30px_rgba(225,6,0,0.28)]"

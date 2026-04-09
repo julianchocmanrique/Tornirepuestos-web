@@ -1,8 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Se despliega detrás de Nginx en subpath
-  basePath: "/tornirepuestos",
+  // Se despliega en dominio raíz (/) detrás de Nginx
   images: {
     remotePatterns: [
       {

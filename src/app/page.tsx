@@ -521,7 +521,9 @@ export default function Page() {
             <div className="mt-6 grid gap-3 text-slate-700">
               <div className="rounded-2xl border border-slate-300 bg-white p-6">
                 <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
-                  <WhatsAppIcon className="h-5 w-5" />
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100">
+                    <WhatsAppIcon className="h-[18px] w-[18px]" />
+                  </span>
                   <span>WhatsApp</span>
                 </div>
                 <div className="mt-1 text-sm text-slate-600">+57 310 653 1208</div>

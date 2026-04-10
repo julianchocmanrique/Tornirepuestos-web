@@ -141,6 +141,27 @@ function Pill({ children }: { children: React.ReactNode }) {
   );
 }
 
+function WhatsAppIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+    >
+      <path
+        d="M16 3C9.372 3 4 8.19 4 14.588c0 2.52.85 4.85 2.3 6.75L5 29l7.98-2.07c1.84.97 3.96 1.53 6.24 1.53 6.628 0 12-5.19 12-11.588C31.22 8.19 22.628 3 16 3Z"
+        fill="#25D366"
+      />
+      <path
+        d="M25.27 20.88c-.39 1.08-1.94 1.98-3.15 2.23-.84.17-1.93.31-5.59-1.16-4.68-1.86-7.7-6.43-7.93-6.74-.22-.31-1.88-2.43-1.88-4.64 0-2.2 1.2-3.28 1.63-3.72.43-.44.93-.55 1.24-.55.3 0 .62 0 .89.01.29.01.68-.1 1.06.8.39.93 1.34 3.22 1.45 3.45.12.23.2.5.05.8-.15.31-.23.5-.46.77-.22.27-.48.6-.69.81-.22.21-.44.43-.19.82.25.39 1.11 1.78 2.38 2.88 1.63 1.41 3.01 1.85 3.44 2.05.43.2.68.17.94-.1.26-.27 1.06-1.2 1.35-1.62.29-.41.58-.34.98-.2.4.14 2.55 1.16 2.99 1.37.44.21.73.31.84.48.11.17.11.98-.28 2.06Z"
+        fill="#fff"
+      />
+    </svg>
+  );
+}
+
 function PrimaryButton({
   href,
   children,
@@ -499,7 +520,10 @@ export default function Page() {
 
             <div className="mt-6 grid gap-3 text-slate-700">
               <div className="rounded-2xl border border-slate-300 bg-white p-6">
-                <div className="text-sm font-bold text-slate-900">💬 WhatsApp</div>
+                <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
+                  <WhatsAppIcon className="h-5 w-5" />
+                  <span>WhatsApp</span>
+                </div>
                 <div className="mt-1 text-sm text-slate-600">+57 310 653 1208</div>
                 <a
                   className="mt-3 inline-flex items-center gap-2 text-sm font-semibold"
@@ -628,12 +652,11 @@ export default function Page() {
         )}
         target="_blank"
         rel="noreferrer"
-        className="fixed bottom-5 right-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-        style={{ background: "var(--tp-action-primary)" }}
+        className="fixed bottom-5 right-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-lg"
         aria-label="WhatsApp"
         title="Cotizar por WhatsApp"
       >
-        💬
+        <WhatsAppIcon className="h-8 w-8" />
       </a>
     </div>
   );

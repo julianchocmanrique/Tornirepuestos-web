@@ -150,12 +150,10 @@ function WhatsAppIcon({ className }: { className?: string }) {
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden
     >
+      <rect x="1.5" y="1.5" width="29" height="29" rx="7" fill="#10B84A" />
+      <circle cx="16" cy="16" r="9.4" stroke="#fff" strokeWidth="2.4" />
       <path
-        d="M16 3C9.372 3 4 8.19 4 14.588c0 2.52.85 4.85 2.3 6.75L5 29l7.98-2.07c1.84.97 3.96 1.53 6.24 1.53 6.628 0 12-5.19 12-11.588C31.22 8.19 22.628 3 16 3Z"
-        fill="#25D366"
-      />
-      <path
-        d="M25.27 20.88c-.39 1.08-1.94 1.98-3.15 2.23-.84.17-1.93.31-5.59-1.16-4.68-1.86-7.7-6.43-7.93-6.74-.22-.31-1.88-2.43-1.88-4.64 0-2.2 1.2-3.28 1.63-3.72.43-.44.93-.55 1.24-.55.3 0 .62 0 .89.01.29.01.68-.1 1.06.8.39.93 1.34 3.22 1.45 3.45.12.23.2.5.05.8-.15.31-.23.5-.46.77-.22.27-.48.6-.69.81-.22.21-.44.43-.19.82.25.39 1.11 1.78 2.38 2.88 1.63 1.41 3.01 1.85 3.44 2.05.43.2.68.17.94-.1.26-.27 1.06-1.2 1.35-1.62.29-.41.58-.34.98-.2.4.14 2.55 1.16 2.99 1.37.44.21.73.31.84.48.11.17.11.98-.28 2.06Z"
+        d="M21.13 19.6c-.27.75-1.36 1.36-2.2 1.53-.58.12-1.33.2-3.63-.72-3-1.2-4.94-4.13-5.09-4.33-.15-.2-1.2-1.56-1.2-2.98 0-1.41.77-2.1 1.04-2.38.28-.28.6-.36.8-.36h.58c.2 0 .44-.07.68.51.25.59.86 2.07.93 2.21.08.15.12.31.03.52-.1.2-.15.32-.29.49-.14.17-.3.38-.44.52-.14.13-.28.27-.12.52.16.25.72 1.15 1.54 1.85 1.06.92 1.96 1.2 2.24 1.33.28.13.44.1.61-.07.17-.18.69-.77.88-1.03.19-.26.38-.22.64-.12.26.09 1.66.75 1.94.88.29.13.48.2.54.31.07.11.07.63-.18 1.33Z"
         fill="#fff"
       />
     </svg>
@@ -521,9 +519,7 @@ export default function Page() {
             <div className="mt-6 grid gap-3 text-slate-700">
               <div className="rounded-2xl border border-slate-300 bg-white p-6">
                 <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100">
-                    <WhatsAppIcon className="h-[18px] w-[18px]" />
-                  </span>
+                  <WhatsAppIcon className="h-7 w-7" />
                   <span>WhatsApp</span>
                 </div>
                 <div className="mt-1 text-sm text-slate-600">+57 310 653 1208</div>
@@ -654,11 +650,11 @@ export default function Page() {
         )}
         target="_blank"
         rel="noreferrer"
-        className="fixed bottom-5 right-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-lg"
+        className="fixed bottom-5 right-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl shadow-lg"
         aria-label="WhatsApp"
         title="Cotizar por WhatsApp"
       >
-        <WhatsAppIcon className="h-8 w-8" />
+        <WhatsAppIcon className="h-12 w-12" />
       </a>
     </div>
   );

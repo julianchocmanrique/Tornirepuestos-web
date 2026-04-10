@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { SiteHeader } from "@/components/SiteHeader";
 import Image from "next/image";
 import { categories, getCategoryBySlug } from "@/lib/categories";
 import { wa } from "@/lib/wa";

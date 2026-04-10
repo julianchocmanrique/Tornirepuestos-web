@@ -10,7 +10,7 @@ const brand = {
   name: "TORNIREPUESTOS",
   tagline: "Repuestos para vehículos pesados, buses y maquinaria",
   subtitle:
-    "Cotiza por WhatsApp en minutos. Te ayudamos a identificar la referencia correcta y coordinamos envío a todo Colombia (a convenir).",
+    "Cotiza por WhatsApp en minutos. Te ayudamos a identificar la referencia correcta y coordinamos envío a todo Colombia.",
   colors: {
     blue: "var(--tp-blue-800)",
     accent: "var(--tp-action-primary)", // rojo promo
@@ -23,7 +23,7 @@ const LOGO_SRC = `${BASE_PATH}/logo-tornirepuestos.jpg`;
 const trust = [
   { k: "+20 años", v: "Experiencia y respaldo" },
   { k: "Cotización ágil", v: "Por WhatsApp" },
-  { k: "Envíos", v: "A todo Colombia (a convenir)" },
+  { k: "Envíos", v: "A todo Colombia" },
   { k: "Asesoría", v: "Compatibilidad y referencia" },
 ];
 
@@ -37,7 +37,7 @@ const highlights = [
     desc: "Validamos compatibilidad para que compres la pieza correcta desde el inicio.",
   },
   {
-    title: "Entrega a convenir",
+    title: "Entrega ",
     desc: "Coordinamos envío según tu ciudad y urgencia. También puedes recoger en tienda.",
   },
 ];
@@ -84,7 +84,7 @@ const faqs = [
   {
     category: "General",
     q: "¿Hacen envíos a otras ciudades?",
-    a: "Sí. Enviamos a todo Colombia (a convenir). Te confirmamos opciones y tiempos según destino.",
+    a: "Sí. Enviamos a todo Colombia. Te confirmamos opciones y tiempos según destino.",
   },
   {
     category: "General",
@@ -143,7 +143,7 @@ export default function Page() {
       <div className="bg-slate-950 text-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2 text-xs">
           <div className="hidden sm:block text-white/80">
-            Envíos a todo Colombia (a convenir) · Cotiza por WhatsApp
+            Envíos a todo Colombia · Cotiza por WhatsApp
           </div>
           <a
             href={wa(
@@ -333,7 +333,7 @@ export default function Page() {
               </h2>
               <p className="mt-4 text-white/75">
                 Envía referencia, placa o foto. Te confirmamos disponibilidad, precio y
-                coordinamos envío a convenir.
+                coordinamos envío .
               </p>
 
               <div className="mt-6 flex flex-wrap gap-3">
@@ -358,7 +358,7 @@ export default function Page() {
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-[var(--tp-surface-card)] p-4">
                   <div className="text-sm font-bold">3) Entregamos</div>
-                  <div className="mt-1 text-xs text-white/70">envío a convenir</div>
+                  <div className="mt-1 text-xs text-white/70">envío </div>
                 </div>
               </div>
             </div>
@@ -428,7 +428,7 @@ export default function Page() {
                 "Asesoría para compatibilidad",
                 "Cotización clara por WhatsApp",
                 "Atención a flotas y talleres",
-                "Envíos a todo Colombia (a convenir)",
+                "Envíos a todo Colombia",
               ].map((x) => (
                 <div
                   key={x}

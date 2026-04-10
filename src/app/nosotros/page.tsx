@@ -42,7 +42,7 @@ export default function Page() {
                 "+20 años de experiencia",
                 "Distribuidores directos",
                 "Repuestos de excelente calidad",
-                "Logística a convenir",
+                "Logística ",
               ].map((x) => (
                 <div
                   key={x}

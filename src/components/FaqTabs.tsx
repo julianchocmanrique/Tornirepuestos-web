@@ -20,9 +20,7 @@ export function FaqTabs({ items }: { items: FaqItem[] }) {
                 className="flex w-full items-center justify-between gap-6 px-6 py-5 text-left"
               >
                 <div className="text-sm font-extrabold text-slate-950">{f.q}</div>
-                <div className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700">
-                  <span className={"transition " + (isOpen ? 'rotate-180' : '')}>⌄</span>
-                </div>
+                <span className={"text-slate-500 transition " + (isOpen ? 'rotate-180' : '')}>⌄</span>
               </button>
 
               {isOpen ? (

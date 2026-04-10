@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { categories, getCategoryBySlug } from "@/lib/categories";
+import { getCategorySeoContent } from "@/lib/categorySeoContent";
 import { absoluteUrl } from "@/lib/seo";
 import { wa } from "@/lib/wa";
 import { seoParagraph } from "./seo";
@@ -73,6 +74,21 @@ export default async function Page({
   }
 
   const waText = `Quiero cotizar: ${cat.title}. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____.`;
+  const seoContent = getCategorySeoContent(cat.slug);
+  const categoryFaq = [
+    {
+      q: `¿Qué referencias de ${cat.title.toLowerCase()} manejan?`,
+      a: `Manejamos referencias y equivalencias de ${cat.title.toLowerCase()} para vehículos pesados, buses y maquinaria. Validamos compatibilidad por placa, muestra o referencia.`,
+    },
+    {
+      q: `¿Cómo cotizo ${cat.title.toLowerCase()} más rápido?`,
+      a: `Envíanos por WhatsApp una foto clara de la pieza, referencia y ciudad destino. Te compartimos disponibilidad, precio y tiempos de envío.`,
+    },
+    {
+      q: `¿Hacen envíos de ${cat.title.toLowerCase()} a otras ciudades?`,
+      a: `Sí, coordinamos envío de ${cat.title.toLowerCase()} a todo Colombia según disponibilidad y transportadora.`,
+    },
+  ];
   const categoryJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -81,12 +97,28 @@ export default async function Page({
     url: absoluteUrl(`/categorias/${cat.slug}`),
     isPartOf: absoluteUrl("/categorias"),
   };
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: categoryFaq.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.a,
+      },
+    })),
+  };
 
   return (
     <div className="min-h-screen bg-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(categoryJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       {/* Hero */}
       <section className="relative overflow-hidden">
@@ -259,6 +291,77 @@ export default async function Page({
             </div>
           </div>
         </div>
+
+        <div className="mt-8 grid gap-6 lg:grid-cols-2">
+          <article className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+            <div className="text-xs uppercase tracking-wide text-slate-500">
+              Términos de búsqueda
+            </div>
+            <h2 className="mt-2 text-2xl font-extrabold text-slate-900">
+              Lo que más consultan en {cat.title}
+            </h2>
+            <p className="mt-3 text-sm text-slate-700">
+              Basado en rotación de inventarios 2026 (enero a abril) y consultas
+              frecuentes de clientes en mostrador y WhatsApp.
+            </p>
+            <ul className="mt-4 space-y-2 text-sm text-slate-700">
+              {seoContent.commonSearches.map((term) => (
+                <li key={term} className="flex gap-2">
+                  <span className="mt-0.5" style={{ color: "var(--tp-action-primary)" }}>
+                    •
+                  </span>
+                  <span>{term}</span>
+                </li>
+              ))}
+            </ul>
+          </article>
+
+          <article className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+            <div className="text-xs uppercase tracking-wide text-slate-500">
+              Referencias frecuentes
+            </div>
+            <h2 className="mt-2 text-2xl font-extrabold text-slate-900">
+              Productos y términos relacionados
+            </h2>
+            <ul className="mt-4 space-y-2 text-sm text-slate-700">
+              {seoContent.inventoryHighlights.map((item) => (
+                <li key={item} className="flex gap-2">
+                  <span className="mt-0.5" style={{ color: "var(--tp-action-primary)" }}>
+                    ▲
+                  </span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {seoContent.relatedTerms.map((term) => (
+                <span
+                  key={term}
+                  className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-700"
+                >
+                  {term}
+                </span>
+              ))}
+            </div>
+          </article>
+        </div>
+
+        <article className="mt-8 rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+          <div className="text-xs uppercase tracking-wide text-slate-500">
+            FAQ de {cat.title}
+          </div>
+          <h2 className="mt-2 text-2xl font-extrabold text-slate-900">
+            Preguntas frecuentes
+          </h2>
+          <div className="mt-4 grid gap-4">
+            {categoryFaq.map((item) => (
+              <div key={item.q} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <h3 className="text-sm font-bold text-slate-900">{item.q}</h3>
+                <p className="mt-2 text-sm text-slate-700">{item.a}</p>
+              </div>
+            ))}
+          </div>
+        </article>
       </section>
 
       {/* Footer nav */}

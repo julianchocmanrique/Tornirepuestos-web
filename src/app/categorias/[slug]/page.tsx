@@ -104,8 +104,12 @@ export default async function Page({
 
         <div className="relative mx-auto max-w-6xl px-4 py-16 text-white">
           <div className="flex items-center justify-between gap-4">
-            
-            
+            <Link
+              href="/categorias"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/15"
+            >
+              ← Volver a categorías
+            </Link>
           </div>
 
           <div className="mt-10 max-w-3xl">

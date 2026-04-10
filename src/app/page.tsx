@@ -142,26 +142,6 @@ export default function Page() {
       {/* BRAND STRIP */}
       <div className="h-11 bg-[var(--tp-action-primary)]" />
 
-      {/* TOP BAR */}
-      <div className="bg-[var(--tp-blue-900)] text-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2 text-xs">
-          <div className="hidden sm:block text-white/80">
-            Envíos a todo Colombia · Cotiza por WhatsApp
-          </div>
-          <a
-            href={wa(
-              "Hola, quiero cotizar un repuesto. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
-            )}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-white/90"
-          >
-            <span>💬</span>
-            <span className="font-semibold">WhatsApp</span>
-          </a>
-        </div>
-      </div>
-
       {/* HEADER */}
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">

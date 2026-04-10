@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { CategoriesAnimatedGrid } from "@/components/CategoriesAnimatedGrid";
+import { FaqTabs } from "@/components/FaqTabs";
 import { categories } from "@/lib/categories";
 import { wa } from "@/lib/wa";
 
@@ -61,26 +62,32 @@ const testimonials = [
 
 const faqs = [
   {
-    q: "¿Cómo hago una cotización?",
-    a: "Escríbenos por WhatsApp con la placa, una referencia o una foto clara de la pieza. Si tienes medidas o marca/modelo, mejor.",
-  },
-  {
-    q: "¿Hacen envíos a otras ciudades?",
-    a: "Sí. Enviamos a todo Colombia (a convenir). Te confirmamos opciones y tiempos según destino.",
-  },
-  {
+    category: "General",
     q: "¿Atienden qué tipo de vehículos?",
     a: "Vehículos pesados, buses y maquinaria. También atendemos flotas y talleres.",
   },
   {
+    category: "Cotización",
+    q: "¿Cómo hago una cotización?",
+    a: "Escríbenos por WhatsApp con la placa, una referencia o una foto clara de la pieza. Si tienes medidas o marca/modelo, mejor.",
+  },
+  {
+    category: "Cotización",
     q: "¿Puedo cotizar con solo una foto?",
     a: "Sí. Una foto bien tomada + datos básicos (medidas/referencia) ayuda a validar compatibilidad.",
   },
   {
+    category: "Cotización",
     q: "¿Qué información acelera la cotización?",
     a: "Placa, referencia, foto de la etiqueta, medidas (si aplica) y ciudad de destino.",
   },
   {
+    category: "Envíos",
+    q: "¿Hacen envíos a otras ciudades?",
+    a: "Sí. Enviamos a todo Colombia (a convenir). Te confirmamos opciones y tiempos según destino.",
+  },
+  {
+    category: "Compatibilidad",
     q: "¿Cómo sé si la pieza es compatible?",
     a: "Te ayudamos a confirmar compatibilidad antes de comprar. La idea es evitar devoluciones y pérdidas de tiempo.",
   },
@@ -475,28 +482,7 @@ export default function Page() {
             Preguntas frecuentes
           </h2>
 
-          <div className="mt-8 grid gap-4 lg:grid-cols-2">
-            {faqs.map((f) => (
-              <details
-                key={f.q}
-                className="group rounded-3xl border border-white/10 bg-[var(--tp-surface-card)] p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)] backdrop-blur"
-              >
-                <summary className="cursor-pointer list-none">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="text-sm font-extrabold text-white/95">{f.q}</div>
-                    <div
-                      className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-2xl text-white"
-                      style={{ background: "var(--tp-action-primary)" }}
-                      aria-hidden
-                    >
-                      +
-                    </div>
-                  </div>
-                </summary>
-                <p className="mt-3 text-sm text-white/75">{f.a}</p>
-              </details>
-            ))}
-          </div>
+          <FaqTabs items={faqs} />
 
           <div className="mt-10 rounded-3xl border border-white/10 bg-[var(--tp-surface-card)] p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)] backdrop-blur">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

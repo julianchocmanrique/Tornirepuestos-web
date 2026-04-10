@@ -102,14 +102,14 @@ export function CategoriesAnimatedGrid({ categories }: { categories: Category[] 
             href={`/categorias/${c.slug}`}
             data-reveal
             data-from={from}
-            className={`tp-reveal group relative overflow-hidden rounded-3xl border border-slate-200 bg-[var(--tp-surface-card)] shadow-sm transition hover:-translate-y-0.5 hover:shadow ${span}`}
+            className={`tp-reveal tp-card group relative overflow-hidden rounded-3xl border border-slate-200 bg-[var(--tp-surface-card)] shadow-sm transition ${span}`}
           >
             <div className="absolute inset-0">
               <Image
                 src={c.img}
                 alt={c.title}
                 fill
-                className="object-cover opacity-80 transition duration-500 group-hover:scale-[1.03]"
+                className="tp-card__img object-cover opacity-80"
               />
               <div className="absolute inset-0 bg-gradient-to-tr from-slate-950/85 via-slate-950/35 to-transparent" />
               {tone === 'red' && (

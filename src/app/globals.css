@@ -31,6 +31,12 @@
 
 html {
   scroll-behavior: smooth;
+  background: #fff;
+}
+
+body {
+  background: #fff;
+  overflow-x: hidden;
 }
 
 /* Scroll reveal for category cards */

@@ -610,9 +610,7 @@ export default function Page() {
               <div className="rounded-3xl border border-white/10 bg-[var(--tp-surface-card)] p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur">
                 <div className="text-sm font-bold text-white/85">Correo</div>
                 <div className="mt-1 text-sm text-white/80">ventas@tornirepuestos.com</div>
-                <div className="mt-3 text-xs text-white/60">
-                  Si es urgente, WhatsApp es más rápido.
-                </div>
+
               </div>
 
               <div className="rounded-3xl border border-white/10 bg-[var(--tp-surface-card)] p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur">
@@ -620,9 +618,7 @@ export default function Page() {
                 <div className="mt-1 text-sm text-white/80">
                   Calle 30 N 60-250, Santa Marta, Colombia
                 </div>
-                <div className="mt-3 text-xs text-white/60">
-                  (Si quieres, lo dejamos con pin exacto en Google Maps.)
-                </div>
+
               </div>
             </div>
           </div>

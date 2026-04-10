@@ -5,7 +5,7 @@ import { categories, getCategoryBySlug } from "@/lib/categories";
 import { getCategorySeoContent } from "@/lib/categorySeoContent";
 import { absoluteUrl } from "@/lib/seo";
 import { wa } from "@/lib/wa";
-import { seoParagraph } from "./seo";
+import { seoDetail, seoParagraph } from "./seo";
 
 export function generateStaticParams() {
   return categories.map((c) => ({ slug: c.slug }));
@@ -75,6 +75,7 @@ export default async function Page({
 
   const waText = `Quiero cotizar: ${cat.title}. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____.`;
   const seoContent = getCategorySeoContent(cat.slug);
+  const seoInfoDetail = seoDetail(cat);
   const categoryFaq = [
     {
       q: `¿Qué referencias de ${cat.title.toLowerCase()} manejan?`,
@@ -183,6 +184,45 @@ export default async function Page({
           <p className="mt-3 text-sm leading-relaxed text-slate-700">
             {seoParagraph(cat)}
           </p>
+          <p className="mt-3 text-sm leading-relaxed text-slate-700">
+            {seoInfoDetail.overview}
+          </p>
+          <p className="mt-3 text-sm leading-relaxed text-slate-700">
+            {seoInfoDetail.technicalGuide}
+          </p>
+
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <h3 className="text-sm font-extrabold text-slate-900">
+                Aplicaciones frecuentes en {cat.title.toLowerCase()}
+              </h3>
+              <ul className="mt-3 space-y-2 text-sm text-slate-700">
+                {seoInfoDetail.applications.map((item) => (
+                  <li key={item} className="flex gap-2">
+                    <span className="mt-0.5" style={{ color: "var(--tp-action-primary)" }}>
+                      •
+                    </span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <h3 className="text-sm font-extrabold text-slate-900">
+                Recomendaciones para cotizar mejor
+              </h3>
+              <ul className="mt-3 space-y-2 text-sm text-slate-700">
+                {seoInfoDetail.purchaseTips.map((item) => (
+                  <li key={item} className="flex gap-2">
+                    <span className="mt-0.5" style={{ color: "var(--tp-action-primary)" }}>
+                      •
+                    </span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
 

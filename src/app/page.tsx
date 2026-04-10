@@ -493,14 +493,14 @@ export default function Page() {
             >
               Contáctanos
             </h2>
-            <p className="mt-3 text-sm text-white/75">
+            <p className="mt-3 text-sm text-slate-600">
               Para una respuesta más rápida, envíanos la referencia o una foto.
             </p>
 
             <div className="mt-6 grid gap-3 text-slate-700">
-              <div className="rounded-3xl border border-white/10 bg-[var(--tp-surface-card)] p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur">
-                <div className="text-sm font-bold text-white/85">WhatsApp</div>
-                <div className="mt-1 text-sm text-white/80">+57 310 653 1208</div>
+              <div className="rounded-2xl border border-slate-200 bg-white p-6">
+                <div className="text-sm font-bold text-slate-900">WhatsApp</div>
+                <div className="mt-1 text-sm text-slate-600">+57 310 653 1208</div>
                 <a
                   className="mt-3 inline-flex items-center gap-2 text-sm font-semibold"
                   style={{ color: "var(--tp-action-primary)" }}
@@ -514,15 +514,15 @@ export default function Page() {
                 </a>
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-[var(--tp-surface-card)] p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur">
-                <div className="text-sm font-bold text-white/85">Correo</div>
-                <div className="mt-1 text-sm text-white/80">ventas@tornirepuestos.com</div>
+              <div className="rounded-2xl border border-slate-200 bg-white p-6">
+                <div className="text-sm font-bold text-slate-900">Correo</div>
+                <div className="mt-1 text-sm text-slate-600">ventas@tornirepuestos.com</div>
 
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-[var(--tp-surface-card)] p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur">
-                <div className="text-sm font-bold text-white/85">Dirección</div>
-                <div className="mt-1 text-sm text-white/80">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6">
+                <div className="text-sm font-bold text-slate-900">Dirección</div>
+                <div className="mt-1 text-sm text-slate-600">
                   Calle 30 N 60-250, Santa Marta, Colombia
                 </div>
 
@@ -530,9 +530,9 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-[var(--tp-surface-card)] p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur">
-            <div className="text-sm font-extrabold text-white/90">Ubicación</div>
-            <p className="mt-3 text-sm text-white/75">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-900">
+            <div className="text-sm font-extrabold text-slate-900">Ubicación</div>
+            <p className="mt-3 text-sm text-slate-600">
               Encuéntranos en Santa Marta. Si vienes por repuesto urgente, escríbenos por WhatsApp y te guiamos.
             </p>
 
@@ -560,7 +560,7 @@ export default function Page() {
                 href={wa("Quiero ubicación. ¿Me compartes cómo llegar?")}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
               >
                 Pedir ubicación por WhatsApp
               </a>

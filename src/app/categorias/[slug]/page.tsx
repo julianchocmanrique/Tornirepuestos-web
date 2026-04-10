@@ -30,7 +30,7 @@ export async function generateMetadata({
   }
 
   const title = `${cat.title} para vehículos pesados`;
-  const description = `${cat.desc} Cotiza ${cat.title.toLowerCase()} por WhatsApp con Tornirepuestos en Santa Marta.`;
+  const description = `${cat.desc} Cotiza ${cat.title.toLowerCase()} por WhatsApp con Tornirepuestos.`;
   const url = absoluteUrl(`/categorias/${cat.slug}`);
 
   return {
@@ -367,9 +367,7 @@ export default async function Page({
       {/* Footer nav */}
       <footer className="border-t border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-10 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-sm text-slate-600">
-            Tornirepuestos · Santa Marta
-          </div>
+          <div className="text-sm text-slate-600">Tornirepuestos</div>
           <div className="flex flex-wrap gap-4 text-sm text-slate-600">
             
             <Link className="hover:text-slate-900" href="/categorias">

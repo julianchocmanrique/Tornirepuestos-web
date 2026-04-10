@@ -2,70 +2,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { categories } from '@/lib/categories';
+import { getGalleryProducts } from '@/lib/productGalleryData';
 import { wa } from '@/lib/wa';
-
-const PRODUCT_SAMPLES: Record<string, { name: string; note?: string }[]> = {
-  frenos: [
-    { name: 'Pastillas de freno', note: 'Camión / bus' },
-    { name: 'Bandas de freno', note: 'Trabajo pesado' },
-    { name: 'Discos / tambores', note: 'Según referencia' },
-    { name: 'Cámaras / válvulas', note: 'Compatibilidad' },
-    { name: 'Sensores ABS', note: 'Eléctrico' },
-    { name: 'Kit reparación', note: 'Mantenimiento' },
-  ],
-  filtracion: [
-    { name: 'Filtro de aceite', note: 'Motor' },
-    { name: 'Filtro de aire', note: 'Admisión' },
-    { name: 'Filtro de combustible', note: 'Diésel' },
-    { name: 'Separador de agua', note: 'Protección' },
-    { name: 'Filtro hidráulico', note: 'Maquinaria' },
-    { name: 'Kit filtros', note: 'Preventivo' },
-  ],
-  suspension: [
-    { name: 'Amortiguadores', note: 'Carga / confort' },
-    { name: 'Bujes', note: 'Tren delantero' },
-    { name: 'Resortes', note: 'Suspensión' },
-    { name: 'Barras / terminales', note: 'Dirección' },
-    { name: 'Soportes', note: 'Montaje' },
-    { name: 'Kit suspensión', note: 'Reparación' },
-  ],
-  motor: [
-    { name: 'Correas', note: 'Accesorios' },
-    { name: 'Empaques / sellos', note: 'Fugas' },
-    { name: 'Bombas', note: 'Refrigeración' },
-    { name: 'Sensores', note: 'Control' },
-    { name: 'Filtros', note: 'Mantenimiento' },
-    { name: 'Componentes varios', note: 'Según referencia' },
-  ],
-  'electricos-y-luces': [
-    { name: 'Farolas / stops', note: 'Iluminación' },
-    { name: 'Bombillos / LED', note: 'Repuestos' },
-    { name: 'Conectores', note: 'Cableado' },
-    { name: 'Switches', note: 'Control' },
-    { name: 'Fusibles / relés', note: 'Protección' },
-    { name: 'Arneses', note: 'Instalación' },
-  ],
-  transmision: [
-    { name: 'Crucetas', note: 'Cardán' },
-    { name: 'Rodamientos', note: 'Soporte' },
-    { name: 'Retenes', note: 'Sellado' },
-    { name: 'Kits reparación', note: 'Caja/diferencial' },
-    { name: 'Componentes varios', note: 'Torque' },
-    { name: 'Lubricantes', note: 'Mantenimiento' },
-  ],
-  'rodamientos-y-retenedores': [
-    { name: 'Rodamientos', note: 'Rígidos / cónicos' },
-    { name: 'Retenedores', note: 'Sellado' },
-    { name: 'Kits', note: 'Reparación' },
-    { name: 'Sellos', note: 'Compatibilidad' },
-    { name: 'Grasas', note: 'Lubricación' },
-    { name: 'Accesorios', note: 'Montaje' },
-  ],
-};
 
 export function ProductGallery({ slug }: { slug: string }) {
   const cat = categories.find((c) => c.slug === slug);
-  const list = PRODUCT_SAMPLES[slug] || PRODUCT_SAMPLES['motor'];
+  const list = getGalleryProducts(slug);
 
   const waText = `Hola, quiero cotizar repuestos de la categoría: ${cat?.title || slug}. ¿Qué disponibilidad y precio tienen?`;
 

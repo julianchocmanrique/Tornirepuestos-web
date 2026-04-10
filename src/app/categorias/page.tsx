@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SiteHeader } from "@/components/SiteHeader";
 import Image from "next/image";
 import { categories } from "@/lib/categories";
 

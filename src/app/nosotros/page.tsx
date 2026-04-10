@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SiteHeader } from "@/components/SiteHeader";
 
 export const metadata = {
   title: "Tornirepuestos · Nosotros",
@@ -13,15 +14,8 @@ const ACCENT = "var(--tp-action-primary)";
 export default function Page() {
   return (
     <div className="min-h-screen bg-white">
-      <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <Link href="/" className="text-sm font-extrabold text-slate-900">
-            ← Volver
-          </Link>
-          <div className="text-sm font-semibold text-slate-700">Nosotros</div>
-          <div className="w-16" />
-        </div>
-      </header>
+      
+      <SiteHeader />
 
       <main className="mx-auto max-w-6xl px-4 py-14">
         <div className="text-xs uppercase tracking-wide text-slate-500">Nosotros</div>

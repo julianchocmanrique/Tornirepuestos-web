@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SiteHeader } from "@/components/SiteHeader";
 import Image from "next/image";
 import { categories, getCategoryBySlug } from "@/lib/categories";
 import { wa } from "@/lib/wa";
@@ -21,9 +22,7 @@ export default async function Page({
       <div className="mx-auto max-w-4xl px-4 py-16">
         <h1 className="text-2xl font-extrabold">Categoría no encontrada</h1>
         <p className="mt-2 text-slate-600">Vuelve al catálogo.</p>
-        <Link className="mt-6 inline-block underline" href="/categorias">
-          Ver categorías
-        </Link>
+        
       </div>
     );
   }
@@ -48,18 +47,8 @@ export default async function Page({
 
         <div className="relative mx-auto max-w-6xl px-4 py-16 text-white">
           <div className="flex items-center justify-between gap-4">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm"
-            >
-              ← Inicio
-            </Link>
-            <Link
-              href="/categorias"
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm"
-            >
-              Ver categorías
-            </Link>
+            
+            
           </div>
 
           <div className="mt-10 max-w-3xl">
@@ -218,9 +207,7 @@ export default async function Page({
             Tornirepuestos · Santa Marta
           </div>
           <div className="flex flex-wrap gap-4 text-sm text-slate-600">
-            <Link className="hover:text-slate-900" href="/">
-              Inicio
-            </Link>
+            
             <Link className="hover:text-slate-900" href="/categorias">
               Categorías
             </Link>

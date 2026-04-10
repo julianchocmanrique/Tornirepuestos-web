@@ -458,7 +458,7 @@ export default function Page() {
 
           <FaqTabs items={faqs} />
 
-          <div className="mt-10 rounded-3xl border border-white/10 bg-[var(--tp-surface-card)] p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)] backdrop-blur">
+          <div className="mt-10 rounded-2xl border border-white/20 bg-[var(--tp-surface-card)] p-6 text-white">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="text-sm font-extrabold text-white/95">¿Listo para cotizar?</div>

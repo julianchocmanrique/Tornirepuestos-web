@@ -47,7 +47,7 @@ export function SiteHeader() {
             <Link className="hover:text-slate-900" href="/">
               Inicio
             </Link>
-            <Link className="hover:text-slate-900" href="/categorias#categorias">
+            <Link className="hover:text-slate-900" href="/categorias">
               Categorías
             </Link>
             <Link className="hover:text-slate-900" href="/nosotros">

@@ -32,7 +32,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50">
       <div className="bg-slate-950 text-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2 text-xs text-white/80">
-          <div className="truncate">Envíos a todo Colombia (a convenir) · Cotiza por WhatsApp</div>
+          <div className="truncate">Envíos a todo Colombia · Cotiza por WhatsApp</div>
           <a
             className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-white/90 hover:bg-white/10"
             href={wa(waText)}

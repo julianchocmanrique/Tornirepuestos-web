@@ -3,7 +3,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Tornirepuestos",
-  description: "Soluciones en Tornería y Repuestos Industriales",
+  description: "Repuestos para vehículos pesados, buses y maquinaria en Colombia.",
+  metadataBase: new URL("https://tornirepuestos.com"),
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },

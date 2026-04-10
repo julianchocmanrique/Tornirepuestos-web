@@ -1,9 +1,31 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 import { categories } from "@/lib/categories";
+import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
 
-export const metadata = {
-  title: "Tornirepuestos · Categorías",
+export const metadata: Metadata = {
+  title: "Categorías",
+  description:
+    "Explora todas las categorías de repuestos de Tornirepuestos para vehículos pesados, buses y maquinaria.",
+  alternates: {
+    canonical: "/categorias",
+  },
+  openGraph: {
+    type: "website",
+    url: absoluteUrl("/categorias"),
+    title: "Categorías de Repuestos | Tornirepuestos",
+    description:
+      "Explora todas las categorías de repuestos de Tornirepuestos para vehículos pesados, buses y maquinaria.",
+    images: [DEFAULT_OG_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Categorías de Repuestos | Tornirepuestos",
+    description:
+      "Explora todas las categorías de repuestos de Tornirepuestos para vehículos pesados, buses y maquinaria.",
+    images: [DEFAULT_OG_IMAGE],
+  },
 };
 
 export default function Page() {

@@ -1,11 +1,57 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 import { categories, getCategoryBySlug } from "@/lib/categories";
+import { absoluteUrl } from "@/lib/seo";
 import { wa } from "@/lib/wa";
 import { seoParagraph } from "./seo";
 
 export function generateStaticParams() {
   return categories.map((c) => ({ slug: c.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const cat = getCategoryBySlug(slug);
+
+  if (!cat) {
+    return {
+      title: "Categoría no encontrada",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const title = `${cat.title} para vehículos pesados`;
+  const description = `${cat.desc} Cotiza ${cat.title.toLowerCase()} por WhatsApp con Tornirepuestos en Santa Marta.`;
+  const url = absoluteUrl(`/categorias/${cat.slug}`);
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/categorias/${cat.slug}`,
+    },
+    openGraph: {
+      type: "article",
+      url,
+      title,
+      description,
+      images: [cat.img],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [cat.img],
+    },
+  };
 }
 
 export default async function Page({
@@ -27,9 +73,21 @@ export default async function Page({
   }
 
   const waText = `Quiero cotizar: ${cat.title}. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____.`;
+  const categoryJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: cat.title,
+    description: cat.desc,
+    url: absoluteUrl(`/categorias/${cat.slug}`),
+    isPartOf: absoluteUrl("/categorias"),
+  };
 
   return (
     <div className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(categoryJsonLd) }}
+      />
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">

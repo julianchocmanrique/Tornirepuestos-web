@@ -1,10 +1,28 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 
+import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
 import { wa } from "@/lib/wa";
 
-export const metadata = {
-  title: "Tornirepuestos · Preguntas",
+export const metadata: Metadata = {
+  title: "Preguntas Frecuentes",
   description: "Preguntas frecuentes de Tornirepuestos sobre cotizaciones, compatibilidad y envíos.",
+  alternates: {
+    canonical: "/preguntas",
+  },
+  openGraph: {
+    type: "website",
+    url: absoluteUrl("/preguntas"),
+    title: "Preguntas Frecuentes | Tornirepuestos",
+    description: "Preguntas frecuentes de Tornirepuestos sobre cotizaciones, compatibilidad y envíos.",
+    images: [DEFAULT_OG_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Preguntas Frecuentes | Tornirepuestos",
+    description: "Preguntas frecuentes de Tornirepuestos sobre cotizaciones, compatibilidad y envíos.",
+    images: [DEFAULT_OG_IMAGE],
+  },
 };
 
 const faqs = [
@@ -31,8 +49,25 @@ const faqs = [
 ];
 
 export default function PreguntasPage() {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.a,
+      },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-white text-slate-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <main className="mx-auto max-w-6xl px-4 py-14">
         <div className="text-xs uppercase tracking-wide text-slate-500">Preguntas</div>
         <h1 className="mt-2 text-4xl font-extrabold tracking-tight">Preguntas frecuentes</h1>

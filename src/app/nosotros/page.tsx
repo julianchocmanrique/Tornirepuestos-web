@@ -1,9 +1,29 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
 
-export const metadata = {
-  title: "Tornirepuestos · Nosotros",
+export const metadata: Metadata = {
+  title: "Nosotros",
   description:
     "Conoce la historia de Tornirepuestos: más de 20 años comercializando repuestos para vehículos pesados en Colombia.",
+  alternates: {
+    canonical: "/nosotros",
+  },
+  openGraph: {
+    type: "website",
+    url: absoluteUrl("/nosotros"),
+    title: "Nosotros | Tornirepuestos",
+    description:
+      "Conoce la historia de Tornirepuestos y nuestra experiencia en repuestos para vehículos pesados.",
+    images: [DEFAULT_OG_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nosotros | Tornirepuestos",
+    description:
+      "Conoce la historia de Tornirepuestos y nuestra experiencia en repuestos para vehículos pesados.",
+    images: [DEFAULT_OG_IMAGE],
+  },
 };
 
 import { COPY } from "@/lib/content";

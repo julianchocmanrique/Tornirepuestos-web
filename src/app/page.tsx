@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 
 import { CategoriesAnimatedGrid } from "@/components/CategoriesAnimatedGrid";
 import { FaqTabs } from "@/components/FaqTabs";
 import { categories } from "@/lib/categories";
+import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
 import { wa } from "@/lib/wa";
 
 const brand = {
@@ -93,6 +95,44 @@ const faqs = [
   },
 ];
 
+export const metadata: Metadata = {
+  title: "Inicio",
+  description:
+    "Cotiza repuestos para vehículos pesados, buses y maquinaria en Tornirepuestos. Atención por WhatsApp y envíos a todo Colombia.",
+  alternates: {
+    canonical: "/",
+  },
+  keywords: [
+    "repuestos vehículos pesados",
+    "repuestos para buses",
+    "repuestos maquinaria",
+    "tornirepuestos",
+    "repuestos santa marta",
+  ],
+  openGraph: {
+    type: "website",
+    url: absoluteUrl("/"),
+    title: "Tornirepuestos",
+    description:
+      "Cotiza repuestos para vehículos pesados, buses y maquinaria en Tornirepuestos.",
+    images: [
+      {
+        url: DEFAULT_OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: "Tornirepuestos",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tornirepuestos",
+    description:
+      "Cotiza repuestos para vehículos pesados, buses y maquinaria en Tornirepuestos.",
+    images: [DEFAULT_OG_IMAGE],
+  },
+};
+
 function Pill({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs text-white/80">
@@ -137,8 +177,28 @@ function SecondaryButton({
 }
 
 export default function Page() {
+  const localBusinessJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "AutoPartsStore",
+    name: "Tornirepuestos",
+    image: absoluteUrl("/logo-tornirepuestos.jpg"),
+    url: absoluteUrl("/"),
+    telephone: "+57 310 653 1208",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Calle 30 N 60-250",
+      addressLocality: "Santa Marta",
+      addressCountry: "CO",
+    },
+    sameAs: [wa("Hola, quiero cotizar un repuesto.")],
+  };
+
   return (
     <div className="min-h-screen bg-white text-slate-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+      />
       {/* HEADER */}
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">

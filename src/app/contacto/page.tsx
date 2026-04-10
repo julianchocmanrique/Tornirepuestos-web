@@ -1,8 +1,26 @@
 import { wa } from "@/lib/wa";
+import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
 
-export const metadata = {
-  title: "Tornirepuestos · Contacto",
+export const metadata: Metadata = {
+  title: "Contacto",
   description: "Canales de contacto de Tornirepuestos en Santa Marta.",
+  alternates: {
+    canonical: "/contacto",
+  },
+  openGraph: {
+    type: "website",
+    url: absoluteUrl("/contacto"),
+    title: "Contacto | Tornirepuestos",
+    description: "Canales de contacto de Tornirepuestos en Santa Marta.",
+    images: [DEFAULT_OG_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Contacto | Tornirepuestos",
+    description: "Canales de contacto de Tornirepuestos en Santa Marta.",
+    images: [DEFAULT_OG_IMAGE],
+  },
 };
 
 export default function ContactoPage() {

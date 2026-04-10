@@ -67,27 +67,27 @@ const faqs = [
     a: "Vehículos pesados, buses y maquinaria. También atendemos flotas y talleres.",
   },
   {
-    category: "Cotización",
+    category: "General",
     q: "¿Cómo hago una cotización?",
     a: "Escríbenos por WhatsApp con la placa, una referencia o una foto clara de la pieza. Si tienes medidas o marca/modelo, mejor.",
   },
   {
-    category: "Cotización",
+    category: "General",
     q: "¿Puedo cotizar con solo una foto?",
     a: "Sí. Una foto bien tomada + datos básicos (medidas/referencia) ayuda a validar compatibilidad.",
   },
   {
-    category: "Cotización",
+    category: "General",
     q: "¿Qué información acelera la cotización?",
     a: "Placa, referencia, foto de la etiqueta, medidas (si aplica) y ciudad de destino.",
   },
   {
-    category: "Envíos",
+    category: "General",
     q: "¿Hacen envíos a otras ciudades?",
     a: "Sí. Enviamos a todo Colombia (a convenir). Te confirmamos opciones y tiempos según destino.",
   },
   {
-    category: "Compatibilidad",
+    category: "General",
     q: "¿Cómo sé si la pieza es compatible?",
     a: "Te ayudamos a confirmar compatibilidad antes de comprar. La idea es evitar devoluciones y pérdidas de tiempo.",
   },

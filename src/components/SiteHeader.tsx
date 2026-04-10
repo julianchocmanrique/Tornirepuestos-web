@@ -53,10 +53,10 @@ export function SiteHeader() {
             <Link className="hover:text-slate-900" href="/nosotros">
               Nosotros
             </Link>
-            <Link className="hover:text-slate-900" href="/#faq">
+            <Link className="hover:text-slate-900" href="/preguntas">
               Preguntas
             </Link>
-            <Link className="hover:text-slate-900" href="/#contacto">
+            <Link className="hover:text-slate-900" href="/contacto">
               Contacto
             </Link>
           </nav>

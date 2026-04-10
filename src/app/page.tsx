@@ -145,7 +145,7 @@ export default function Page() {
       {/* HEADER */}
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
-          <a href="#inicio" className="flex items-center gap-3">
+          <a href="/" className="flex items-center gap-3">
             <div className="relative h-10 w-10 overflow-hidden rounded-xl border border-slate-200 bg-white">
               <Image
                 src={LOGO_SRC}
@@ -168,19 +168,19 @@ export default function Page() {
           </a>
 
           <nav className="flex items-center gap-5 overflow-x-auto whitespace-nowrap text-sm text-slate-700">
-            <a className="hover:text-slate-900" href="#inicio">
+            <a className="hover:text-slate-900" href="/">
               Inicio
             </a>
-            <a className="hover:text-slate-900" href="#categorias">
+            <a className="hover:text-slate-900" href="/categorias">
               Categorías
             </a>
-            <a className="hover:text-slate-900" href="#nosotros">
+            <a className="hover:text-slate-900" href="/nosotros">
               Nosotros
             </a>
-            <a className="hover:text-slate-900" href="#faq">
+            <a className="hover:text-slate-900" href="/preguntas">
               Preguntas
             </a>
-            <a className="hover:text-slate-900" href="#contacto">
+            <a className="hover:text-slate-900" href="/contacto">
               Contacto
             </a>
           </nav>
@@ -600,19 +600,19 @@ export default function Page() {
           </div>
 
           <div className="flex flex-wrap gap-4 text-sm text-slate-600">
-            <a className="hover:text-slate-900" href="#inicio">
+            <a className="hover:text-slate-900" href="/">
               Inicio
             </a>
-            <a className="hover:text-slate-900" href="#categorias">
+            <a className="hover:text-slate-900" href="/categorias">
               Categorías
             </a>
-            <a className="hover:text-slate-900" href="#nosotros">
+            <a className="hover:text-slate-900" href="/nosotros">
               Nosotros
             </a>
-            <a className="hover:text-slate-900" href="#faq">
+            <a className="hover:text-slate-900" href="/preguntas">
               Preguntas
             </a>
-            <a className="hover:text-slate-900" href="#contacto">
+            <a className="hover:text-slate-900" href="/contacto">
               Contacto
             </a>
           </div>

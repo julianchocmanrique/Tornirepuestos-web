@@ -16,7 +16,7 @@ export function ProductGallery({ slug }: { slug: string }) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="text-xs uppercase tracking-wide text-white/60">Galería</div>
-          <h2 className="mt-2 text-2xl font-extrabold text-white">Productos comunes</h2>
+          <h2 className="mt-2 text-2xl font-extrabold text-white">Productos más pedidos</h2>
           <p className="mt-2 max-w-2xl text-sm text-white/70">
             Referencias típicas de esta categoría. Si no ves lo que buscas, escríbenos y te ayudamos a encontrar la pieza correcta.
           </p>

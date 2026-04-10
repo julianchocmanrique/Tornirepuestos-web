@@ -8,6 +8,14 @@ export type GalleryProduct = {
 // NOTE: Generated from INFORME_ROTACION_INVENTARIOS_2026 (ventas primary, salidas secondary)
 // Keep it small: top 6 items per category.
 export const GALLERY_PRODUCTS: Record<string, GalleryProduct[]> = {
+  herramientas: [
+    { name: 'Herramienta manual', note: 'Alta rotación' },
+    { name: 'Consumibles de taller', note: 'Uso diario' },
+    { name: 'Accesorios', note: 'Soporte' },
+    { name: 'Llaves / dados', note: 'Mecánica' },
+    { name: 'Guantes / protección', note: 'Seguridad' },
+    { name: 'Aditivos / limpieza', note: 'Mantenimiento' },
+  ],
   frenos: [
     { name: 'Pastillas de freno', note: 'Alta rotación' },
     { name: 'Bandas de freno', note: 'Trabajo pesado' },

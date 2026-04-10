@@ -3,7 +3,6 @@ import Link from "next/link";
 
 import { CategoriesAnimatedGrid } from "@/components/CategoriesAnimatedGrid";
 import { FaqTabs } from "@/components/FaqTabs";
-import { SiteHeader } from "@/components/SiteHeader";
 import { categories } from "@/lib/categories";
 import { wa } from "@/lib/wa";
 
@@ -140,8 +139,11 @@ function SecondaryButton({
 export default function Page() {
   return (
     <div className="min-h-screen bg-white text-slate-900">
+      {/* BRAND STRIP */}
+      <div className="h-11 bg-[var(--tp-action-primary)]" />
+
       {/* TOP BAR */}
-      <div className="bg-slate-950 text-white">
+      <div className="bg-[var(--tp-blue-900)] text-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2 text-xs">
           <div className="hidden sm:block text-white/80">
             Envíos a todo Colombia · Cotiza por WhatsApp
@@ -155,12 +157,76 @@ export default function Page() {
             className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-white/90"
           >
             <span>💬</span>
-            <span className="font-semibold">WhatsApp: +57 310 653 1208</span>
+            <span className="font-semibold">WhatsApp</span>
           </a>
         </div>
       </div>
 
       {/* HEADER */}
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
+          <a href="#inicio" className="flex items-center gap-3">
+            <div className="relative h-10 w-10 overflow-hidden rounded-xl border border-slate-200 bg-white">
+              <Image
+                src={LOGO_SRC}
+                alt="Logo Tornirepuestos"
+                fill
+                className="object-contain p-1"
+                priority
+                unoptimized
+              />
+            </div>
+            <div className="leading-tight">
+              <div
+                className="text-sm font-extrabold tracking-wide"
+                style={{ color: "var(--tp-blue-800)" }}
+              >
+                {brand.name}
+              </div>
+              <div className="text-xs text-slate-600">Santa Marta · Repuestos</div>
+            </div>
+          </a>
+
+          <nav className="flex items-center gap-5 overflow-x-auto whitespace-nowrap text-sm text-slate-700">
+            <a className="hover:text-slate-900" href="#inicio">
+              Inicio
+            </a>
+            <a className="hover:text-slate-900" href="#categorias">
+              Categorías
+            </a>
+            <a className="hover:text-slate-900" href="#nosotros">
+              Nosotros
+            </a>
+            <a className="hover:text-slate-900" href="#faq">
+              Preguntas
+            </a>
+            <a className="hover:text-slate-900" href="#contacto">
+              Contacto
+            </a>
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <a
+              className="hidden rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 lg:inline-flex"
+              href="tel:+573106531208"
+              title="Llamar"
+            >
+              📞
+            </a>
+            <a
+              className="hidden items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold text-white lg:inline-flex"
+              style={{ background: "var(--tp-action-primary)" }}
+              href={wa(
+                "Hola, quiero cotizar un repuesto. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
+              )}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Solicitar Cotización
+            </a>
+          </div>
+        </div>
+      </header>
 
       {/* HERO */}
       <section id="inicio" className="relative overflow-hidden">

@@ -139,9 +139,6 @@ function SecondaryButton({
 export default function Page() {
   return (
     <div className="min-h-screen bg-white text-slate-900">
-      {/* BRAND STRIP */}
-      <div className="h-11 bg-[var(--tp-action-primary)]" />
-
       {/* HEADER */}
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">

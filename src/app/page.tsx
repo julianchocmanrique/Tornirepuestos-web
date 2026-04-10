@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { CategoriesAnimatedGrid } from "@/components/CategoriesAnimatedGrid";
 import { FaqTabs } from "@/components/FaqTabs";
+import { SiteHeader } from "@/components/SiteHeader";
 import { categories } from "@/lib/categories";
 import { wa } from "@/lib/wa";
 

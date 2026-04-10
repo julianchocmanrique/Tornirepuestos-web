@@ -30,21 +30,6 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className="bg-slate-950 text-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2 text-xs text-white/80">
-          <div className="truncate">Envíos a todo Colombia · Cotiza por WhatsApp</div>
-          <a
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-white/90 hover:bg-white/10"
-            href={wa(waText)}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <WhatsAppIcon className="h-4 w-4" />
-            <span className="hidden sm:inline">WhatsApp:</span>
-            <span className="font-semibold">{phone}</span>
-          </a>
-        </div>
-      </div>
 
       <div className="border-b border-slate-200/70 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">

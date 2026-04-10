@@ -15,7 +15,7 @@ const brand = {
   },
 };
 
-const BASE_PATH = "/tornirepuestos";
+const BASE_PATH = "";
 const LOGO_SRC = `${BASE_PATH}/logo-tornirepuestos.jpg`;
 
 const trust = [

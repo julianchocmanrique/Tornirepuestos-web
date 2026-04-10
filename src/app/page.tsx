@@ -498,8 +498,8 @@ export default function Page() {
             </p>
 
             <div className="mt-6 grid gap-3 text-slate-700">
-              <div className="rounded-2xl border border-slate-200 bg-white p-6">
-                <div className="text-sm font-bold text-slate-900">WhatsApp</div>
+              <div className="rounded-2xl border border-slate-300 bg-white p-6">
+                <div className="text-sm font-bold text-slate-900">💬 WhatsApp</div>
                 <div className="mt-1 text-sm text-slate-600">+57 310 653 1208</div>
                 <a
                   className="mt-3 inline-flex items-center gap-2 text-sm font-semibold"
@@ -514,23 +514,34 @@ export default function Page() {
                 </a>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-6">
-                <div className="text-sm font-bold text-slate-900">Correo</div>
-                <div className="mt-1 text-sm text-slate-600">ventas@tornirepuestos.com</div>
+              <div className="rounded-2xl border border-slate-300 bg-white p-6">
+                <div className="text-sm font-bold text-slate-900">✉️ Correo</div>
+                <a
+                  href="mailto:ventas@tornirepuestos.com"
+                  className="mt-1 inline-block text-sm text-slate-700 hover:text-slate-900"
+                >
+                  ventas@tornirepuestos.com
+                </a>
 
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-6">
-                <div className="text-sm font-bold text-slate-900">Dirección</div>
+              <div className="rounded-2xl border border-slate-300 bg-white p-6">
+                <div className="text-sm font-bold text-slate-900">📍 Dirección</div>
                 <div className="mt-1 text-sm text-slate-600">
                   Calle 30 N 60-250, Santa Marta, Colombia
                 </div>
+                <a
+                  href="tel:+573106531208"
+                  className="mt-3 inline-block text-sm font-semibold text-slate-700 hover:text-slate-900"
+                >
+                  Llamar: +57 310 653 1208
+                </a>
 
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-900">
+          <div className="rounded-2xl border border-slate-300 bg-white p-6 text-slate-900">
             <div className="text-sm font-extrabold text-slate-900">Ubicación</div>
             <p className="mt-3 text-sm text-slate-600">
               Encuéntranos en Santa Marta. Si vienes por repuesto urgente, escríbenos por WhatsApp y te guiamos.
@@ -551,7 +562,7 @@ export default function Page() {
                 href="https://www.google.com/maps/search/?api=1&query=Calle%2030%20N%2060-250,%20Santa%20Marta,%20Colombia"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold text-white"
+                className="inline-flex w-full items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold text-white sm:w-auto"
                 style={{ background: "var(--tp-action-primary)" }}
               >
                 Cómo llegar
@@ -560,7 +571,7 @@ export default function Page() {
                 href={wa("Quiero ubicación. ¿Me compartes cómo llegar?")}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                className="inline-flex w-full items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 sm:w-auto"
               >
                 Pedir ubicación por WhatsApp
               </a>

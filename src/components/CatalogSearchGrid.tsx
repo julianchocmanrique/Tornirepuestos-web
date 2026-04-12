@@ -109,6 +109,7 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
   const [query, setQuery] = useState("");
   const [groupInfFilter, setGroupInfFilter] = useState("all");
   const [sortBy, setSortBy] = useState<"relevance" | "stock-desc" | "name-asc">("relevance");
+  const [visibleCount, setVisibleCount] = useState(20);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const lastScrollY = useRef(0);
@@ -241,6 +242,11 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
     [items, selectedIds]
   );
 
+  const visibleItems = useMemo(
+    () => filteredItems.slice(0, visibleCount),
+    [filteredItems, visibleCount]
+  );
+
   useEffect(() => {
     try {
       const saved = window.localStorage.getItem("tp_quote_cart_v1");
@@ -278,6 +284,10 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
     if (!(target instanceof Element)) return false;
     return Boolean(target.closest("a, button, input, select, textarea, label"));
   };
+
+  useEffect(() => {
+    setVisibleCount(20);
+  }, [query, groupInfFilter, sortBy]);
 
   return (
     <div className="mt-8">
@@ -384,11 +394,15 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
       </section>
 
       <div className="mt-4 text-sm text-slate-600">
-        Mostrando <span className="font-bold text-slate-900">{formatNumber(filteredItems.length)}</span> productos con stock
+        Mostrando{" "}
+        <span className="font-bold text-slate-900">{formatNumber(visibleItems.length)}</span>{" "}
+        de{" "}
+        <span className="font-bold text-slate-900">{formatNumber(filteredItems.length)}</span>{" "}
+        productos con stock
       </div>
 
       <section className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {filteredItems.map((item, idx) => (
+        {visibleItems.map((item, idx) => (
           <article
             key={item.id}
             role="button"
@@ -463,6 +477,17 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
           </article>
         ))}
       </section>
+
+      {visibleCount < filteredItems.length && (
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={() => setVisibleCount((prev) => prev + 20)}
+            className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            Ver más productos
+          </button>
+        </div>
+      )}
 
       <button
         onClick={() => setIsCartOpen((v) => !v)}

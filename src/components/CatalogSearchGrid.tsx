@@ -9,142 +9,244 @@ export type CatalogItem = {
   id: string;
   code: string;
   name: string;
-  note: string;
-  categorySlug: string;
-  categoryTitle: string;
-  image: string;
+  description: string;
+  groupSup: string;
+  groupInf: string;
   kind: string;
+  stock: number;
+  totalSales: number;
+  lastSaleDate: string;
 };
 
 type Props = {
   items: CatalogItem[];
+  topSellers: CatalogItem[];
 };
 
-export function CatalogSearchGrid({ items }: Props) {
+const imageByKeyword: Array<{ keys: string[]; images: string[] }> = [
+  {
+    keys: ["filtro", "filtr"],
+    images: [
+      "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1200&q=75",
+      "https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=1200&q=75",
+    ],
+  },
+  {
+    keys: ["freno", "banda", "disco"],
+    images: [
+      "https://images.unsplash.com/photo-1625047509168-a7026f36de04?auto=format&fit=crop&w=1200&q=75",
+      "https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=1200&q=75",
+    ],
+  },
+  {
+    keys: ["amort", "susp", "buje"],
+    images: [
+      "https://images.unsplash.com/photo-1669136048337-5daa3adef7b2?auto=format&fit=crop&w=1200&q=75",
+      "https://images.unsplash.com/photo-1615906655593-ad0386982a0f?auto=format&fit=crop&w=1200&q=75",
+    ],
+  },
+  {
+    keys: ["aceite", "grasa", "lubric"],
+    images: [
+      "https://images.unsplash.com/photo-1625047509248-ec889cbff17f?auto=format&fit=crop&w=1200&q=75",
+      "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1200&q=75",
+    ],
+  },
+  {
+    keys: ["alternador", "arranque", "luz", "electr", "bombillo"],
+    images: [
+      "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=75",
+      "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=1200&q=75",
+    ],
+  },
+  {
+    keys: ["rodamiento", "balinera", "reten"],
+    images: [
+      "https://images.unsplash.com/photo-1589391349202-900abe66462a?auto=format&fit=crop&w=1200&q=75",
+      "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=1200&q=75",
+    ],
+  },
+  {
+    keys: ["manguera", "abrazadera", "racor"],
+    images: [
+      "https://images.unsplash.com/photo-1598023707207-276835c2b5fe?auto=format&fit=crop&w=1200&q=75",
+      "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=75",
+    ],
+  },
+  {
+    keys: ["tornillo", "tuerca", "arandela", "perno"],
+    images: [
+      "https://images.unsplash.com/photo-1605701249987-f0bb9b505d06?auto=format&fit=crop&w=1200&q=75",
+      "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=1200&q=75",
+    ],
+  },
+];
+
+const fallbackImages = [
+  "https://images.unsplash.com/photo-1429772011165-0c2e054367b8?auto=format&fit=crop&w=1200&q=75",
+  "https://images.unsplash.com/photo-1711199694531-e982a79ea381?auto=format&fit=crop&w=1200&q=75",
+];
+
+function getImageForItem(item: CatalogItem, seed = 0) {
+  const source = `${item.name} ${item.groupInf} ${item.groupSup}`.toLowerCase();
+  const match = imageByKeyword.find((entry) => entry.keys.some((k) => source.includes(k)));
+  const pool = match ? match.images : fallbackImages;
+  return pool[(seed + item.code.length) % pool.length];
+}
+
+function formatNumber(value: number) {
+  return new Intl.NumberFormat("es-CO").format(value);
+}
+
+function formatLastSale(date: string) {
+  if (!date) return "Sin venta reciente";
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return "Sin venta reciente";
+  return d.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+export function CatalogSearchGrid({ items, topSellers }: Props) {
   const [query, setQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [kindFilter, setKindFilter] = useState("all");
-  const [sortBy, setSortBy] = useState<"relevance" | "name-asc" | "name-desc" | "code-asc">(
+  const [groupSupFilter, setGroupSupFilter] = useState("all");
+  const [groupInfFilter, setGroupInfFilter] = useState("all");
+  const [sortBy, setSortBy] = useState<"relevance" | "sales-desc" | "stock-desc" | "name-asc">(
     "relevance"
   );
 
-  const categories = useMemo(
-    () =>
-      Array.from(new Set(items.map((item) => item.categorySlug))).map((slug) => ({
-        slug,
-        title: items.find((item) => item.categorySlug === slug)?.categoryTitle || slug,
-      })),
+  const groupSupOptions = useMemo(
+    () => Array.from(new Set(items.map((item) => item.groupSup))).sort((a, b) => a.localeCompare(b)),
     [items]
   );
 
-  const kinds = useMemo(
-    () => Array.from(new Set(items.map((item) => item.kind))).sort((a, b) => a.localeCompare(b)),
-    [items]
-  );
+  const groupInfOptions = useMemo(() => {
+    const source =
+      groupSupFilter === "all"
+        ? items
+        : items.filter((item) => item.groupSup === groupSupFilter);
+    return Array.from(new Set(source.map((item) => item.groupInf))).sort((a, b) => a.localeCompare(b));
+  }, [items, groupSupFilter]);
 
   const filteredItems = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-
+    const q = query.trim().toLowerCase();
     const base = items.filter((item) => {
       const matchesQuery =
-        !normalized ||
-        item.name.toLowerCase().includes(normalized) ||
-        item.note.toLowerCase().includes(normalized) ||
-        item.code.toLowerCase().includes(normalized) ||
-        item.categoryTitle.toLowerCase().includes(normalized);
+        !q ||
+        item.name.toLowerCase().includes(q) ||
+        item.code.toLowerCase().includes(q) ||
+        item.groupInf.toLowerCase().includes(q) ||
+        item.groupSup.toLowerCase().includes(q);
 
-      const matchesCategory = categoryFilter === "all" || item.categorySlug === categoryFilter;
-      const matchesKind = kindFilter === "all" || item.kind === kindFilter;
-
-      return matchesQuery && matchesCategory && matchesKind;
+      const matchesGroupSup = groupSupFilter === "all" || item.groupSup === groupSupFilter;
+      const matchesGroupInf = groupInfFilter === "all" || item.groupInf === groupInfFilter;
+      return matchesQuery && matchesGroupSup && matchesGroupInf;
     });
 
+    if (sortBy === "sales-desc") {
+      return [...base].sort((a, b) => b.totalSales - a.totalSales);
+    }
+    if (sortBy === "stock-desc") {
+      return [...base].sort((a, b) => b.stock - a.stock);
+    }
     if (sortBy === "name-asc") {
       return [...base].sort((a, b) => a.name.localeCompare(b.name));
     }
-    if (sortBy === "name-desc") {
-      return [...base].sort((a, b) => b.name.localeCompare(a.name));
-    }
-    if (sortBy === "code-asc") {
-      return [...base].sort((a, b) => a.code.localeCompare(b.code));
-    }
     return base;
-  }, [items, query, categoryFilter, kindFilter, sortBy]);
+  }, [items, query, groupSupFilter, groupInfFilter, sortBy]);
 
   return (
     <div className="mt-8">
-      <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="text-xs uppercase tracking-wide text-slate-500">Más vendidos</div>
+        <h2 className="mt-1 text-2xl font-extrabold text-slate-900">Productos destacados</h2>
+        <div className="mt-4 flex snap-x gap-4 overflow-x-auto pb-2">
+          {topSellers.map((item, idx) => (
+            <article
+              key={item.id}
+              className="min-w-[260px] snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+            >
+              <div className="relative h-32">
+                <Image
+                  src={getImageForItem(item, idx)}
+                  alt={item.name}
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-900/25 to-transparent" />
+                <div className="absolute left-2 top-2 rounded-lg bg-white/90 px-2 py-1 text-[10px] font-semibold text-slate-700">
+                  {item.code}
+                </div>
+              </div>
+              <div className="space-y-2 p-3">
+                <div className="line-clamp-2 text-sm font-extrabold text-slate-900">{item.name}</div>
+                <div className="text-xs text-slate-600">{item.groupInf}</div>
+                <div className="text-xs text-slate-600">Ventas: {formatNumber(item.totalSales)}</div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <label htmlFor="catalog-search" className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-          Buscar en catálogo
+          Buscar producto
         </label>
         <input
           id="catalog-search"
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Ejemplo: disco, filtro, ALT-001, frenos..."
-          className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-800 outline-none ring-red-500/30 placeholder:text-slate-400 focus:ring-2"
+          placeholder="Buscar por código, nombre o categoría..."
+          className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-800 outline-none ring-red-500/25 placeholder:text-slate-400 focus:ring-2"
         />
 
-        <div className="mt-4">
-          <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Filtros</div>
-          <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
-            <button
-              onClick={() => setCategoryFilter("all")}
-              className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                categoryFilter === "all"
-                  ? "border-red-200 bg-red-50 text-red-700"
-                  : "border-slate-200 bg-white text-slate-700"
-              }`}
-            >
-              Todas
-            </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.slug}
-                onClick={() => setCategoryFilter(cat.slug)}
-                className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                  categoryFilter === cat.slug
-                    ? "border-red-200 bg-red-50 text-red-700"
-                    : "border-slate-200 bg-white text-slate-700"
-                }`}
-              >
-                {cat.title}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <select
-            value={kindFilter}
-            onChange={(e) => setKindFilter(e.target.value)}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-red-500/30 focus:ring-2"
+            value={groupSupFilter}
+            onChange={(e) => {
+              setGroupSupFilter(e.target.value);
+              setGroupInfFilter("all");
+            }}
+            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-red-500/25 focus:ring-2"
           >
-            <option value="all">Tipo de producto: todos</option>
-            {kinds.map((kind) => (
-              <option key={kind} value={kind}>
-                {kind}
+            <option value="all">Grupo principal: todos</option>
+            {groupSupOptions.map((group) => (
+              <option key={group} value={group}>
+                {group}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={groupInfFilter}
+            onChange={(e) => setGroupInfFilter(e.target.value)}
+            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-red-500/25 focus:ring-2"
+          >
+            <option value="all">Subgrupo: todos</option>
+            {groupInfOptions.map((group) => (
+              <option key={group} value={group}>
+                {group}
               </option>
             ))}
           </select>
 
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as "relevance" | "name-asc" | "name-desc" | "code-asc")}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-red-500/30 focus:ring-2"
+            onChange={(e) =>
+              setSortBy(e.target.value as "relevance" | "sales-desc" | "stock-desc" | "name-asc")
+            }
+            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-red-500/25 focus:ring-2"
           >
             <option value="relevance">Orden: relevancia</option>
+            <option value="sales-desc">Más vendidos</option>
+            <option value="stock-desc">Mayor stock</option>
             <option value="name-asc">Nombre A-Z</option>
-            <option value="name-desc">Nombre Z-A</option>
-            <option value="code-asc">Código ascendente</option>
           </select>
 
           <button
             onClick={() => {
               setQuery("");
-              setCategoryFilter("all");
-              setKindFilter("all");
+              setGroupSupFilter("all");
+              setGroupInfFilter("all");
               setSortBy("relevance");
             }}
             className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
@@ -152,14 +254,14 @@ export function CatalogSearchGrid({ items }: Props) {
             Limpiar filtros
           </button>
         </div>
-      </div>
+      </section>
 
       <div className="mt-4 text-sm text-slate-600">
-        Mostrando <span className="font-bold text-slate-900">{filteredItems.length}</span> productos
+        Mostrando <span className="font-bold text-slate-900">{formatNumber(filteredItems.length)}</span> productos con stock
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {filteredItems.map((item) => (
+      <section className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {filteredItems.map((item, idx) => (
           <article
             key={item.id}
             className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
@@ -169,25 +271,39 @@ export function CatalogSearchGrid({ items }: Props) {
               <div className="text-sm font-extrabold text-slate-900">{item.code}</div>
             </div>
 
-            <div className="relative h-40 bg-slate-100">
-              <Image src={item.image} alt={item.name} fill className="object-cover" />
+            <div className="relative h-44 bg-slate-100">
+              <Image
+                src={getImageForItem(item, idx)}
+                alt={item.name}
+                fill
+                className="object-cover"
+              />
             </div>
 
             <div className="space-y-3 p-4">
-              <div>
-                <div className="line-clamp-2 min-h-[2.5rem] text-sm font-extrabold text-slate-900">
-                  {item.name}
+              <div className="line-clamp-2 min-h-[2.6rem] text-sm font-extrabold text-slate-900">
+                {item.name}
+              </div>
+              <div className="line-clamp-2 text-xs text-slate-600">{item.description}</div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-2 py-2">
+                  <div className="text-slate-500">Stock</div>
+                  <div className="font-bold text-slate-900">{formatNumber(item.stock)}</div>
                 </div>
-                <div className="mt-1 line-clamp-2 text-xs text-slate-600">{item.note}</div>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-2 py-2">
+                  <div className="text-slate-500">Ventas</div>
+                  <div className="font-bold text-slate-900">{formatNumber(item.totalSales)}</div>
+                </div>
               </div>
 
-              <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
-                <div className="font-semibold text-slate-900">Categoría</div>
-                <div>{item.categoryTitle}</div>
+              <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700">
+                <div className="font-semibold text-slate-900">{item.groupInf}</div>
+                <div className="text-slate-500">{formatLastSale(item.lastSaleDate)}</div>
               </div>
 
               <a
-                href={wa(`Quiero cotizar ${item.name} (${item.code}). Ciudad destino: ____.`)}
+                href={wa(`Quiero cotizar ${item.name} (${item.code}).`)}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex w-full items-center justify-center rounded-xl px-3 py-2 text-sm font-semibold text-white"
@@ -198,7 +314,7 @@ export function CatalogSearchGrid({ items }: Props) {
             </div>
           </article>
         ))}
-      </div>
+      </section>
     </div>
   );
 }

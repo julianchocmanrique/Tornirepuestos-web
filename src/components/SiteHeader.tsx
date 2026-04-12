@@ -17,7 +17,7 @@ export function SiteHeader() {
                 src="/tornirepuestos.jpeg"
                 alt="Tornirepuestos"
                 fill
-                className="object-cover object-center scale-[1.12]"
+                className="object-contain p-1"
               />
             </div>
             <div>

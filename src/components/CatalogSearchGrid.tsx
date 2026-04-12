@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { wa } from "@/lib/wa";
 
@@ -112,6 +112,25 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
   const [sortBy, setSortBy] = useState<"relevance" | "sales-desc" | "stock-desc" | "name-asc">(
     "relevance"
   );
+  const [sliderDirection, setSliderDirection] = useState<"left" | "right">("right");
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    lastScrollY.current = window.scrollY;
+
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      if (currentY > lastScrollY.current + 2) {
+        setSliderDirection("right");
+      } else if (currentY < lastScrollY.current - 2) {
+        setSliderDirection("left");
+      }
+      lastScrollY.current = currentY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const groupSupOptions = useMemo(
     () => Array.from(new Set(items.map((item) => item.groupSup))).sort((a, b) => a.localeCompare(b)),
@@ -158,11 +177,16 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="text-xs uppercase tracking-wide text-slate-500">Más vendidos</div>
         <h2 className="mt-1 text-2xl font-extrabold text-slate-900">Productos destacados</h2>
-        <div className="mt-4 flex snap-x gap-4 overflow-x-auto pb-2">
-          {topSellers.map((item, idx) => (
+        <div className="mt-4 overflow-hidden pb-2">
+          <div
+            className={`tp-catalog-slider-track ${
+              sliderDirection === "right" ? "tp-catalog-slider-right" : "tp-catalog-slider-left"
+            }`}
+          >
+            {[...topSellers, ...topSellers].map((item, idx) => (
             <article
-              key={item.id}
-              className="min-w-[260px] snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+              key={`${item.id}-${idx}`}
+              className="min-w-[260px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
             >
               <div className="relative h-32">
                 <Image
@@ -182,7 +206,8 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
                 <div className="text-xs text-slate-600">Ventas: {formatNumber(item.totalSales)}</div>
               </div>
             </article>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 

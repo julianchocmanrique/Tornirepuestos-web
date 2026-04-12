@@ -136,3 +136,52 @@ body {
     transition: none;
   }
 }
+
+/* Catalog slider (direction controlled by page scroll) */
+.tp-catalog-slider-track {
+  display: flex;
+  gap: 1rem;
+  width: max-content;
+  will-change: transform;
+  animation-duration: 42s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.tp-catalog-slider-left {
+  animation-name: tpCatalogMoveLeft;
+}
+
+.tp-catalog-slider-right {
+  animation-name: tpCatalogMoveRight;
+}
+
+@keyframes tpCatalogMoveLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes tpCatalogMoveRight {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tp-catalog-slider-track:hover {
+    animation-play-state: paused;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-catalog-slider-track {
+    animation: none;
+  }
+}

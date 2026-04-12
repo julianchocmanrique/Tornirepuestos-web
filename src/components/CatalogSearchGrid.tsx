@@ -119,6 +119,27 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
   const sliderDirectionRef = useRef<-1 | 1>(-1); // -1 = izquierda, 1 = derecha
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cat = (params.get("cat") || "").toLowerCase();
+    if (!cat) return;
+    const map: Record<string, string> = {
+      frenos: "freno",
+      filtracion: "filtro",
+      suspension: "suspension",
+      motor: "motor",
+      "electricos-y-luces": "electrico",
+      transmision: "transmision",
+      "rodamientos-y-retenedores": "rodamiento",
+      "mangueras-y-racoreria": "manguera",
+      "lubricantes-y-grasas": "aceite",
+      tornilleria: "tornillo",
+      herramientas: "herramienta",
+      diferenciales: "diferencial",
+    };
+    setQuery(map[cat] || cat);
+  }, []);
+
+  useEffect(() => {
     const measure = () => {
       const el = sliderTrackRef.current;
       if (!el) return;

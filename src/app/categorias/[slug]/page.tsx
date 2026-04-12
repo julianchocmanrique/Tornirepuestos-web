@@ -242,6 +242,12 @@ export default async function Page({
               >
                 Ver detalle
               </a>
+              <Link
+                href={`/catalogo?cat=${cat.slug}`}
+                className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-semibold text-white hover:bg-white/15"
+              >
+                Ver en catálogo
+              </Link>
             </div>
           </div>
         </div>

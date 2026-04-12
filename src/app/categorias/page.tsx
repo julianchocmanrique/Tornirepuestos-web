@@ -40,6 +40,18 @@ export default function Page() {
           Selecciona una categoría para ver el detalle y cotizar más rápido.
         </p>
 
+        <div className="mt-4 flex flex-wrap gap-2">
+          {categories.map((c) => (
+            <Link
+              key={`catalogo-${c.slug}`}
+              href={`/catalogo?cat=${c.slug}`}
+              className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              Ver {c.title} en catálogo
+            </Link>
+          ))}
+        </div>
+
         <div className="mt-8 grid grid-cols-12 gap-4">
           {categories.map((c, idx) => {
             const tone = idx % 3 === 0 ? "red" : "dark";

@@ -211,6 +211,11 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
     );
   };
 
+  const canIgnoreCardToggle = (target: EventTarget | null) => {
+    if (!(target instanceof Element)) return false;
+    return Boolean(target.closest("a, button, input, select, textarea, label"));
+  };
+
   return (
     <div className="mt-8">
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -328,7 +333,24 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
         {filteredItems.map((item, idx) => (
           <article
             key={item.id}
-            className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            role="button"
+            tabIndex={0}
+            aria-pressed={selectedIds.includes(item.id)}
+            onClick={(e) => {
+              if (canIgnoreCardToggle(e.target)) return;
+              toggleProductSelection(item.id);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggleProductSelection(item.id);
+              }
+            }}
+            className={`cursor-pointer overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
+              selectedIds.includes(item.id)
+                ? "border-red-300 ring-2 ring-red-200"
+                : "border-slate-200"
+            }`}
           >
             <div className="border-b border-slate-200 bg-slate-50 px-4 py-2">
               <div className="flex items-center justify-between gap-2">
@@ -336,15 +358,15 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
                   <div className="text-[11px] uppercase tracking-wide text-slate-500">Código</div>
                   <div className="text-sm font-extrabold text-slate-900">{item.code}</div>
                 </div>
-                <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.includes(item.id)}
-                    onChange={() => toggleProductSelection(item.id)}
-                    className="h-4 w-4 accent-red-600"
-                  />
-                  <span>Agregar</span>
-                </label>
+                <div
+                  className={`rounded-lg border px-2 py-1 text-xs font-semibold ${
+                    selectedIds.includes(item.id)
+                      ? "border-red-200 bg-red-50 text-red-700"
+                      : "border-slate-300 bg-white text-slate-700"
+                  }`}
+                >
+                  {selectedIds.includes(item.id) ? "Seleccionado" : "Toca para agregar"}
+                </div>
               </div>
             </div>
 

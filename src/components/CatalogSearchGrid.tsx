@@ -113,26 +113,7 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
     "relevance"
   );
   const lastScrollY = useRef(0);
-  const sliderTrackRef = useRef<HTMLDivElement | null>(null);
-  const sliderCycleWidthRef = useRef(0);
-  const sliderOffsetRef = useRef(0);
-  const sliderDirectionRef = useRef<-1 | 1>(-1); // -1: izquierda, 1: derecha
-
-  useEffect(() => {
-    const measure = () => {
-      const el = sliderTrackRef.current;
-      if (!el) return;
-      const cycle = el.scrollWidth / 2;
-      if (!cycle || Number.isNaN(cycle)) return;
-      sliderCycleWidthRef.current = cycle;
-      sliderOffsetRef.current = -cycle / 2;
-      el.style.transform = `translateX(${sliderOffsetRef.current}px)`;
-    };
-
-    measure();
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, [topSellers.length]);
+  const [sliderDirection, setSliderDirection] = useState<"left" | "right">("left");
 
   useEffect(() => {
     lastScrollY.current = window.scrollY;
@@ -140,41 +121,14 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
     const handleScroll = () => {
       const currentY = window.scrollY;
       const deltaY = currentY - lastScrollY.current;
-      if (deltaY > 0.5) sliderDirectionRef.current = 1; // bajar => derecha
-      if (deltaY < -0.5) sliderDirectionRef.current = -1; // subir => izquierda
+      if (deltaY > 0.5) setSliderDirection("right"); // bajar => derecha
+      if (deltaY < -0.5) setSliderDirection("left"); // subir => izquierda
 
       lastScrollY.current = currentY;
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    let rafId = 0;
-    let lastTs = 0;
-
-    const animate = (ts: number) => {
-      const el = sliderTrackRef.current;
-      const cycle = sliderCycleWidthRef.current;
-      if (el && cycle > 0) {
-        if (!lastTs) lastTs = ts;
-        const dt = (ts - lastTs) / 16.6667;
-        lastTs = ts;
-
-        const speedPerFrame = 1.1;
-        let next = sliderOffsetRef.current + sliderDirectionRef.current * speedPerFrame * dt;
-        if (next > 0) next -= cycle;
-        if (next < -cycle) next += cycle;
-
-        sliderOffsetRef.current = next;
-        el.style.transform = `translateX(${next}px)`;
-      }
-      rafId = window.requestAnimationFrame(animate);
-    };
-
-    rafId = window.requestAnimationFrame(animate);
-    return () => window.cancelAnimationFrame(rafId);
   }, []);
 
   const groupSupOptions = useMemo(
@@ -224,8 +178,9 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
         <h2 className="mt-1 text-2xl font-extrabold text-slate-900">Productos destacados</h2>
         <div className="mt-4 overflow-hidden pb-2">
           <div
-            ref={sliderTrackRef}
-            className="tp-catalog-slider-track"
+            className={`tp-catalog-slider-track ${
+              sliderDirection === "left" ? "tp-catalog-slider-dir-left" : "tp-catalog-slider-dir-right"
+            }`}
           >
             {[...topSellers, ...topSellers].map((item, idx) => (
             <article

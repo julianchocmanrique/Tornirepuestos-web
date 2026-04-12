@@ -143,10 +143,32 @@ body {
   gap: 1rem;
   width: max-content;
   will-change: transform;
+  animation-name: tpCatalogMarquee;
+  animation-duration: 16s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.tp-catalog-slider-dir-left {
+  animation-direction: normal;
+}
+
+.tp-catalog-slider-dir-right {
+  animation-direction: reverse;
+}
+
+@keyframes tpCatalogMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tp-catalog-slider-track {
-    transform: none !important;
+    animation: none;
+    transform: none;
   }
 }

@@ -109,9 +109,7 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
   const [query, setQuery] = useState("");
   const [groupSupFilter, setGroupSupFilter] = useState("all");
   const [groupInfFilter, setGroupInfFilter] = useState("all");
-  const [sortBy, setSortBy] = useState<"relevance" | "sales-desc" | "stock-desc" | "name-asc">(
-    "relevance"
-  );
+  const [sortBy, setSortBy] = useState<"relevance" | "stock-desc" | "name-asc">("relevance");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const lastScrollY = useRef(0);
@@ -186,7 +184,10 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
   }, []);
 
   const groupSupOptions = useMemo(
-    () => Array.from(new Set(items.map((item) => item.groupSup))).sort((a, b) => a.localeCompare(b)),
+    () =>
+      Array.from(new Set(items.map((item) => item.groupSup)))
+        .filter((group) => group.trim().toUpperCase() !== "GENERAL")
+        .sort((a, b) => a.localeCompare(b)),
     [items]
   );
 
@@ -195,7 +196,9 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
       groupSupFilter === "all"
         ? items
         : items.filter((item) => item.groupSup === groupSupFilter);
-    return Array.from(new Set(source.map((item) => item.groupInf))).sort((a, b) => a.localeCompare(b));
+    return Array.from(new Set(source.map((item) => item.groupInf)))
+      .filter((group) => group.trim().toUpperCase() !== "GENERAL")
+      .sort((a, b) => a.localeCompare(b));
   }, [items, groupSupFilter]);
 
   const filteredItems = useMemo(() => {
@@ -213,9 +216,6 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
       return matchesQuery && matchesGroupSup && matchesGroupInf;
     });
 
-    if (sortBy === "sales-desc") {
-      return [...base].sort((a, b) => b.totalSales - a.totalSales);
-    }
     if (sortBy === "stock-desc") {
       return [...base].sort((a, b) => b.stock - a.stock);
     }
@@ -294,8 +294,10 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
               </div>
               <div className="space-y-2 p-3">
                 <div className="line-clamp-2 text-sm font-extrabold text-slate-900">{item.name}</div>
-                <div className="text-xs text-slate-600">{item.groupInf}</div>
-                <div className="text-xs text-slate-600">Ventas: {formatNumber(item.totalSales)}</div>
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs">
+                  <div className="text-emerald-700">Stock disponible</div>
+                  <div className="font-extrabold text-emerald-900">{formatNumber(item.stock)}</div>
+                </div>
               </div>
             </article>
             ))}
@@ -349,12 +351,11 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
           <select
             value={sortBy}
             onChange={(e) =>
-              setSortBy(e.target.value as "relevance" | "sales-desc" | "stock-desc" | "name-asc")
+              setSortBy(e.target.value as "relevance" | "stock-desc" | "name-asc")
             }
             className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-red-500/25 focus:ring-2"
           >
             <option value="relevance">Orden: relevancia</option>
-            <option value="sales-desc">Más vendidos</option>
             <option value="stock-desc">Mayor stock</option>
             <option value="name-asc">Nombre A-Z</option>
           </select>
@@ -431,22 +432,13 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
               <div className="line-clamp-2 min-h-[2.6rem] text-sm font-extrabold text-slate-900">
                 {item.name}
               </div>
-              <div className="line-clamp-2 text-xs text-slate-600">{item.description}</div>
+              <div className="line-clamp-2 text-xs text-slate-600">Disponible para cotización inmediata.</div>
 
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="rounded-xl border border-slate-200 bg-slate-50 px-2 py-2">
-                  <div className="text-slate-500">Stock</div>
-                  <div className="font-bold text-slate-900">{formatNumber(item.stock)}</div>
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-xs">
+                <div className="text-emerald-700">Stock disponible</div>
+                <div className="mt-1 text-2xl font-extrabold text-emerald-900">
+                  {formatNumber(item.stock)}
                 </div>
-                <div className="rounded-xl border border-slate-200 bg-slate-50 px-2 py-2">
-                  <div className="text-slate-500">Ventas</div>
-                  <div className="font-bold text-slate-900">{formatNumber(item.totalSales)}</div>
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700">
-                <div className="font-semibold text-slate-900">{item.groupInf}</div>
-                <div className="text-slate-500">{formatLastSale(item.lastSaleDate)}</div>
               </div>
 
               <a

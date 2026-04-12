@@ -20,7 +20,7 @@ const brand = {
 };
 
 const BASE_PATH = "";
-const LOGO_SRC = `${BASE_PATH}/logo-header-square.jpg`;
+const LOGO_SRC = `${BASE_PATH}/tornirepuestos.jpeg`;
 
 const trust = [
   { k: "+20 años", v: "Experiencia y respaldo" },
@@ -200,7 +200,7 @@ export default function Page() {
     "@context": "https://schema.org",
     "@type": "AutoPartsStore",
     name: "Tornirepuestos",
-    image: absoluteUrl("/logo-header-square.jpg"),
+    image: absoluteUrl("/tornirepuestos.jpeg"),
     url: absoluteUrl("/"),
     telephone: "+57 310 653 1208",
     address: {
@@ -606,12 +606,12 @@ export default function Page() {
       <footer className="border-t border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-10 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative h-9 w-9 overflow-hidden rounded-xl border border-slate-200 bg-white">
+            <div className="relative h-9 w-12 overflow-hidden rounded-xl border border-slate-200 bg-white">
               <Image
                 src={LOGO_SRC}
                 alt="Logo Tornirepuestos"
                 fill
-                className="object-contain"
+                className="object-contain p-0.5"
                 unoptimized
               />
             </div>

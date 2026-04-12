@@ -12,12 +12,12 @@ export function SiteHeader() {
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
           <Link href="/" className="flex items-center gap-3">
-            <div className="relative h-11 w-11 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+            <div className="relative h-10 w-14 overflow-hidden rounded-xl border border-slate-200 bg-white">
               <Image
-                src="/logo-header-square.jpg"
+                src="/tornirepuestos.jpeg"
                 alt="Tornirepuestos"
                 fill
-                className="object-contain"
+                className="object-contain p-0.5"
               />
             </div>
             <div>

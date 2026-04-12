@@ -14,10 +14,10 @@ export function SiteHeader() {
           <Link href="/" className="flex items-center gap-3">
             <div className="relative h-11 w-11 overflow-hidden rounded-2xl border border-slate-200 bg-white">
               <Image
-                src="/tornirepuestoslogo1.jpeg"
+                src="/logo-header-square.jpg"
                 alt="Tornirepuestos"
                 fill
-                className="object-cover object-center"
+                className="object-contain"
               />
             </div>
             <div>

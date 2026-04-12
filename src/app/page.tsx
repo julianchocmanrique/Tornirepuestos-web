@@ -611,7 +611,7 @@ export default function Page() {
                 src={LOGO_SRC}
                 alt="Logo Tornirepuestos"
                 fill
-                className="object-contain p-1"
+                className="object-cover object-center scale-[1.28]"
                 unoptimized
               />
             </div>

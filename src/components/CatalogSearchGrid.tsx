@@ -107,7 +107,6 @@ function formatLastSale(date: string) {
 
 export function CatalogSearchGrid({ items, topSellers }: Props) {
   const [query, setQuery] = useState("");
-  const [groupSupFilter, setGroupSupFilter] = useState("all");
   const [groupInfFilter, setGroupInfFilter] = useState("all");
   const [sortBy, setSortBy] = useState<"relevance" | "stock-desc" | "name-asc">("relevance");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -208,23 +207,11 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
     return () => window.cancelAnimationFrame(rafId);
   }, []);
 
-  const groupSupOptions = useMemo(
-    () =>
-      Array.from(new Set(items.map((item) => item.groupSup)))
-        .filter((group) => group.trim().toUpperCase() !== "GENERAL")
-        .sort((a, b) => a.localeCompare(b)),
-    [items]
-  );
-
   const groupInfOptions = useMemo(() => {
-    const source =
-      groupSupFilter === "all"
-        ? items
-        : items.filter((item) => item.groupSup === groupSupFilter);
-    return Array.from(new Set(source.map((item) => item.groupInf)))
+    return Array.from(new Set(items.map((item) => item.groupInf)))
       .filter((group) => group.trim().toUpperCase() !== "GENERAL")
       .sort((a, b) => a.localeCompare(b));
-  }, [items, groupSupFilter]);
+  }, [items]);
 
   const filteredItems = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -236,9 +223,8 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
         item.groupInf.toLowerCase().includes(q) ||
         item.groupSup.toLowerCase().includes(q);
 
-      const matchesGroupSup = groupSupFilter === "all" || item.groupSup === groupSupFilter;
       const matchesGroupInf = groupInfFilter === "all" || item.groupInf === groupInfFilter;
-      return matchesQuery && matchesGroupSup && matchesGroupInf;
+      return matchesQuery && matchesGroupInf;
     });
 
     if (sortBy === "stock-desc") {
@@ -248,7 +234,7 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
       return [...base].sort((a, b) => a.name.localeCompare(b.name));
     }
     return base;
-  }, [items, query, groupSupFilter, groupInfFilter, sortBy]);
+  }, [items, query, groupInfFilter, sortBy]);
 
   const selectedItems = useMemo(
     () => items.filter((item) => selectedIds.includes(item.id)),
@@ -357,22 +343,7 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
           className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-800 outline-none ring-red-500/25 placeholder:text-slate-400 focus:ring-2"
         />
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <select
-            value={groupSupFilter}
-            onChange={(e) => {
-              setGroupSupFilter(e.target.value);
-              setGroupInfFilter("all");
-            }}
-            className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-red-500/25 focus:ring-2"
-          >
-            <option value="all">Grupo principal: todos</option>
-            {groupSupOptions.map((group) => (
-              <option key={group} value={group}>
-                {group}
-              </option>
-            ))}
-          </select>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 
           <select
             value={groupInfFilter}
@@ -402,7 +373,6 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
           <button
             onClick={() => {
               setQuery("");
-              setGroupSupFilter("all");
               setGroupInfFilter("all");
               setSortBy("relevance");
             }}

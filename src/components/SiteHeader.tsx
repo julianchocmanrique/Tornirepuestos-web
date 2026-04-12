@@ -13,7 +13,7 @@ export function SiteHeader() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
           <Link href="/" className="flex items-center gap-3">
             <div className="relative h-10 w-10 overflow-hidden rounded-xl border border-slate-200 bg-white">
-              <Image src="/logo-tornirepuestos.jpg" alt="Tornirepuestos" fill className="object-contain" />
+              <Image src="/tornirepuestos.jpeg" alt="Tornirepuestos" fill className="object-contain" />
             </div>
             <div>
               <div className="text-sm font-extrabold text-slate-900">TORNIREPUESTOS</div>

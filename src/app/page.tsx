@@ -20,7 +20,7 @@ const brand = {
 };
 
 const BASE_PATH = "";
-const LOGO_SRC = `${BASE_PATH}/logo-tornirepuestos.jpg`;
+const LOGO_SRC = `${BASE_PATH}/tornirepuestos.jpeg`;
 
 const trust = [
   { k: "+20 años", v: "Experiencia y respaldo" },
@@ -200,7 +200,7 @@ export default function Page() {
     "@context": "https://schema.org",
     "@type": "AutoPartsStore",
     name: "Tornirepuestos",
-    image: absoluteUrl("/logo-tornirepuestos.jpg"),
+    image: absoluteUrl("/tornirepuestos.jpeg"),
     url: absoluteUrl("/"),
     telephone: "+57 310 653 1208",
     address: {

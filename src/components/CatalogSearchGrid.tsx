@@ -112,25 +112,43 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
   const [sortBy, setSortBy] = useState<"relevance" | "sales-desc" | "stock-desc" | "name-asc">(
     "relevance"
   );
-  const [sliderDirection, setSliderDirection] = useState<"left" | "right">("right");
   const lastScrollY = useRef(0);
+  const sliderTrackRef = useRef<HTMLDivElement | null>(null);
+  const [sliderOffset, setSliderOffset] = useState(0);
+  const [sliderCycleWidth, setSliderCycleWidth] = useState(0);
 
   useEffect(() => {
+    const el = sliderTrackRef.current;
+    if (!el) return;
+    const cycle = el.scrollWidth / 2;
+    if (!cycle || Number.isNaN(cycle)) return;
+    setSliderCycleWidth(cycle);
+    setSliderOffset(-cycle / 2);
+  }, [topSellers.length]);
+
+  useEffect(() => {
+    if (!sliderCycleWidth) return;
     lastScrollY.current = window.scrollY;
 
     const handleScroll = () => {
       const currentY = window.scrollY;
-      if (currentY > lastScrollY.current + 2) {
-        setSliderDirection("right");
-      } else if (currentY < lastScrollY.current - 2) {
-        setSliderDirection("left");
-      }
+      const deltaY = currentY - lastScrollY.current;
+      if (Math.abs(deltaY) < 1) return;
+
+      const speed = 1.15;
+      setSliderOffset((prev) => {
+        let next = prev + deltaY * speed; // bajar => derecha, subir => izquierda
+        if (next > 0) next -= sliderCycleWidth;
+        if (next < -sliderCycleWidth) next += sliderCycleWidth;
+        return next;
+      });
+
       lastScrollY.current = currentY;
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [sliderCycleWidth]);
 
   const groupSupOptions = useMemo(
     () => Array.from(new Set(items.map((item) => item.groupSup))).sort((a, b) => a.localeCompare(b)),
@@ -179,9 +197,9 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
         <h2 className="mt-1 text-2xl font-extrabold text-slate-900">Productos destacados</h2>
         <div className="mt-4 overflow-hidden pb-2">
           <div
-            className={`tp-catalog-slider-track ${
-              sliderDirection === "right" ? "tp-catalog-slider-right" : "tp-catalog-slider-left"
-            }`}
+            ref={sliderTrackRef}
+            className="tp-catalog-slider-track"
+            style={{ transform: `translateX(${sliderOffset}px)` }}
           >
             {[...topSellers, ...topSellers].map((item, idx) => (
             <article

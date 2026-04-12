@@ -143,11 +143,10 @@ body {
   gap: 1rem;
   width: max-content;
   will-change: transform;
-  transition: transform 140ms linear;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tp-catalog-slider-track {
-    transition: none;
+    transform: none !important;
   }
 }

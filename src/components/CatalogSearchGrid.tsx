@@ -117,6 +117,7 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
   const sliderCycleWidthRef = useRef(0);
   const sliderOffsetRef = useRef(0);
   const sliderDirectionRef = useRef<-1 | 1>(-1); // -1 = izquierda, 1 = derecha
+  const sliderPausedRef = useRef(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -182,7 +183,10 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
     const tick = (ts: number) => {
       const el = sliderTrackRef.current;
       const cycle = sliderCycleWidthRef.current;
-      if (el && cycle > 0) {
+      if (sliderPausedRef.current) {
+        lastTs = ts;
+      }
+      if (el && cycle > 0 && !sliderPausedRef.current) {
         if (!lastTs) lastTs = ts;
         const dt = (ts - lastTs) / 16.6667;
         lastTs = ts;
@@ -299,7 +303,18 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
             {[...topSellers, ...topSellers].map((item, idx) => (
             <article
               key={`${item.id}-${idx}`}
-              className="min-w-[260px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+              onMouseEnter={() => {
+                sliderPausedRef.current = true;
+              }}
+              onMouseLeave={() => {
+                sliderPausedRef.current = false;
+              }}
+              onClick={() => toggleProductSelection(item.id)}
+              className={`min-w-[260px] cursor-pointer overflow-hidden rounded-2xl border bg-white shadow-sm transition ${
+                selectedIds.includes(item.id)
+                  ? "border-red-300 ring-2 ring-red-200"
+                  : "border-slate-200 hover:-translate-y-0.5 hover:shadow-md"
+              }`}
             >
               <div className="relative h-32">
                 <Image
@@ -318,6 +333,9 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
                 <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs">
                   <div className="text-emerald-700">Stock disponible</div>
                   <div className="font-extrabold text-emerald-900">{formatNumber(item.stock)}</div>
+                </div>
+                <div className="text-xs font-semibold text-slate-600">
+                  {selectedIds.includes(item.id) ? "Seleccionado para cotización" : "Clic para agregar a cotización"}
                 </div>
               </div>
             </article>

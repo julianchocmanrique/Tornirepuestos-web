@@ -162,7 +162,7 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
         const dt = (ts - lastTs) / 16.6667;
         lastTs = ts;
 
-        const speedPerFrame = 0.45;
+        const speedPerFrame = 0.72;
         let next = sliderOffsetRef.current + sliderDirectionRef.current * speedPerFrame * dt;
         if (next > 0) next -= cycle;
         if (next < -cycle) next += cycle;

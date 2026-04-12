@@ -112,6 +112,7 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
   const [sortBy, setSortBy] = useState<"relevance" | "sales-desc" | "stock-desc" | "name-asc">(
     "relevance"
   );
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const lastScrollY = useRef(0);
   const [sliderDirection, setSliderDirection] = useState<"left" | "right">("left");
 
@@ -170,6 +171,25 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
     }
     return base;
   }, [items, query, groupSupFilter, groupInfFilter, sortBy]);
+
+  const selectedItems = useMemo(
+    () => items.filter((item) => selectedIds.includes(item.id)),
+    [items, selectedIds]
+  );
+
+  const quotationText = useMemo(() => {
+    if (selectedItems.length === 0) return "";
+    const lines = selectedItems.map((item, idx) => `${idx + 1}. ${item.name} (${item.code})`);
+    return `Hola, quiero una cotización completa de estos productos:\n\n${lines.join(
+      "\n"
+    )}\n\nCiudad destino: ____.\nDatos adicionales: ____.`;
+  }, [selectedItems]);
+
+  const toggleProductSelection = (itemId: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(itemId) ? prev.filter((id) => id !== itemId) : [...prev, itemId]
+    );
+  };
 
   return (
     <div className="mt-8">
@@ -284,6 +304,43 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
         Mostrando <span className="font-bold text-slate-900">{formatNumber(filteredItems.length)}</span> productos con stock
       </div>
 
+      {selectedItems.length > 0 && (
+        <section className="mt-4 rounded-3xl border border-red-200 bg-red-50 p-4 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div className="text-xs uppercase tracking-wide text-red-700">Carrito de cotización</div>
+              <div className="text-sm font-bold text-slate-900">
+                {selectedItems.length} producto(s) seleccionados
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setSelectedIds([])}
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                Limpiar carrito
+              </button>
+              <a
+                href={wa(quotationText)}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold text-white"
+                style={{ background: "var(--tp-action-primary)" }}
+              >
+                Enviar cotización completa
+              </a>
+            </div>
+          </div>
+          <div className="mt-3 max-h-28 overflow-auto rounded-xl border border-red-100 bg-white p-3 text-xs text-slate-700">
+            {selectedItems.map((item) => (
+              <div key={`cart-${item.id}`} className="truncate">
+                • {item.code} - {item.name}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {filteredItems.map((item, idx) => (
           <article
@@ -291,8 +348,21 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
             className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
             <div className="border-b border-slate-200 bg-slate-50 px-4 py-2">
-              <div className="text-[11px] uppercase tracking-wide text-slate-500">Código</div>
-              <div className="text-sm font-extrabold text-slate-900">{item.code}</div>
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <div className="text-[11px] uppercase tracking-wide text-slate-500">Código</div>
+                  <div className="text-sm font-extrabold text-slate-900">{item.code}</div>
+                </div>
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(item.id)}
+                    onChange={() => toggleProductSelection(item.id)}
+                    className="h-4 w-4 accent-red-600"
+                  />
+                  <span>Agregar</span>
+                </label>
+              </div>
             </div>
 
             <div className="relative h-44 bg-slate-100">

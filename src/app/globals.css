@@ -144,7 +144,7 @@ body {
   width: max-content;
   will-change: transform;
   animation-name: tpCatalogMarquee;
-  animation-duration: 26s;
+  animation-duration: 40s;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }

@@ -406,7 +406,7 @@ export default function Page() {
 
       {/* ABOUT + TESTIMONIALS */}
       <section id="nosotros" className="mx-auto max-w-6xl px-4 py-14">
-        <div className="grid gap-8 lg:grid-cols-2">
+        <div className="grid gap-8 lg:grid-cols-[1fr_1.2fr]">
           <div>
             <div className="text-xs uppercase tracking-wide text-slate-500">Nosotros</div>
             <h2
@@ -590,7 +590,7 @@ export default function Page() {
                   <div className="mt-3 overflow-hidden rounded-2xl bg-white">
                     <iframe
                       title={`Mapa ${location.name}`}
-                      className="h-[240px] w-full"
+                      className="h-[270px] w-full"
                       loading="lazy"
                       referrerPolicy="no-referrer-when-downgrade"
                       src={location.embed}

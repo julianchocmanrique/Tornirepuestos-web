@@ -75,7 +75,7 @@ export default function ContactoPage() {
                 <div className="mt-3 overflow-hidden rounded-xl border border-slate-200">
                   <iframe
                     title={`Mapa ${location.name}`}
-                    className="h-56 w-full"
+                    className="h-64 w-full"
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     src={location.embed}

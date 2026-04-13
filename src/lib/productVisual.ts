@@ -32,7 +32,62 @@ function crop(text: string, size: number) {
   return text.length <= size ? text : `${text.slice(0, size - 1)}…`;
 }
 
+function pickPhotoQuery(input: ProductVisualInput): string {
+  const haystack = `${input.name} ${input.category || ""}`.toLowerCase();
+
+  if (/(freno|pastilla|disco|valvula|camara)/.test(haystack)) {
+    return "truck brake disc heavy vehicle spare parts";
+  }
+  if (/(filtro|filtracion|aire|combustible|aceite)/.test(haystack)) {
+    return "engine filter auto parts workshop";
+  }
+  if (/(suspension|amortiguador|muelle|resorte|bolsa)/.test(haystack)) {
+    return "truck suspension shock absorber auto parts";
+  }
+  if (/(motor|empaque|sello|piston|biela)/.test(haystack)) {
+    return "diesel engine mechanical parts closeup";
+  }
+  if (/(electrico|luz|faro|conector|cable|sensor)/.test(haystack)) {
+    return "automotive electrical wiring connectors workshop";
+  }
+  if (/(transmision|clutch|caja|cardan|cruceta)/.test(haystack)) {
+    return "gearbox transmission gears mechanical parts";
+  }
+  if (/(rodamiento|reten|ruleman)/.test(haystack)) {
+    return "bearing industrial metal machine part";
+  }
+  if (/(manguera|racor|abrazadera|tubo)/.test(haystack)) {
+    return "rubber hose fittings industrial workshop";
+  }
+  if (/(lubricante|grasa|aditivo|hidraulico|refrigerante)/.test(haystack)) {
+    return "engine oil lubricant automotive service";
+  }
+  if (/(tornillo|tuerca|arandela|tornilleria)/.test(haystack)) {
+    return "bolts nuts hardware metal fasteners";
+  }
+  if (/(herramienta|llave|destornillador|alicate)/.test(haystack)) {
+    return "mechanic tools workshop closeup";
+  }
+  if (/(diferencial|corona|piñon|planetario)/.test(haystack)) {
+    return "differential gear axle mechanical";
+  }
+
+  return "heavy truck spare parts workshop";
+}
+
+function unsplashSourcePhoto(input: ProductVisualInput): string {
+  const raw = `${input.code || ""}|${input.name}|${input.category || ""}|${input.variant || 0}`;
+  const seed = hashText(raw) % 1000;
+  const query = encodeURIComponent(pickPhotoQuery(input));
+  return `https://source.unsplash.com/1200x800/?${query}&sig=${seed}`;
+}
+
 export function productVisualDataUrl(input: ProductVisualInput): string {
+  // Prefer photo-like visuals for a more realistic catalog style.
+  if (input.name.trim().length > 0) {
+    return unsplashSourcePhoto(input);
+  }
+
   const seed = `${input.code || ""}|${input.name}|${input.category || ""}|${input.variant || 0}`;
   const h = hashText(seed);
   const h2 = hashText(`${seed}-b`);

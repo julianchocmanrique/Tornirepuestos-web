@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { LazyMotion, domAnimation, m } from "motion/react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 
 import { productVisualDataUrl } from "@/lib/productVisual";
 import { wa } from "@/lib/wa";
@@ -25,11 +26,17 @@ type Props = {
 };
 
 function getImageForItem(item: CatalogItem, seed = 0) {
+  const stableSeed = `${item.id}|${item.code}|${item.name}|${item.groupInf}|${item.groupSup}`;
+  let hash = 0;
+  for (let i = 0; i < stableSeed.length; i += 1) {
+    hash = (hash * 31 + stableSeed.charCodeAt(i)) >>> 0;
+  }
+
   return productVisualDataUrl({
     code: item.code,
     name: item.name,
     category: `${item.groupSup} ${item.groupInf}`,
-    variant: seed,
+    variant: (hash + seed) % 2048,
   });
 }
 
@@ -39,6 +46,7 @@ function formatNumber(value: number) {
 
 export function CatalogSearchGrid({ items, topSellers }: Props) {
   const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
   const [groupInfFilter, setGroupInfFilter] = useState("all");
   const [sortBy, setSortBy] = useState<"relevance" | "stock-desc" | "name-asc">("relevance");
   const [visibleCount, setVisibleCount] = useState(20);
@@ -54,6 +62,11 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const cat = (params.get("cat") || "").toLowerCase();
+    const directQuery = (params.get("q") || "").trim();
+    if (directQuery) {
+      setQuery(directQuery);
+      return;
+    }
     if (!cat) return;
     const map: Record<string, string> = {
       frenos: "freno",
@@ -146,8 +159,26 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
       .sort((a, b) => a.localeCompare(b));
   }, [items]);
 
+  const itemImageMap = useMemo(() => {
+    const map = new Map<string, string>();
+    items.forEach((item) => {
+      map.set(item.id, getImageForItem(item));
+    });
+    return map;
+  }, [items]);
+
+  const topSellerItems = useMemo(() => {
+    const seen = new Set<string>();
+    const unique = topSellers.filter((item) => {
+      if (seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    });
+    return unique.slice(0, 16);
+  }, [topSellers]);
+
   const filteredItems = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = deferredQuery.trim().toLowerCase();
     const base = items.filter((item) => {
       const matchesQuery =
         !q ||
@@ -167,7 +198,7 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
       return [...base].sort((a, b) => a.name.localeCompare(b.name));
     }
     return base;
-  }, [items, query, groupInfFilter, sortBy]);
+  }, [items, deferredQuery, groupInfFilter, sortBy]);
 
   const selectedItems = useMemo(
     () => items.filter((item) => selectedIds.includes(item.id)),
@@ -228,7 +259,7 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
         <h2 className="mt-1 text-2xl font-extrabold text-slate-900">Productos destacados</h2>
         <div className="mt-4 overflow-hidden pb-2">
           <div ref={sliderTrackRef} className="tp-catalog-slider-track">
-            {[...topSellers, ...topSellers].map((item, idx) => (
+            {[...topSellerItems, ...topSellerItems].map((item, idx) => (
             <article
               key={`${item.id}-${idx}`}
               onMouseEnter={() => {
@@ -246,7 +277,7 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
             >
               <div className="relative h-32">
                 <Image
-                  src={getImageForItem(item, idx)}
+                  src={itemImageMap.get(item.id) || getImageForItem(item, idx)}
                   alt={item.name}
                   fill
                   unoptimized
@@ -334,13 +365,18 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
         productos con stock
       </div>
 
+      <LazyMotion features={domAnimation}>
       <section className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {visibleItems.map((item, idx) => (
-          <article
+          <m.article
             key={item.id}
+            id={`producto-${item.id}`}
             role="button"
             tabIndex={0}
             aria-pressed={selectedIds.includes(item.id)}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.24, delay: Math.min(idx * 0.015, 0.14) }}
             onClick={(e) => {
               if (canIgnoreCardToggle(e.target)) return;
               toggleProductSelection(item.id);
@@ -377,7 +413,7 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
 
             <div className="relative h-44 bg-slate-100">
               <Image
-                src={getImageForItem(item, idx)}
+                src={itemImageMap.get(item.id) || getImageForItem(item, idx)}
                 alt={item.name}
                 fill
                 unoptimized
@@ -408,9 +444,10 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
                 Cotizar por WhatsApp
               </a>
             </div>
-          </article>
+          </m.article>
         ))}
       </section>
+      </LazyMotion>
 
       {visibleCount < filteredItems.length && (
         <div className="mt-6 flex justify-center">

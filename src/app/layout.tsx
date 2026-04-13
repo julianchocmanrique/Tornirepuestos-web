@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo";
 import { SiteHeader } from "@/components/SiteHeader";
+import { GlobalSeoSchema } from "@/components/GlobalSeoSchema";
 
 export const metadata: Metadata = {
   title: {
@@ -9,6 +10,15 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description: "Repuestos para vehículos pesados, buses y maquinaria en Colombia.",
+  applicationName: SITE_NAME,
+  keywords: [
+    "repuestos vehículos pesados",
+    "repuestos para buses",
+    "repuestos para maquinaria",
+    "tornirepuestos",
+    "repuestos santa marta",
+    "catálogo de repuestos",
+  ],
   metadataBase: new URL(SITE_URL),
   alternates: {
     canonical: "/",
@@ -35,6 +45,20 @@ export const metadata: Metadata = {
     description: "Repuestos para vehículos pesados, buses y maquinaria en Colombia.",
     images: [DEFAULT_OG_IMAGE],
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+  },
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -52,6 +76,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
+        <GlobalSeoSchema />
         <SiteHeader />
         {children}
       </body>

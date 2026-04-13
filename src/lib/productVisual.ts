@@ -30,57 +30,70 @@ type Family =
 
 const PHOTO_POOL: Record<Family, string[]> = {
   frenos: [
-    "https://images.unsplash.com/photo-1613214150384-14921ff659b2?auto=format&fit=crop&w=1200&q=72",
-    "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1200&q=72",
+    "photo-1613214150384-14921ff659b2",
+    "photo-1486262715619-67b85e0b08d3",
+    "photo-1711199694531-e982a79ea381",
   ],
   filtracion: [
-    "https://images.unsplash.com/photo-1527383418406-f85a3b146499?auto=format&fit=crop&w=1200&q=72",
-    "https://images.unsplash.com/photo-1429772011165-0c2e054367b8?auto=format&fit=crop&w=1200&q=72",
+    "photo-1527383418406-f85a3b146499",
+    "photo-1429772011165-0c2e054367b8",
+    "photo-1711199694531-e982a79ea381",
   ],
   suspension: [
-    "https://images.unsplash.com/photo-1669136048337-5daa3adef7b2?auto=format&fit=crop&w=1200&q=72",
-    "https://images.unsplash.com/photo-1598023707207-276835c2b5fe?auto=format&fit=crop&w=1200&q=72",
+    "photo-1669136048337-5daa3adef7b2",
+    "photo-1598023707207-276835c2b5fe",
+    "photo-1711199694531-e982a79ea381",
   ],
   motor: [
-    "https://images.unsplash.com/photo-1429772011165-0c2e054367b8?auto=format&fit=crop&w=1200&q=72",
-    "https://images.unsplash.com/photo-1711199694531-e982a79ea381?auto=format&fit=crop&w=1200&q=72",
+    "photo-1429772011165-0c2e054367b8",
+    "photo-1711199694531-e982a79ea381",
+    "photo-1589391349202-900abe66462a",
   ],
   electricos: [
-    "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1200&q=72",
-    "https://images.unsplash.com/photo-1711199694531-e982a79ea381?auto=format&fit=crop&w=1200&q=72",
+    "photo-1486262715619-67b85e0b08d3",
+    "photo-1711199694531-e982a79ea381",
+    "photo-1527383418406-f85a3b146499",
   ],
   transmision: [
-    "https://images.unsplash.com/photo-1711199694531-e982a79ea381?auto=format&fit=crop&w=1200&q=72",
-    "https://images.unsplash.com/photo-1589391349202-900abe66462a?auto=format&fit=crop&w=1200&q=72",
+    "photo-1711199694531-e982a79ea381",
+    "photo-1589391349202-900abe66462a",
+    "photo-1736161999520-0a20fa297a89",
   ],
   rodamientos: [
-    "https://images.unsplash.com/photo-1589391349202-900abe66462a?auto=format&fit=crop&w=1200&q=72",
-    "https://images.unsplash.com/photo-1708716334127-251478e5ff37?auto=format&fit=crop&w=1200&q=72",
+    "photo-1589391349202-900abe66462a",
+    "photo-1708716334127-251478e5ff37",
+    "photo-1736161999520-0a20fa297a89",
   ],
   mangueras: [
-    "https://images.unsplash.com/photo-1598023707207-276835c2b5fe?auto=format&fit=crop&w=1200&q=72",
-    "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1200&q=72",
+    "photo-1598023707207-276835c2b5fe",
+    "photo-1487754180451-c456f719a1fc",
+    "photo-1708716334127-251478e5ff37",
   ],
   lubricantes: [
-    "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1200&q=72",
-    "https://images.unsplash.com/photo-1527383418406-f85a3b146499?auto=format&fit=crop&w=1200&q=72",
+    "photo-1487754180451-c456f719a1fc",
+    "photo-1527383418406-f85a3b146499",
+    "photo-1429772011165-0c2e054367b8",
   ],
   tornilleria: [
-    "https://images.unsplash.com/photo-1605701249987-f0bb9b505d06?auto=format&fit=crop&w=1200&q=72",
-    "https://images.unsplash.com/photo-1708716334127-251478e5ff37?auto=format&fit=crop&w=1200&q=72",
+    "photo-1605701249987-f0bb9b505d06",
+    "photo-1708716334127-251478e5ff37",
+    "photo-1736161999520-0a20fa297a89",
   ],
   herramientas: [
-    "https://images.unsplash.com/photo-1708716334127-251478e5ff37?auto=format&fit=crop&w=1200&q=72",
-    "https://images.unsplash.com/photo-1605701249987-f0bb9b505d06?auto=format&fit=crop&w=1200&q=72",
+    "photo-1708716334127-251478e5ff37",
+    "photo-1605701249987-f0bb9b505d06",
+    "photo-1711199694531-e982a79ea381",
   ],
   diferenciales: [
-    "https://images.unsplash.com/photo-1736161999520-0a20fa297a89?auto=format&fit=crop&w=1200&q=72",
-    "https://images.unsplash.com/photo-1711199694531-e982a79ea381?auto=format&fit=crop&w=1200&q=72",
+    "photo-1736161999520-0a20fa297a89",
+    "photo-1711199694531-e982a79ea381",
+    "photo-1589391349202-900abe66462a",
   ],
   general: [
-    "https://images.unsplash.com/photo-1527383418406-f85a3b146499?auto=format&fit=crop&w=1200&q=72",
-    "https://images.unsplash.com/photo-1613214150384-14921ff659b2?auto=format&fit=crop&w=1200&q=72",
-    "https://images.unsplash.com/photo-1429772011165-0c2e054367b8?auto=format&fit=crop&w=1200&q=72",
+    "photo-1527383418406-f85a3b146499",
+    "photo-1613214150384-14921ff659b2",
+    "photo-1429772011165-0c2e054367b8",
+    "photo-1711199694531-e982a79ea381",
   ],
 };
 
@@ -132,7 +145,15 @@ function pickPhoto(input: ProductVisualInput): string {
   const pool = PHOTO_POOL[family];
   const raw = `${input.code || ""}|${input.name}|${input.category || ""}|${input.variant || 0}`;
   const seed = hashText(raw);
-  return pool[seed % pool.length];
+  const id = pool[seed % pool.length];
+
+  // URL unica por producto sin romper cache, con variaciones sutiles de color/luz.
+  const sat = -6 + (seed % 13); // -6 .. 6
+  const exp = -4 + ((seed >> 4) % 9); // -4 .. 4
+  const con = -4 + ((seed >> 8) % 9); // -4 .. 4
+  const usm = 8 + ((seed >> 12) % 9); // 8 .. 16
+
+  return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&h=800&q=70&crop=entropy&sat=${sat}&exp=${exp}&con=${con}&usm=${usm}&v=${seed}`;
 }
 
 export function productVisualDataUrl(input: ProductVisualInput): string {

@@ -1,6 +1,7 @@
 import { wa } from "@/lib/wa";
 import type { Metadata } from "next";
 import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
+import { STORE_LOCATIONS } from "@/lib/locations";
 
 export const metadata: Metadata = {
   title: "Contacto",
@@ -24,28 +25,6 @@ export const metadata: Metadata = {
 };
 
 export default function ContactoPage() {
-  const locations = [
-    {
-      id: "sede-principal",
-      name: "Sede Principal",
-      address: "Calle 30 N 60-250, Santa Marta, Colombia",
-      embed:
-        "https://www.google.com/maps?q=Calle%2030%20N%2060-250,%20Santa%20Marta,%20Colombia&output=embed",
-      maps: "https://www.google.com/maps/search/?api=1&query=Calle%2030%20N%2060-250,%20Santa%20Marta,%20Colombia",
-      waText:
-        "Quiero llegar a la sede principal (Calle 30 N 60-250). ¿Me compartes ubicación y referencia?",
-    },
-    {
-      id: "sede-2",
-      name: "Sede 2",
-      address: "Sector Bomba Zuca / Troncal del Caribe, Santa Marta",
-      embed: "https://www.google.com/maps?q=11.183433,-74.194969&output=embed",
-      maps:
-        "https://www.google.com/maps/dir/Torni+Repuestos,+Santa+Marta,+Magdalena/11.183433,-74.194969/@11.2231232,-74.1953911,13.17z/data=!4m8!4m7!1m5!1m1!1s0x8ef4f60b4f12e23d:0xf825f5fb9f7f9bbc!2m2!1d-74.1950117!2d11.18341!1m0?entry=ttu&g_ep=EgoyMDI2MDQwOC4wIKXMDSoASAFQAw%3D%3D",
-      waText: "Quiero llegar a la sede 2 (11.183433, -74.194969). ¿Me ayudas con la ubicación?",
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-white text-slate-900">
       <main className="mx-auto max-w-6xl px-4 py-14">
@@ -89,7 +68,7 @@ export default function ContactoPage() {
         <section className="mt-8">
           <h2 className="text-2xl font-extrabold tracking-tight">Nuestras sedes</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
-            {locations.map((location) => (
+            {STORE_LOCATIONS.map((location) => (
               <article key={location.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <div className="text-sm font-bold text-slate-900">{location.name}</div>
                 <div className="mt-1 text-sm text-slate-600">{location.address}</div>

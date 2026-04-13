@@ -1,4 +1,5 @@
 import { SITE_URL } from "@/lib/seo";
+import { STORE_LOCATIONS } from "@/lib/locations";
 
 export function GlobalSeoSchema() {
   const jsonLd = {
@@ -42,12 +43,23 @@ export function GlobalSeoSchema() {
         url: SITE_URL,
         image: `${SITE_URL}/tornirepuestos.jpeg`,
         telephone: "+57 310 653 1208",
-        address: {
-          "@type": "PostalAddress",
-          streetAddress: "Calle 30 N 60-250",
-          addressLocality: "Santa Marta",
-          addressCountry: "CO",
-        },
+        department: STORE_LOCATIONS.map((location, idx) => ({
+          "@type": "AutoPartsStore",
+          "@id": `${SITE_URL}/#${location.id}`,
+          name: `Tornirepuestos - ${location.name}`,
+          branchCode: String(idx + 1),
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: location.streetAddress,
+            addressLocality: location.locality,
+            addressCountry: "CO",
+          },
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: location.latitude,
+            longitude: location.longitude,
+          },
+        })),
       },
     ],
   };

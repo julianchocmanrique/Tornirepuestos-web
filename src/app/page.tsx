@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { CategoriesAnimatedGrid } from "@/components/CategoriesAnimatedGrid";
 import { FaqTabs } from "@/components/FaqTabs";
 import { categories } from "@/lib/categories";
+import { STORE_LOCATIONS } from "@/lib/locations";
 import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
 import { wa } from "@/lib/wa";
 
@@ -196,41 +197,29 @@ function SecondaryButton({
 }
 
 export default function Page() {
-  const locations = [
-    {
-      id: "sede-principal",
-      name: "Sede Principal",
-      address: "Calle 30 N 60-250, Santa Marta, Colombia",
-      embed:
-        "https://www.google.com/maps?q=Calle%2030%20N%2060-250,%20Santa%20Marta,%20Colombia&output=embed",
-      maps: "https://www.google.com/maps/search/?api=1&query=Calle%2030%20N%2060-250,%20Santa%20Marta,%20Colombia",
-      waText: "Quiero llegar a la sede principal. ¿Me compartes ubicación y referencia?",
-    },
-    {
-      id: "sede-2",
-      name: "Sede 2",
-      address: "Sector Bomba Zuca / Troncal del Caribe, Santa Marta",
-      embed: "https://www.google.com/maps?q=11.183433,-74.194969&output=embed",
-      maps:
-        "https://www.google.com/maps/dir/Torni+Repuestos,+Santa+Marta,+Magdalena/11.183433,-74.194969/@11.2231232,-74.1953911,13.17z/data=!4m8!4m7!1m5!1m1!1s0x8ef4f60b4f12e23d:0xf825f5fb9f7f9bbc!2m2!1d-74.1950117!2d11.18341!1m0?entry=ttu&g_ep=EgoyMDI2MDQwOC4wIKXMDSoASAFQAw%3D%3D",
-      waText: "Quiero llegar a la sede 2 (11.183433, -74.194969). ¿Me ayudas con la ubicación?",
-    },
-  ];
-
   const localBusinessJsonLd = {
     "@context": "https://schema.org",
-    "@type": "AutoPartsStore",
-    name: "Tornirepuestos",
-    image: absoluteUrl("/tornirepuestos.jpeg"),
-    url: absoluteUrl("/"),
-    telephone: "+57 310 653 1208",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "Calle 30 N 60-250",
-      addressLocality: "Santa Marta",
-      addressCountry: "CO",
-    },
-    sameAs: [wa("Hola, quiero cotizar un repuesto.")],
+    "@graph": STORE_LOCATIONS.map((location, idx) => ({
+      "@type": "AutoPartsStore",
+      "@id": `${absoluteUrl("/")}#${location.id}`,
+      name: `Tornirepuestos - ${location.name}`,
+      image: absoluteUrl("/tornirepuestos.jpeg"),
+      url: absoluteUrl("/"),
+      telephone: "+57 310 653 1208",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: location.streetAddress,
+        addressLocality: location.locality,
+        addressCountry: "CO",
+      },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: location.latitude,
+        longitude: location.longitude,
+      },
+      branchCode: String(idx + 1),
+      sameAs: [location.maps, wa(location.waText)],
+    })),
   };
 
   return (
@@ -569,9 +558,11 @@ export default function Page() {
               </div>
 
               <div className="rounded-2xl border border-slate-300 bg-white p-6">
-                <div className="text-sm font-bold text-slate-900">📍 Dirección</div>
-                <div className="mt-1 text-sm text-slate-600">
-                  Calle 30 N 60-250, Santa Marta, Colombia
+                <div className="text-sm font-bold text-slate-900">📍 Sedes</div>
+                <div className="mt-1 space-y-1 text-sm text-slate-600">
+                  {STORE_LOCATIONS.map((location) => (
+                    <div key={`short-${location.id}`}>{location.name}: {location.address}</div>
+                  ))}
                 </div>
                 <a
                   href="tel:+573106531208"
@@ -591,7 +582,7 @@ export default function Page() {
             </p>
 
             <div className="mt-4 grid gap-4">
-              {locations.map((location) => (
+              {STORE_LOCATIONS.map((location) => (
                 <article key={location.id} className="rounded-2xl border border-slate-200 bg-white p-4">
                   <div className="text-sm font-extrabold text-slate-900">{location.name}</div>
                   <div className="mt-1 text-sm text-slate-600">{location.address}</div>

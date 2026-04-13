@@ -581,7 +581,7 @@ export default function Page() {
               Tenemos dos sedes en Santa Marta. Si vienes por repuesto urgente, escríbenos por WhatsApp y te guiamos.
             </p>
 
-            <div className="mt-4 grid gap-4">
+            <div className="mt-4 grid gap-4 lg:grid-cols-2">
               {STORE_LOCATIONS.map((location) => (
                 <article key={location.id} className="rounded-2xl border border-slate-200 bg-white p-4">
                   <div className="text-sm font-extrabold text-slate-900">{location.name}</div>

@@ -67,7 +67,7 @@ export default function ContactoPage() {
 
         <section className="mt-8">
           <h2 className="text-2xl font-extrabold tracking-tight">Nuestras sedes</h2>
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
             {STORE_LOCATIONS.map((location) => (
               <article key={location.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <div className="text-sm font-bold text-slate-900">{location.name}</div>

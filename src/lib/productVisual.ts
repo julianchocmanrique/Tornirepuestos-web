@@ -13,122 +13,128 @@ function hashText(text: string): number {
   return h;
 }
 
-function esc(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-}
+type Family =
+  | "frenos"
+  | "filtracion"
+  | "suspension"
+  | "motor"
+  | "electricos"
+  | "transmision"
+  | "rodamientos"
+  | "mangueras"
+  | "lubricantes"
+  | "tornilleria"
+  | "herramientas"
+  | "diferenciales"
+  | "general";
 
-function categoryLabel(category?: string) {
-  if (!category) return "REPUESTO";
-  const normalized = category.replace(/-/g, " ").toUpperCase();
-  return normalized.slice(0, 22);
-}
+const PHOTO_POOL: Record<Family, string[]> = {
+  frenos: [
+    "https://images.unsplash.com/photo-1613214150384-14921ff659b2?auto=format&fit=crop&w=1200&q=72",
+    "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1200&q=72",
+  ],
+  filtracion: [
+    "https://images.unsplash.com/photo-1527383418406-f85a3b146499?auto=format&fit=crop&w=1200&q=72",
+    "https://images.unsplash.com/photo-1429772011165-0c2e054367b8?auto=format&fit=crop&w=1200&q=72",
+  ],
+  suspension: [
+    "https://images.unsplash.com/photo-1669136048337-5daa3adef7b2?auto=format&fit=crop&w=1200&q=72",
+    "https://images.unsplash.com/photo-1598023707207-276835c2b5fe?auto=format&fit=crop&w=1200&q=72",
+  ],
+  motor: [
+    "https://images.unsplash.com/photo-1429772011165-0c2e054367b8?auto=format&fit=crop&w=1200&q=72",
+    "https://images.unsplash.com/photo-1711199694531-e982a79ea381?auto=format&fit=crop&w=1200&q=72",
+  ],
+  electricos: [
+    "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1200&q=72",
+    "https://images.unsplash.com/photo-1711199694531-e982a79ea381?auto=format&fit=crop&w=1200&q=72",
+  ],
+  transmision: [
+    "https://images.unsplash.com/photo-1711199694531-e982a79ea381?auto=format&fit=crop&w=1200&q=72",
+    "https://images.unsplash.com/photo-1589391349202-900abe66462a?auto=format&fit=crop&w=1200&q=72",
+  ],
+  rodamientos: [
+    "https://images.unsplash.com/photo-1589391349202-900abe66462a?auto=format&fit=crop&w=1200&q=72",
+    "https://images.unsplash.com/photo-1708716334127-251478e5ff37?auto=format&fit=crop&w=1200&q=72",
+  ],
+  mangueras: [
+    "https://images.unsplash.com/photo-1598023707207-276835c2b5fe?auto=format&fit=crop&w=1200&q=72",
+    "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1200&q=72",
+  ],
+  lubricantes: [
+    "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1200&q=72",
+    "https://images.unsplash.com/photo-1527383418406-f85a3b146499?auto=format&fit=crop&w=1200&q=72",
+  ],
+  tornilleria: [
+    "https://images.unsplash.com/photo-1605701249987-f0bb9b505d06?auto=format&fit=crop&w=1200&q=72",
+    "https://images.unsplash.com/photo-1708716334127-251478e5ff37?auto=format&fit=crop&w=1200&q=72",
+  ],
+  herramientas: [
+    "https://images.unsplash.com/photo-1708716334127-251478e5ff37?auto=format&fit=crop&w=1200&q=72",
+    "https://images.unsplash.com/photo-1605701249987-f0bb9b505d06?auto=format&fit=crop&w=1200&q=72",
+  ],
+  diferenciales: [
+    "https://images.unsplash.com/photo-1736161999520-0a20fa297a89?auto=format&fit=crop&w=1200&q=72",
+    "https://images.unsplash.com/photo-1711199694531-e982a79ea381?auto=format&fit=crop&w=1200&q=72",
+  ],
+  general: [
+    "https://images.unsplash.com/photo-1527383418406-f85a3b146499?auto=format&fit=crop&w=1200&q=72",
+    "https://images.unsplash.com/photo-1613214150384-14921ff659b2?auto=format&fit=crop&w=1200&q=72",
+    "https://images.unsplash.com/photo-1429772011165-0c2e054367b8?auto=format&fit=crop&w=1200&q=72",
+  ],
+};
 
-function crop(text: string, size: number) {
-  return text.length <= size ? text : `${text.slice(0, size - 1)}…`;
-}
-
-function pickPhotoQuery(input: ProductVisualInput): string {
+function resolveFamily(input: ProductVisualInput): Family {
   const haystack = `${input.name} ${input.category || ""}`.toLowerCase();
 
   if (/(freno|pastilla|disco|valvula|camara)/.test(haystack)) {
-    return "truck brake disc heavy vehicle spare parts";
+    return "frenos";
   }
   if (/(filtro|filtracion|aire|combustible|aceite)/.test(haystack)) {
-    return "engine filter auto parts workshop";
+    return "filtracion";
   }
   if (/(suspension|amortiguador|muelle|resorte|bolsa)/.test(haystack)) {
-    return "truck suspension shock absorber auto parts";
+    return "suspension";
   }
   if (/(motor|empaque|sello|piston|biela)/.test(haystack)) {
-    return "diesel engine mechanical parts closeup";
+    return "motor";
   }
   if (/(electrico|luz|faro|conector|cable|sensor)/.test(haystack)) {
-    return "automotive electrical wiring connectors workshop";
+    return "electricos";
   }
   if (/(transmision|clutch|caja|cardan|cruceta)/.test(haystack)) {
-    return "gearbox transmission gears mechanical parts";
+    return "transmision";
   }
   if (/(rodamiento|reten|ruleman)/.test(haystack)) {
-    return "bearing industrial metal machine part";
+    return "rodamientos";
   }
   if (/(manguera|racor|abrazadera|tubo)/.test(haystack)) {
-    return "rubber hose fittings industrial workshop";
+    return "mangueras";
   }
   if (/(lubricante|grasa|aditivo|hidraulico|refrigerante)/.test(haystack)) {
-    return "engine oil lubricant automotive service";
+    return "lubricantes";
   }
   if (/(tornillo|tuerca|arandela|tornilleria)/.test(haystack)) {
-    return "bolts nuts hardware metal fasteners";
+    return "tornilleria";
   }
   if (/(herramienta|llave|destornillador|alicate)/.test(haystack)) {
-    return "mechanic tools workshop closeup";
+    return "herramientas";
   }
   if (/(diferencial|corona|piñon|planetario)/.test(haystack)) {
-    return "differential gear axle mechanical";
+    return "diferenciales";
   }
 
-  return "heavy truck spare parts workshop";
+  return "general";
 }
 
-function unsplashSourcePhoto(input: ProductVisualInput): string {
+function pickPhoto(input: ProductVisualInput): string {
+  const family = resolveFamily(input);
+  const pool = PHOTO_POOL[family];
   const raw = `${input.code || ""}|${input.name}|${input.category || ""}|${input.variant || 0}`;
-  const seed = hashText(raw) % 1000;
-  const query = encodeURIComponent(pickPhotoQuery(input));
-  return `https://source.unsplash.com/1200x800/?${query}&sig=${seed}`;
+  const seed = hashText(raw);
+  return pool[seed % pool.length];
 }
 
 export function productVisualDataUrl(input: ProductVisualInput): string {
-  // Prefer photo-like visuals for a more realistic catalog style.
-  if (input.name.trim().length > 0) {
-    return unsplashSourcePhoto(input);
-  }
-
-  const seed = `${input.code || ""}|${input.name}|${input.category || ""}|${input.variant || 0}`;
-  const h = hashText(seed);
-  const h2 = hashText(`${seed}-b`);
-  const hue = h % 360;
-  const hue2 = (hue + 35 + (h2 % 40)) % 360;
-  const hue3 = (hue + 75) % 360;
-  const bg1 = `hsl(${hue}, 78%, 26%)`;
-  const bg2 = `hsl(${hue2}, 78%, 18%)`;
-  const line = `hsl(${hue3}, 88%, 56%)`;
-
-  const code = crop((input.code || "INV").toUpperCase(), 24);
-  const label = crop(categoryLabel(input.category), 22);
-  const title = crop(input.name.toUpperCase(), 34);
-
-  const svg = `
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520">
-  <defs>
-    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="${bg1}" />
-      <stop offset="100%" stop-color="${bg2}" />
-    </linearGradient>
-    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="rgba(255,255,255,0.22)" />
-      <stop offset="100%" stop-color="rgba(255,255,255,0)" />
-    </linearGradient>
-  </defs>
-  <rect width="800" height="520" fill="url(#g1)" />
-  <circle cx="680" cy="-40" r="220" fill="rgba(255,255,255,0.10)" />
-  <circle cx="120" cy="560" r="180" fill="rgba(255,255,255,0.08)" />
-  <path d="M0 412 L800 312 L800 352 L0 452 Z" fill="${line}" opacity="0.26" />
-  <rect x="48" y="46" rx="14" ry="14" width="220" height="44" fill="rgba(255,255,255,0.92)" />
-  <text x="66" y="76" fill="#0f172a" font-family="Arial, sans-serif" font-size="24" font-weight="700">${esc(code)}</text>
-  <text x="52" y="134" fill="rgba(255,255,255,0.92)" font-family="Arial, sans-serif" font-size="22" letter-spacing="2">${esc(label)}</text>
-  <text x="52" y="194" fill="#ffffff" font-family="Arial, sans-serif" font-size="42" font-weight="800">${esc(title)}</text>
-  <rect x="52" y="214" width="510" height="8" fill="url(#g2)" />
-  <g transform="translate(612 248)">
-    <circle cx="74" cy="74" r="74" fill="rgba(255,255,255,0.18)" />
-    <circle cx="74" cy="74" r="52" fill="rgba(255,255,255,0.88)" />
-    <circle cx="74" cy="74" r="32" fill="${line}" />
-  </g>
-</svg>`;
-
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  return pickPhoto(input);
 }

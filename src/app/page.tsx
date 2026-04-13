@@ -196,6 +196,27 @@ function SecondaryButton({
 }
 
 export default function Page() {
+  const locations = [
+    {
+      id: "sede-principal",
+      name: "Sede Principal",
+      address: "Calle 30 N 60-250, Santa Marta, Colombia",
+      embed:
+        "https://www.google.com/maps?q=Calle%2030%20N%2060-250,%20Santa%20Marta,%20Colombia&output=embed",
+      maps: "https://www.google.com/maps/search/?api=1&query=Calle%2030%20N%2060-250,%20Santa%20Marta,%20Colombia",
+      waText: "Quiero llegar a la sede principal. ¿Me compartes ubicación y referencia?",
+    },
+    {
+      id: "sede-2",
+      name: "Sede 2",
+      address: "Sector Bomba Zuca / Troncal del Caribe, Santa Marta",
+      embed: "https://www.google.com/maps?q=11.183433,-74.194969&output=embed",
+      maps:
+        "https://www.google.com/maps/dir/Torni+Repuestos,+Santa+Marta,+Magdalena/11.183433,-74.194969/@11.2231232,-74.1953911,13.17z/data=!4m8!4m7!1m5!1m1!1s0x8ef4f60b4f12e23d:0xf825f5fb9f7f9bbc!2m2!1d-74.1950117!2d11.18341!1m0?entry=ttu&g_ep=EgoyMDI2MDQwOC4wIKXMDSoASAFQAw%3D%3D",
+      waText: "Quiero llegar a la sede 2 (11.183433, -74.194969). ¿Me ayudas con la ubicación?",
+    },
+  ];
+
   const localBusinessJsonLd = {
     "@context": "https://schema.org",
     "@type": "AutoPartsStore",
@@ -564,39 +585,48 @@ export default function Page() {
           </div>
 
           <div className="rounded-2xl border border-slate-300 bg-white p-6 text-slate-900">
-            <div className="text-sm font-extrabold text-slate-900">Ubicación</div>
+            <div className="text-sm font-extrabold text-slate-900">Ubicaciones</div>
             <p className="mt-3 text-sm text-slate-600">
-              Encuéntranos en Santa Marta. Si vienes por repuesto urgente, escríbenos por WhatsApp y te guiamos.
+              Tenemos dos sedes en Santa Marta. Si vienes por repuesto urgente, escríbenos por WhatsApp y te guiamos.
             </p>
 
-            <div className="mt-4 overflow-hidden rounded-2xl bg-white">
-              <iframe
-                title="Mapa Tornirepuestos"
-                className="h-[280px] w-full"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                src="https://www.google.com/maps?q=Calle%2030%20N%2060-250,%20Santa%20Marta,%20Colombia&output=embed"
-              />
-            </div>
+            <div className="mt-4 grid gap-4">
+              {locations.map((location) => (
+                <article key={location.id} className="rounded-2xl border border-slate-200 bg-white p-4">
+                  <div className="text-sm font-extrabold text-slate-900">{location.name}</div>
+                  <div className="mt-1 text-sm text-slate-600">{location.address}</div>
 
-            <div className="mt-4 flex flex-wrap gap-3">
-              <a
-                href="https://www.google.com/maps/search/?api=1&query=Calle%2030%20N%2060-250,%20Santa%20Marta,%20Colombia"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex w-full items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold text-white sm:w-auto"
-                style={{ background: "var(--tp-action-primary)" }}
-              >
-                Cómo llegar
-              </a>
-              <a
-                href={wa("Quiero ubicación. ¿Me compartes cómo llegar?")}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex w-full items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 sm:w-auto"
-              >
-                Pedir ubicación por WhatsApp
-              </a>
+                  <div className="mt-3 overflow-hidden rounded-2xl bg-white">
+                    <iframe
+                      title={`Mapa ${location.name}`}
+                      className="h-[240px] w-full"
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      src={location.embed}
+                    />
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    <a
+                      href={location.maps}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex w-full items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold text-white sm:w-auto"
+                      style={{ background: "var(--tp-action-primary)" }}
+                    >
+                      Cómo llegar
+                    </a>
+                    <a
+                      href={wa(location.waText)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex w-full items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 sm:w-auto"
+                    >
+                      Pedir ubicación por WhatsApp
+                    </a>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
         </div>

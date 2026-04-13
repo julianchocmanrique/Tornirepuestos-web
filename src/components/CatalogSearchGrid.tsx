@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { productVisualDataUrl } from "@/lib/productVisual";
 import { wa } from "@/lib/wa";
 
 export type CatalogItem = {
@@ -23,86 +24,17 @@ type Props = {
   topSellers: CatalogItem[];
 };
 
-const imageByKeyword: Array<{ keys: string[]; images: string[] }> = [
-  {
-    keys: ["filtro", "filtr"],
-    images: [
-      "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1200&q=75",
-      "https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=1200&q=75",
-    ],
-  },
-  {
-    keys: ["freno", "banda", "disco"],
-    images: [
-      "https://images.unsplash.com/photo-1625047509168-a7026f36de04?auto=format&fit=crop&w=1200&q=75",
-      "https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=1200&q=75",
-    ],
-  },
-  {
-    keys: ["amort", "susp", "buje"],
-    images: [
-      "https://images.unsplash.com/photo-1669136048337-5daa3adef7b2?auto=format&fit=crop&w=1200&q=75",
-      "https://images.unsplash.com/photo-1615906655593-ad0386982a0f?auto=format&fit=crop&w=1200&q=75",
-    ],
-  },
-  {
-    keys: ["aceite", "grasa", "lubric"],
-    images: [
-      "https://images.unsplash.com/photo-1625047509248-ec889cbff17f?auto=format&fit=crop&w=1200&q=75",
-      "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1200&q=75",
-    ],
-  },
-  {
-    keys: ["alternador", "arranque", "luz", "electr", "bombillo"],
-    images: [
-      "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=75",
-      "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=1200&q=75",
-    ],
-  },
-  {
-    keys: ["rodamiento", "balinera", "reten"],
-    images: [
-      "https://images.unsplash.com/photo-1589391349202-900abe66462a?auto=format&fit=crop&w=1200&q=75",
-      "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=1200&q=75",
-    ],
-  },
-  {
-    keys: ["manguera", "abrazadera", "racor"],
-    images: [
-      "https://images.unsplash.com/photo-1598023707207-276835c2b5fe?auto=format&fit=crop&w=1200&q=75",
-      "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=75",
-    ],
-  },
-  {
-    keys: ["tornillo", "tuerca", "arandela", "perno"],
-    images: [
-      "https://images.unsplash.com/photo-1605701249987-f0bb9b505d06?auto=format&fit=crop&w=1200&q=75",
-      "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=1200&q=75",
-    ],
-  },
-];
-
-const fallbackImages = [
-  "https://images.unsplash.com/photo-1429772011165-0c2e054367b8?auto=format&fit=crop&w=1200&q=75",
-  "https://images.unsplash.com/photo-1711199694531-e982a79ea381?auto=format&fit=crop&w=1200&q=75",
-];
-
 function getImageForItem(item: CatalogItem, seed = 0) {
-  const source = `${item.name} ${item.groupInf} ${item.groupSup}`.toLowerCase();
-  const match = imageByKeyword.find((entry) => entry.keys.some((k) => source.includes(k)));
-  const pool = match ? match.images : fallbackImages;
-  return pool[(seed + item.code.length) % pool.length];
+  return productVisualDataUrl({
+    code: item.code,
+    name: item.name,
+    category: `${item.groupSup} ${item.groupInf}`,
+    variant: seed,
+  });
 }
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat("es-CO").format(value);
-}
-
-function formatLastSale(date: string) {
-  if (!date) return "Sin venta reciente";
-  const d = new Date(date);
-  if (Number.isNaN(d.getTime())) return "Sin venta reciente";
-  return d.toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
 }
 
 export function CatalogSearchGrid({ items, topSellers }: Props) {
@@ -317,6 +249,7 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
                   src={getImageForItem(item, idx)}
                   alt={item.name}
                   fill
+                  unoptimized
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-900/25 to-transparent" />
@@ -447,6 +380,7 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
                 src={getImageForItem(item, idx)}
                 alt={item.name}
                 fill
+                unoptimized
                 className="object-cover"
               />
             </div>

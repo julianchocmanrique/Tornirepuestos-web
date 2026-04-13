@@ -3,80 +3,18 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { categories, getCategoryBySlug } from "@/lib/categories";
 import { getCategorySeoContent } from "@/lib/categorySeoContent";
+import { productVisualDataUrl } from "@/lib/productVisual";
 import { absoluteUrl } from "@/lib/seo";
 import { wa } from "@/lib/wa";
 import { seoDetail, seoParagraph } from "./seo";
 
-const productImagesByCategory: Record<string, string[]> = {
-  frenos: [
-    "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1625047509168-a7026f36de04?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=75",
-  ],
-  filtracion: [
-    "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1200&q=75",
-  ],
-  suspension: [
-    "https://images.unsplash.com/photo-1617469767053-d3b523a0b982?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1615906655593-ad0386982a0f?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=1200&q=75",
-  ],
-  motor: [
-    "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?auto=format&fit=crop&w=1200&q=75",
-  ],
-  "electricos-y-luces": [
-    "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1612538498456-e861df91d4d0?auto=format&fit=crop&w=1200&q=75",
-  ],
-  transmision: [
-    "https://images.unsplash.com/photo-1625695236072-4d7f0e2e5f9f?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=1200&q=75",
-  ],
-  "rodamientos-y-retenedores": [
-    "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1589391349202-900abe66462a?auto=format&fit=crop&w=1200&q=75",
-  ],
-  "mangueras-y-racoreria": [
-    "https://images.unsplash.com/photo-1598023707207-276835c2b5fe?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=75",
-  ],
-  "lubricantes-y-grasas": [
-    "https://images.unsplash.com/photo-1625047509248-ec889cbff17f?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=1200&q=75",
-  ],
-  tornilleria: [
-    "https://images.unsplash.com/photo-1605701249987-f0bb9b505d06?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=1200&q=75",
-  ],
-  herramientas: [
-    "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1581147036324-c1c1dbdd5f47?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1200&q=75",
-  ],
-  diferenciales: [
-    "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1625695236072-4d7f0e2e5f9f?auto=format&fit=crop&w=1200&q=75",
-    "https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=1200&q=75",
-  ],
-};
-
-function getProductImage(slug: string, index: number, fallback: string) {
-  const images = productImagesByCategory[slug];
-  if (!images || images.length === 0) return fallback;
-  return images[index % images.length];
+function getProductImage(slug: string, index: number, productName: string) {
+  return productVisualDataUrl({
+    code: `${slug}-${index + 1}`,
+    name: productName,
+    category: slug,
+    variant: index,
+  });
 }
 
 export function generateStaticParams() {
@@ -367,9 +305,10 @@ export default async function Page({
                 >
                   <div className="relative h-28 w-full">
                     <Image
-                      src={getProductImage(cat.slug, idx, cat.img)}
+                      src={getProductImage(cat.slug, idx, p.name)}
                       alt={`${p.name} - ${cat.title}`}
                       fill
+                      unoptimized
                       className="object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/65 via-slate-900/20 to-transparent" />

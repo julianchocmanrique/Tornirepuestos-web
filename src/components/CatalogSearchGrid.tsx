@@ -25,12 +25,17 @@ type Props = {
   topSellers: CatalogItem[];
 };
 
+function hashSeed(text: string) {
+  let h = 0;
+  for (let i = 0; i < text.length; i += 1) {
+    h = (h * 31 + text.charCodeAt(i)) >>> 0;
+  }
+  return h;
+}
+
 function getImageForItem(item: CatalogItem, seed = 0) {
   const stableSeed = `${item.id}|${item.code}|${item.name}|${item.groupInf}|${item.groupSup}`;
-  let hash = 0;
-  for (let i = 0; i < stableSeed.length; i += 1) {
-    hash = (hash * 31 + stableSeed.charCodeAt(i)) >>> 0;
-  }
+  const hash = hashSeed(stableSeed);
 
   return productVisualDataUrl({
     code: item.code,
@@ -38,6 +43,94 @@ function getImageForItem(item: CatalogItem, seed = 0) {
     category: `${item.groupSup} ${item.groupInf}`,
     variant: (hash + seed) % 2048,
   });
+}
+
+function getFeaturedPhotoForItem(item: CatalogItem) {
+  const txt = `${item.name} ${item.groupInf} ${item.groupSup} ${item.kind}`.toLowerCase();
+  const byFamily: Record<string, string[]> = {
+    frenos: [
+      "photo-1613214150384-14921ff659b2",
+      "photo-1486262715619-67b85e0b08d3",
+      "photo-1711199694531-e982a79ea381",
+    ],
+    filtracion: [
+      "photo-1527383418406-f85a3b146499",
+      "photo-1429772011165-0c2e054367b8",
+      "photo-1487754180451-c456f719a1fc",
+    ],
+    suspension: [
+      "photo-1669136048337-5daa3adef7b2",
+      "photo-1598023707207-276835c2b5fe",
+      "photo-1736161999520-0a20fa297a89",
+    ],
+    motor: [
+      "photo-1429772011165-0c2e054367b8",
+      "photo-1711199694531-e982a79ea381",
+      "photo-1589391349202-900abe66462a",
+    ],
+    electricos: [
+      "photo-1486262715619-67b85e0b08d3",
+      "photo-1711199694531-e982a79ea381",
+      "photo-1527383418406-f85a3b146499",
+    ],
+    transmision: [
+      "photo-1711199694531-e982a79ea381",
+      "photo-1589391349202-900abe66462a",
+      "photo-1736161999520-0a20fa297a89",
+    ],
+    mangueras: [
+      "photo-1598023707207-276835c2b5fe",
+      "photo-1487754180451-c456f719a1fc",
+      "photo-1708716334127-251478e5ff37",
+    ],
+    lubricantes: [
+      "photo-1487754180451-c456f719a1fc",
+      "photo-1527383418406-f85a3b146499",
+      "photo-1429772011165-0c2e054367b8",
+    ],
+    tornilleria: [
+      "photo-1605701249987-f0bb9b505d06",
+      "photo-1708716334127-251478e5ff37",
+      "photo-1736161999520-0a20fa297a89",
+    ],
+    herramientas: [
+      "photo-1708716334127-251478e5ff37",
+      "photo-1605701249987-f0bb9b505d06",
+      "photo-1711199694531-e982a79ea381",
+    ],
+    rodamientos: [
+      "photo-1589391349202-900abe66462a",
+      "photo-1736161999520-0a20fa297a89",
+      "photo-1605701249987-f0bb9b505d06",
+    ],
+    general: [
+      "photo-1527383418406-f85a3b146499",
+      "photo-1613214150384-14921ff659b2",
+      "photo-1429772011165-0c2e054367b8",
+    ],
+  };
+
+  let family = "general";
+  if (/(freno|pastilla|disco|valvula|camara|balata)/.test(txt)) family = "frenos";
+  else if (/(filtro|filtracion|aire|combustible)/.test(txt)) family = "filtracion";
+  else if (/(suspension|amortiguador|muelle|resorte|bolsa)/.test(txt)) family = "suspension";
+  else if (/(motor|empaque|sello|piston|biela|culata)/.test(txt)) family = "motor";
+  else if (/(electrico|luz|faro|conector|cable|sensor|rele|relay)/.test(txt)) family = "electricos";
+  else if (/(transmision|clutch|caja|cardan|cruceta|diferencial)/.test(txt)) family = "transmision";
+  else if (/(rodamiento|reten|ruleman)/.test(txt)) family = "rodamientos";
+  else if (/(manguera|racor|abrazadera|tubo)/.test(txt)) family = "mangueras";
+  else if (/(lubricante|grasa|aditivo|hidraulico|refrigerante|aceite)/.test(txt)) family = "lubricantes";
+  else if (/(tornillo|tuerca|arandela|tornilleria|perno)/.test(txt)) family = "tornilleria";
+  else if (/(herramienta|llave|destornillador|alicate|dados)/.test(txt)) family = "herramientas";
+
+  const photos = byFamily[family] || byFamily.general;
+  const seed = hashSeed(`${item.id}|${item.code}|${item.name}`);
+  const photoId = photos[seed % photos.length];
+  const sat = -8 + (seed % 17);
+  const con = -5 + ((seed >> 3) % 11);
+  const exp = -4 + ((seed >> 8) % 9);
+
+  return `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=960&h=640&q=72&crop=entropy&sat=${sat}&con=${con}&exp=${exp}&v=${seed}`;
 }
 
 function formatNumber(value: number) {
@@ -177,6 +270,14 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
     return unique.slice(0, 16);
   }, [topSellers]);
 
+  const featuredImageMap = useMemo(() => {
+    const map = new Map<string, string>();
+    topSellerItems.forEach((item) => {
+      map.set(item.id, getFeaturedPhotoForItem(item));
+    });
+    return map;
+  }, [topSellerItems]);
+
   const filteredItems = useMemo(() => {
     const q = deferredQuery.trim().toLowerCase();
     const base = items.filter((item) => {
@@ -277,7 +378,7 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
             >
               <div className="relative h-32">
                 <Image
-                  src={itemImageMap.get(item.id) || getImageForItem(item, idx)}
+                  src={featuredImageMap.get(item.id) || getFeaturedPhotoForItem(item)}
                   alt={item.name}
                   fill
                   unoptimized

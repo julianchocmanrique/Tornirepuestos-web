@@ -129,8 +129,11 @@ function getFeaturedPhotoForItem(item: CatalogItem) {
   const sat = -8 + (seed % 17);
   const con = -5 + ((seed >> 3) % 11);
   const exp = -4 + ((seed >> 8) % 9);
+  const fpX = (18 + (seed % 64)) / 100; // 0.18 - 0.82
+  const fpY = (18 + ((seed >> 6) % 64)) / 100; // 0.18 - 0.82
+  const fpZ = (75 + ((seed >> 12) % 65)) / 100; // 0.75 - 1.40
 
-  return `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=960&h=640&q=72&crop=entropy&sat=${sat}&con=${con}&exp=${exp}&v=${seed}`;
+  return `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=960&h=640&q=72&crop=focalpoint&fp-x=${fpX}&fp-y=${fpY}&fp-z=${fpZ}&sat=${sat}&con=${con}&exp=${exp}&v=${seed}`;
 }
 
 function formatNumber(value: number) {
@@ -272,8 +275,38 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
 
   const featuredImageMap = useMemo(() => {
     const map = new Map<string, string>();
-    topSellerItems.forEach((item) => {
-      map.set(item.id, getFeaturedPhotoForItem(item));
+    const usedPhotos = new Set<string>();
+
+    topSellerItems.forEach((item, idx) => {
+      const baseUrl = getFeaturedPhotoForItem(item);
+      const match = baseUrl.match(/images\.unsplash\.com\/([^?]+)/);
+      const baseId = match?.[1] || "";
+
+      // Evita repetición exacta de la imagen base en destacados visibles.
+      if (!usedPhotos.has(baseId)) {
+        usedPhotos.add(baseId);
+        map.set(item.id, baseUrl);
+        return;
+      }
+
+      // Si la base ya se usó, forzamos variación visual fuerte en el recorte/color.
+      const s = hashSeed(`${item.id}|${item.code}|${item.name}|${idx}`);
+      const fpX = (12 + (s % 76)) / 100;
+      const fpY = (12 + ((s >> 7) % 76)) / 100;
+      const fpZ = (68 + ((s >> 13) % 82)) / 100;
+      const sat = -12 + (s % 25);
+      const con = -10 + ((s >> 5) % 21);
+      const exp = -8 + ((s >> 11) % 17);
+      const blendHex = (s % 0xffffff).toString(16).padStart(6, "0");
+      const blendModes = ["multiply", "overlay", "softlight", "hardlight"];
+      const blendMode = blendModes[s % blendModes.length];
+      const blendAlpha = 18 + (s % 24);
+
+      const forcedUrl = baseId
+        ? `https://images.unsplash.com/${baseId}?auto=format&fit=crop&w=960&h=640&q=72&crop=focalpoint&fp-x=${fpX}&fp-y=${fpY}&fp-z=${fpZ}&sat=${sat}&con=${con}&exp=${exp}&blend=${blendHex}&blend-mode=${blendMode}&blend-alpha=${blendAlpha}&v=${s}`
+        : baseUrl;
+
+      map.set(item.id, forcedUrl);
     });
     return map;
   }, [topSellerItems]);

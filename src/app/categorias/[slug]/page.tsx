@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { categories, getCategoryBySlug } from "@/lib/categories";
 import { getCategorySeoContent } from "@/lib/categorySeoContent";
 import { productVisualDataUrl } from "@/lib/productVisual";
+import { SEO_SOLUTIONS } from "@/lib/seoSolutions";
 import { absoluteUrl } from "@/lib/seo";
 import { wa } from "@/lib/wa";
 import { seoDetail, seoParagraph } from "./seo";
@@ -86,6 +87,7 @@ export default async function Page({
   const waText = `Quiero cotizar: ${cat.title}. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____.`;
   const seoContent = getCategorySeoContent(cat.slug);
   const seoInfoDetail = seoDetail(cat);
+  const relatedSolutions = SEO_SOLUTIONS.filter((item) => item.relatedCategorySlug === cat.slug);
   const categoryFaq = [
     {
       q: `¿Qué referencias de ${cat.title.toLowerCase()} manejan?`,
@@ -413,6 +415,28 @@ export default async function Page({
             </div>
           </article>
         </div>
+
+        {relatedSolutions.length > 0 && (
+          <article className="mt-8 rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+            <div className="text-xs uppercase tracking-wide text-slate-500">Soluciones SEO</div>
+            <h2 className="mt-2 text-2xl font-extrabold text-slate-900">
+              Temas relacionados más buscados
+            </h2>
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {relatedSolutions.map((item) => (
+                <Link
+                  key={item.slug}
+                  href={`/${item.slug}`}
+                  className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-slate-300 hover:bg-white"
+                >
+                  <div className="text-sm font-extrabold text-slate-900">{item.title}</div>
+                  <div className="mt-2 text-sm text-slate-700">{item.summary}</div>
+                  <div className="mt-3 text-sm font-semibold text-red-600">Ver solución →</div>
+                </Link>
+              ))}
+            </div>
+          </article>
+        )}
 
         <article className="mt-8 rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
           <div className="text-xs uppercase tracking-wide text-slate-500">

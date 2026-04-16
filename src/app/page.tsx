@@ -7,6 +7,7 @@ import { FaqTabs } from "@/components/FaqTabs";
 import { categories } from "@/lib/categories";
 import { STORE_LOCATIONS } from "@/lib/locations";
 import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
+import { SEO_SOLUTIONS } from "@/lib/seoSolutions";
 import { wa } from "@/lib/wa";
 
 const brand = {
@@ -299,6 +300,31 @@ export default function Page() {
 
           <CategoriesAnimatedGrid categories={categories} />
 
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 py-12">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="text-xs uppercase tracking-wide text-slate-500">Búsquedas reales</div>
+          <h2 className="mt-2 text-3xl font-extrabold" style={{ color: "var(--tp-blue-800)" }}>
+            Soluciones más buscadas
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm text-slate-600">
+            Guías rápidas para referencias con alta intención de compra. Entra, revisa compatibilidad y cotiza por WhatsApp.
+          </p>
+          <div className="mt-5 grid gap-4 md:grid-cols-3">
+            {SEO_SOLUTIONS.map((item) => (
+              <Link
+                key={item.slug}
+                href={`/${item.slug}`}
+                className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-slate-300 hover:bg-white"
+              >
+                <div className="text-sm font-extrabold text-slate-900">{item.title}</div>
+                <div className="mt-2 text-sm text-slate-600">{item.summary}</div>
+                <div className="mt-3 text-sm font-semibold text-red-600">Ver solución →</div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 

@@ -1,10 +1,12 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { LazyMotion, domAnimation, m } from "motion/react";
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 
 import { productVisualDataUrl } from "@/lib/productVisual";
+import { SEO_SOLUTIONS } from "@/lib/seoSolutions";
 import { wa } from "@/lib/wa";
 
 export type CatalogItem = {
@@ -389,6 +391,26 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
   return (
     <div className="mt-8">
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="text-xs uppercase tracking-wide text-slate-500">Búsquedas frecuentes</div>
+        <h2 className="mt-1 text-2xl font-extrabold text-slate-900">Soluciones más buscadas</h2>
+        <p className="mt-2 text-sm text-slate-600">
+          Accesos rápidos para encontrar soluciones específicas y cotizar más rápido.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {SEO_SOLUTIONS.map((solution) => (
+            <Link
+              key={solution.slug}
+              href={`/${solution.slug}`}
+              className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm"
+            >
+              <div className="text-sm font-extrabold text-slate-900">{solution.title}</div>
+              <div className="mt-1 line-clamp-2 text-xs text-slate-600">{solution.summary}</div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="text-xs uppercase tracking-wide text-slate-500">Más vendidos</div>
         <h2 className="mt-1 text-2xl font-extrabold text-slate-900">Productos destacados</h2>
         <div className="mt-4 overflow-hidden pb-2">

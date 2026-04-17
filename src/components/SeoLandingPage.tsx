@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import type { SeoSolution } from "@/lib/seoSolutions";
 import { wa } from "@/lib/wa";
@@ -31,6 +32,18 @@ export function SeoLandingPage({ solution }: Props) {
             {solution.h1}
           </h1>
           <p className="mt-3 max-w-3xl text-sm text-slate-600">{solution.intro}</p>
+          {solution.heroImage ? (
+            <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+              <Image
+                src={solution.heroImage.src}
+                alt={solution.heroImage.alt}
+                width={1024}
+                height={576}
+                className="h-auto w-full object-cover"
+                priority
+              />
+            </div>
+          ) : null}
           <div className="mt-5 flex flex-wrap gap-2">
             {solution.searchTerms.map((term) => (
               <span

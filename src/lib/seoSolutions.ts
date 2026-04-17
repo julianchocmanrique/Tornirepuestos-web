@@ -4,6 +4,10 @@ export type SeoSolution = {
   h1: string;
   summary: string;
   intro: string;
+  heroImage?: {
+    src: string;
+    alt: string;
+  };
   useCases: string[];
   buyingTips: string[];
   faqs: { q: string; a: string }[];
@@ -20,6 +24,10 @@ export const SEO_SOLUTIONS: SeoSolution[] = [
       "Asesoría y cotización de compresor para motores Cummins 350 en aplicaciones de vehículo pesado.",
     intro:
       "En Tornirepuestos te ayudamos a cotizar compresor Cummins 350 con validación de referencia, aplicación y tiempos de entrega. Si tienes la pieza usada, una foto o la placa, te guiamos para confirmar compatibilidad antes de comprar.",
+    heroImage: {
+      src: "/compresor.jpeg",
+      alt: "Diagrama y corte técnico de compresor de aire Bendix Tu-Flo 750 para referencia de compresor Cummins 350.",
+    },
     useCases: [
       "Reposición de compresor en camión con pérdida de presión de aire.",
       "Mantenimiento preventivo de sistema neumático en flotas.",

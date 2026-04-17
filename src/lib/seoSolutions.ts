@@ -1,5 +1,5 @@
 export type SeoSolution = {
-  slug: "compresor-cummins-350" | "crucetas-cardanes" | "tornillos-para-carros";
+  slug: "compresor" | "crucetas-cardanes" | "tornillos-para-carros";
   title: string;
   h1: string;
   summary: string;
@@ -24,7 +24,7 @@ export type SeoSolution = {
 
 export const SEO_SOLUTIONS: SeoSolution[] = [
   {
-    slug: "compresor-cummins-350",
+    slug: "compresor",
     title: "Compresor Cummins 350",
     h1: "Compresor Cummins 350: cotización, diagnóstico y compatibilidad",
     summary:

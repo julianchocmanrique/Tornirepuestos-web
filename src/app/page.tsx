@@ -305,7 +305,6 @@ export default function Page() {
 
       <section className="mx-auto max-w-6xl px-4 py-12">
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="text-xs uppercase tracking-wide text-slate-500">Búsquedas reales</div>
           <h2 className="mt-2 text-3xl font-extrabold" style={{ color: "var(--tp-blue-800)" }}>
             Soluciones más buscadas
           </h2>

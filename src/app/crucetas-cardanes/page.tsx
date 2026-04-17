@@ -9,6 +9,7 @@ const solution = getSeoSolutionBySlug("crucetas-cardanes")!;
 export const metadata: Metadata = {
   title: "Crucetas y cardanes",
   description: solution.summary,
+  keywords: [...solution.searchTerms, ...solution.relatedSearches],
   alternates: { canonical: "/crucetas-cardanes" },
   openGraph: {
     type: "article",

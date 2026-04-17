@@ -9,6 +9,7 @@ const solution = getSeoSolutionBySlug("compresor-cummins-350")!;
 export const metadata: Metadata = {
   title: "Compresor Cummins 350",
   description: solution.summary,
+  keywords: [...solution.searchTerms, ...solution.relatedSearches],
   alternates: { canonical: "/compresor-cummins-350" },
   openGraph: {
     type: "article",

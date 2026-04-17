@@ -9,6 +9,7 @@ const solution = getSeoSolutionBySlug("tornillos-para-carros")!;
 export const metadata: Metadata = {
   title: "Tornillos para carros",
   description: solution.summary,
+  keywords: [...solution.searchTerms, ...solution.relatedSearches],
   alternates: { canonical: "/tornillos-para-carros" },
   openGraph: {
     type: "article",

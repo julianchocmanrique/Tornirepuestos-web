@@ -1,5 +1,5 @@
 export type SeoSolution = {
-  slug: "compresor" | "crucetas-cardanes" | "tornillos-para-carros";
+  slug: "compresor" | "crucetas-cardanes" | "suspencion-rigida" | "tornillos-para-carros";
   title: string;
   h1: string;
   summary: string;
@@ -311,6 +311,149 @@ export const SEO_SOLUTIONS: SeoSolution[] = [
       "cotizar crucetas por whatsapp",
       "juego en cruceta de diferencial",
       "mantenimiento de cardan en flotas",
+    ],
+  },
+  {
+    slug: "suspencion-rigida",
+    title: "Suspención rígida",
+    h1: "Suspención rígida para camión: diagnóstico, repuestos y cotización",
+    summary:
+      "Cotiza repuestos de suspención rígida con guía técnica por aplicación, carga y condición de trabajo para camiones y flotas.",
+    intro:
+      "En Tornirepuestos te ayudamos a identificar repuestos de suspención rígida por referencia, medidas y síntoma de falla. Si tienes foto del componente o datos del vehículo, te guiamos para cotizar la opción correcta con disponibilidad real.",
+    useCases: [
+      "Reposición de componentes de suspención rígida por desgaste en operación de carga.",
+      "Mantenimiento preventivo en flotas con rutas urbanas y de carretera.",
+      "Corrección de ruidos, golpeteos y pérdida de estabilidad en ejes rígidos.",
+      "Intervención por fatiga de bujes, pernos o elementos de sujeción.",
+    ],
+    buyingTips: [
+      "Comparte marca, línea, modelo y configuración de eje del vehículo.",
+      "Envía foto del componente retirado y del punto de montaje.",
+      "Indica condición de trabajo: carga pesada, mixta o ruta exigente.",
+      "Valida medidas críticas antes de confirmar pedido para evitar devoluciones.",
+    ],
+    longIntro: [
+      "La suspención rígida es uno de los sistemas más exigidos en operación de carga. Trabaja bajo vibración constante, golpes, torsión y variaciones de peso, por lo que el desgaste de sus componentes impacta directamente la estabilidad del vehículo y la seguridad de la operación.",
+      "Cuando hay juego, ruido o pérdida de alineación, cambiar solo una pieza sin diagnóstico completo puede generar una falla recurrente. En Tornirepuestos te orientamos para validar aplicación y compatibilidad antes de comprar, reduciendo tiempo detenido y costos por retrabajo.",
+      "Esta página está enfocada en clientes de transporte, talleres y flotas que necesitan una solución rápida y técnica para suspención rígida. Con datos básicos y evidencia visual podemos avanzar en una cotización más precisa y útil desde el primer contacto.",
+    ],
+    symptoms: [
+      "Golpeteo o ruido metálico en zonas de bache, curva o carga máxima.",
+      "Vibración anormal en chasis o cabina durante recorridos largos.",
+      "Desgaste irregular de llantas por pérdida de geometría en el eje.",
+      "Sensación de inestabilidad o desplazamiento lateral del vehículo.",
+      "Fatiga visible en bujes, pernos, soportes o puntos de fijación.",
+      "Mayor esfuerzo en dirección por comportamiento inestable de la suspensión.",
+    ],
+    compatibilityChecklist: [
+      "Identificación exacta del componente y su ubicación en el eje rígido.",
+      "Medidas reales de montaje y diámetro de pernos o bujes.",
+      "Verificación del tipo de carga y frecuencia de operación del vehículo.",
+      "Confirmación de referencias equivalentes cuando no hay código visible.",
+      "Revisión de estado de componentes asociados para intervención completa.",
+      "Validación del torque y procedimiento de instalación recomendado por taller.",
+    ],
+    processSteps: [
+      {
+        title: "Diagnóstico inicial",
+        description:
+          "Recibimos síntomas, fotos y datos del vehículo para identificar qué componente de suspención rígida está comprometido.",
+      },
+      {
+        title: "Validación de aplicación",
+        description:
+          "Revisamos medidas, referencias y configuración del eje para confirmar compatibilidad real.",
+      },
+      {
+        title: "Cotización técnica",
+        description:
+          "Te enviamos opciones con disponibilidad, tiempos y recomendaciones de intervención.",
+      },
+      {
+        title: "Despacho y seguimiento",
+        description:
+          "Coordinamos entrega y soporte por WhatsApp para resolver dudas de montaje o reemplazo.",
+      },
+    ],
+    serviceCoverage: [
+      "Atención para camiones de carga y transporte pesado.",
+      "Soporte para talleres de mantenimiento correctivo y preventivo.",
+      "Acompañamiento para compras por referencia o equivalencia técnica.",
+      "Despachos a diferentes ciudades de Colombia según disponibilidad.",
+      "Respuesta ágil por WhatsApp para cotizaciones urgentes de operación.",
+      "Orientación para reducir reincidencia de fallas en suspensión.",
+    ],
+    contentBlocks: [
+      {
+        title: "Qué revisar además de la pieza principal",
+        paragraphs: [
+          "En suspención rígida, la falla visible muchas veces es consecuencia de otro componente fatigado. Por ejemplo, cambiar solo un buje sin revisar pernos, soportes y puntos de fijación puede mantener holguras y causar daño prematuro del repuesto nuevo.",
+          "Por eso recomendamos intervenir con criterio de conjunto: inspección de componentes relacionados, verificación de ajuste y evaluación de desgaste en ejes y llantas. Esto ayuda a mejorar estabilidad y prolongar vida útil de la reparación.",
+        ],
+        bullets: [
+          "Inspección completa de bujes, pernos y soportes.",
+          "Revisión de apriete y condición de anclajes estructurales.",
+          "Chequeo de alineación y comportamiento del eje después del cambio.",
+          "Evaluación de desgaste de llanta como indicador de desajuste.",
+        ],
+      },
+      {
+        title: "Cómo prevenir fallas repetitivas en suspención rígida",
+        paragraphs: [
+          "La prevención en vehículos de carga depende de revisar el sistema según severidad de ruta, peso transportado y frecuencia de operación. Programar inspecciones evita que una holgura pequeña evolucione a daño mayor en la estructura de suspensión.",
+          "También es clave usar repuestos compatibles con la exigencia real de trabajo. Elegir solo por precio, sin validar aplicación, puede aumentar la frecuencia de reemplazo y afectar la continuidad de la flota.",
+        ],
+        bullets: [
+          "Programar revisión periódica en unidades de alta exigencia.",
+          "Registrar síntomas tempranos para intervenir a tiempo.",
+          "Cotizar con datos técnicos para acertar desde la primera compra.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        q: "¿Qué información necesitan para cotizar suspención rígida?",
+        a: "Marca, modelo, fotos y medidas del componente. Con eso validamos aplicación y te cotizamos opción compatible.",
+      },
+      {
+        q: "¿Puedo cotizar sin referencia exacta?",
+        a: "Sí. Con evidencia visual y datos del vehículo podemos buscar equivalencias técnicas.",
+      },
+      {
+        q: "¿Atienden flotas y talleres?",
+        a: "Sí, atendemos talleres independientes y operaciones de flota con prioridad según urgencia.",
+      },
+      {
+        q: "¿Hacen envíos fuera de Santa Marta?",
+        a: "Sí, coordinamos despachos nacionales de acuerdo con inventario y transportadora.",
+      },
+      {
+        q: "¿Recomiendan cambiar componentes asociados?",
+        a: "Cuando hay desgaste conjunto, sí. Eso reduce reincidencia y mejora estabilidad del sistema.",
+      },
+      {
+        q: "¿Cuánto tarda una cotización?",
+        a: "Normalmente respondemos rápido por WhatsApp con disponibilidad y alternativas.",
+      },
+    ],
+    relatedCategorySlug: "suspension",
+    searchTerms: [
+      "suspencion rigida",
+      "suspensión rígida camión",
+      "repuestos suspension de carga",
+      "componentes eje rigido",
+      "cotizar suspension camion",
+    ],
+    relatedSearches: [
+      "falla en suspencion rigida de camion",
+      "repuestos suspension pesada colombia",
+      "bujes para eje rigido",
+      "ruido en suspension de carga",
+      "mantenimiento suspension rigida flotas",
+      "cotizar suspension por whatsapp",
+      "componentes de suspension para camiones",
+      "precio repuestos suspencion rigida",
     ],
   },
   {

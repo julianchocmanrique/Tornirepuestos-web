@@ -55,6 +55,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: `${SITE_URL}/suspencion-rigida`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
       url: `${SITE_URL}/tornillos-para-carros`,
       lastModified: now,
       changeFrequency: "weekly",

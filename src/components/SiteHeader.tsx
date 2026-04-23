@@ -12,7 +12,7 @@ export function SiteHeader() {
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
           <Link href="/" className="flex items-center gap-3">
-            <div className="relative h-12 w-12 overflow-hidden rounded-full border border-slate-200 bg-[#111c9d] shadow-sm ring-2 ring-slate-100">
+            <div className="relative h-14 w-14 overflow-hidden rounded-full border border-slate-200 bg-[#111c9d] shadow-sm ring-2 ring-slate-100">
               <Image
                 src="/tornirepuestos.jpeg"
                 alt="Tornirepuestos"

@@ -231,7 +231,7 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="relative mx-auto max-w-6xl px-4 py-20">
+        <div className="relative mx-auto max-w-6xl px-4 py-24 md:py-32">
           <div className="max-w-2xl text-white">
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
               {brand.tagline}

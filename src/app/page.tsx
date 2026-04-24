@@ -21,17 +21,8 @@ const brand = {
   },
 };
 
-const heroPhones = ["305 356 0953", "310 655 1629", "305 232 5233"];
-
 const BASE_PATH = "";
 const LOGO_SRC = `${BASE_PATH}/tornirepuestos.jpeg`;
-
-const trust = [
-  { k: "+20 años", v: "Experiencia y respaldo" },
-  { k: "Cotización ágil", v: "Por WhatsApp" },
-  { k: "Envíos", v: "A todo Colombia" },
-  { k: "Asesoría", v: "Compatibilidad y referencia" },
-];
 
 const highlights = [
   {
@@ -137,14 +128,6 @@ export const metadata: Metadata = {
   },
 };
 
-function Pill({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs text-white/80">
-      {children}
-    </span>
-  );
-}
-
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -248,14 +231,7 @@ export default function Page() {
 
         <div className="relative mx-auto max-w-6xl px-4 py-20">
           <div className="max-w-2xl text-white">
-            <div className="flex flex-wrap gap-2">
-              <Pill>Vehículos pesados</Pill>
-              <Pill>Menos paradas</Pill>
-              <Pill>Más camino</Pill>
-              <Pill>Atención por WhatsApp</Pill>
-            </div>
-
-            <h1 className="mt-6 text-4xl font-extrabold tracking-tight sm:text-5xl">
+            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
               {brand.tagline}
             </h1>
             <p className="mt-4 text-lg text-white/80">{brand.subtitle}</p>
@@ -268,32 +244,6 @@ export default function Page() {
               >
                 Cotizar por WhatsApp
               </PrimaryButton>
-              <SecondaryButton href="#categorias">Ver categorías</SecondaryButton>
-            </div>
-
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-sm font-semibold text-white/90">
-              <span className="text-white/70">Líneas de atención:</span>
-              {heroPhones.map((phone) => (
-                <a
-                  key={phone}
-                  href={`tel:+57${phone.replace(/\s+/g, "")}`}
-                  className="rounded-full border border-white/20 bg-white/10 px-3 py-1 hover:bg-white/15"
-                >
-                  {phone}
-                </a>
-              ))}
-            </div>
-
-            <div className="mt-10 grid gap-3 sm:grid-cols-4">
-              {trust.map((t) => (
-                <div
-                  key={t.k}
-                  className="rounded-2xl border border-white/15 bg-[var(--tp-surface-card)] px-4 py-3"
-                >
-                  <div className="text-sm font-extrabold">{t.k}</div>
-                  <div className="text-xs text-white/70">{t.v}</div>
-                </div>
-              ))}
             </div>
           </div>
         </div>

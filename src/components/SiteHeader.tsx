@@ -21,8 +21,10 @@ export function SiteHeader() {
               />
             </div>
             <div>
-              <div className="text-sm font-extrabold text-slate-900">TORNIREPUESTOS</div>
-              <div className="text-xs text-slate-600">Santa Marta · 2 sedes</div>
+              <div className="text-base font-extrabold leading-tight text-slate-900 sm:text-lg">
+                TORNIREPUESTOS
+              </div>
+              <div className="text-sm leading-tight text-slate-600 sm:text-base">Santa Marta · 2 sedes</div>
             </div>
           </Link>
 

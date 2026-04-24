@@ -12,14 +12,16 @@ import { wa } from "@/lib/wa";
 
 const brand = {
   name: "TORNIREPUESTOS",
-  tagline: "Repuestos para vehículos pesados, buses y maquinaria",
+  tagline: "¿Tu camión está listo para rodar?",
   subtitle:
-    "Cotiza por WhatsApp en minutos. Te ayudamos a identificar la referencia correcta y coordinamos envío a todo Colombia.",
+    "Menos paradas, más camino. Cotiza repuestos para camión por WhatsApp con asesoría rápida y envío nacional.",
   colors: {
     blue: "var(--tp-blue-800)",
     accent: "var(--tp-action-primary)", // rojo promo
   },
 };
+
+const heroPhones = ["305 356 0953", "310 655 1629", "305 232 5233"];
 
 const BASE_PATH = "";
 const LOGO_SRC = `${BASE_PATH}/tornirepuestos.jpeg`;
@@ -233,23 +235,23 @@ export default function Page() {
       <section id="inicio" className="relative overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src={`${BASE_PATH}/hero/tractomula-roja-v2.jpg`}
+            src={`${BASE_PATH}/tornirepuestospublicidad1.jpeg`}
             unoptimized
             alt="Repuestos y mantenimiento"
             fill
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-slate-950/30" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/65 to-slate-950/20" />
         </div>
 
         <div className="relative mx-auto max-w-6xl px-4 py-20">
           <div className="max-w-2xl text-white">
             <div className="flex flex-wrap gap-2">
               <Pill>Vehículos pesados</Pill>
-              <Pill>Buses</Pill>
-              <Pill>Maquinaria</Pill>
-              <Pill>Flotas & Talleres</Pill>
+              <Pill>Menos paradas</Pill>
+              <Pill>Más camino</Pill>
+              <Pill>Atención por WhatsApp</Pill>
             </div>
 
             <h1 className="mt-6 text-4xl font-extrabold tracking-tight sm:text-5xl">
@@ -266,6 +268,19 @@ export default function Page() {
                 Cotizar por WhatsApp
               </PrimaryButton>
               <SecondaryButton href="#categorias">Ver categorías</SecondaryButton>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-sm font-semibold text-white/90">
+              <span className="text-white/70">Líneas de atención:</span>
+              {heroPhones.map((phone) => (
+                <a
+                  key={phone}
+                  href={`tel:+57${phone.replace(/\s+/g, "")}`}
+                  className="rounded-full border border-white/20 bg-white/10 px-3 py-1 hover:bg-white/15"
+                >
+                  {phone}
+                </a>
+              ))}
             </div>
 
             <div className="mt-10 grid gap-3 sm:grid-cols-4">

@@ -215,18 +215,20 @@ export default function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
       />
       {/* HERO */}
-      <section id="inicio" className="relative overflow-hidden">
+      <section id="inicio" className="relative overflow-hidden bg-slate-900">
         <div className="absolute inset-0">
-          <Image
-            src={`${BASE_PATH}/tornirepuestospublicidad1.jpeg`}
-            alt="Repuestos y mantenimiento"
-            fill
-            quality={95}
-            sizes="100vw"
-            className="object-cover object-[78%_center] md:object-[86%_center]"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/88 via-slate-950/72 to-slate-900/35" />
+          <div className="relative mx-auto h-full w-full max-w-[1536px]">
+            <Image
+              src={`${BASE_PATH}/tornirepuestospublicidad1.jpeg`}
+              alt="Repuestos y mantenimiento"
+              fill
+              quality={95}
+              sizes="100vw"
+              className="object-cover object-[78%_center] md:object-[86%_center]"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/88 via-slate-950/72 to-slate-900/35" />
+          </div>
         </div>
 
         <div className="relative mx-auto max-w-6xl px-4 py-20">

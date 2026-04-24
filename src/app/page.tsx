@@ -240,7 +240,7 @@ export default function Page() {
             fill
             quality={95}
             sizes="100vw"
-            className="object-cover object-[74%_center] md:object-[80%_center]"
+            className="object-cover object-[78%_center] md:object-[86%_center]"
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950/88 via-slate-950/72 to-slate-900/35" />

@@ -236,13 +236,14 @@ export default function Page() {
         <div className="absolute inset-0">
           <Image
             src={`${BASE_PATH}/tornirepuestospublicidad1.jpeg`}
-            unoptimized
             alt="Repuestos y mantenimiento"
             fill
-            className="object-cover"
+            quality={95}
+            sizes="100vw"
+            className="object-cover object-left md:object-contain md:object-right md:scale-90"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/65 to-slate-950/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/88 via-slate-950/68 to-slate-900/28" />
         </div>
 
         <div className="relative mx-auto max-w-6xl px-4 py-20">

@@ -52,7 +52,6 @@ export function CategoriesAnimatedGrid({ categories }: { categories: Category[] 
 
     const els = Array.from(root.querySelectorAll<HTMLElement>('[data-reveal]'));
 
-    // Initial state
     for (const el of els) {
       el.dataset.state = 'out';
       el.dataset.dir = 'down';
@@ -66,7 +65,6 @@ export function CategoriesAnimatedGrid({ categories }: { categories: Category[] 
             el.dataset.state = 'in';
             el.dataset.dir = dir;
           } else {
-            // when leaving viewport, push out in the current scroll direction
             el.dataset.state = 'out';
             el.dataset.dir = dir;
           }
@@ -84,7 +82,7 @@ export function CategoriesAnimatedGrid({ categories }: { categories: Category[] 
   }, [dir]);
 
   return (
-    <div ref={rootRef} className="mt-8 grid grid-cols-12 gap-4">
+    <div ref={rootRef} className="mt-8 grid grid-cols-12 gap-5">
       {items.map(({ c, idx }) => {
         const tone = idx % 3 === 0 ? 'red' : 'dark';
         const span =
@@ -102,7 +100,7 @@ export function CategoriesAnimatedGrid({ categories }: { categories: Category[] 
             href={`/categorias/${c.slug}`}
             data-reveal
             data-from={from}
-            className={`tp-reveal tp-card group relative overflow-hidden rounded-3xl border border-slate-200 bg-[var(--tp-surface-card)] shadow-sm transition ${span}`}
+            className={`tp-reveal tp-card group relative overflow-hidden rounded-3xl border border-white/10 bg-[var(--tp-surface-card)] shadow-[0_4px_24px_rgba(2,6,23,0.14)] transition ${span}`}
           >
             <div className="absolute inset-0">
               <Image
@@ -117,7 +115,7 @@ export function CategoriesAnimatedGrid({ categories }: { categories: Category[] 
               )}
             </div>
 
-            <div className="relative flex h-full min-h-[210px] flex-col justify-between p-6 text-white">
+            <div className="relative flex h-full min-h-[240px] flex-col justify-between p-6 text-white">
               <div>
                 <div className="text-[11px] font-semibold tracking-[0.18em] text-white/70">{c.kicker}</div>
                 <div className="mt-2 text-2xl font-extrabold leading-tight">{c.title}</div>
@@ -125,7 +123,7 @@ export function CategoriesAnimatedGrid({ categories }: { categories: Category[] 
               </div>
 
               <div className="mt-6 flex items-center justify-between gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/85">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs text-white/85">
                   <span>Ver detalle</span>
                 </div>
                 <div

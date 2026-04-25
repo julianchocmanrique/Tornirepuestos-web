@@ -134,7 +134,7 @@ export default async function Page({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden min-h-[340px]">
         <div className="absolute inset-0">
           <Image
             src={cat.img}
@@ -143,11 +143,11 @@ export default async function Page({
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-slate-950/10" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,rgba(225,6,0,0.45),transparent_55%)]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/72 to-slate-950/15" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,rgba(225,6,0,0.40),transparent_55%)]" />
         </div>
 
-        <div className="relative mx-auto max-w-6xl px-4 py-16 text-white">
+        <div className="relative mx-auto max-w-6xl px-4 py-20 text-white">
           <div className="flex items-center justify-between gap-4">
             <Link
               href="/categorias"
@@ -195,7 +195,7 @@ export default async function Page({
 
       {/* SEO copy */}
       <section className="mx-auto max-w-6xl px-4 pt-10">
-        <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-7 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
+        <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-[0_4px_20px_rgba(2,6,23,0.08)]">
           <div className="text-xs uppercase tracking-wide text-slate-500">
             Información
           </div>
@@ -247,7 +247,7 @@ export default async function Page({
       {/* Detail */}
       <section id="detalle" className="mx-auto max-w-6xl px-4 py-14">
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-7 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
+          <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-[0_4px_20px_rgba(2,6,23,0.08)]">
             <div className="text-xs uppercase tracking-wide text-slate-500">
               Qué puedes cotizar
             </div>
@@ -295,7 +295,7 @@ export default async function Page({
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-7 shadow-[0_10px_30px_rgba(2,6,23,0.10)] backdrop-blur">
+          <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-[0_4px_20px_rgba(2,6,23,0.08)]">
             <h2 className="mt-2 text-2xl font-extrabold text-slate-900">
               Productos más pedidos
             </h2>

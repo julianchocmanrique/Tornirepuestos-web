@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
 
@@ -62,10 +61,10 @@ export default function Page() {
               ].map((x) => (
                 <div
                   key={x}
-                  className="flex items-center gap-3 rounded-3xl bg-[var(--tp-surface-card)] px-6 py-4 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]"
+                  className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm"
                 >
                   <span style={{ color: ACCENT }}>▲</span>
-                  <span className="text-base font-semibold">{x}</span>
+                  <span className="text-sm font-semibold text-slate-900">{x}</span>
                 </div>
               ))}
             </div>

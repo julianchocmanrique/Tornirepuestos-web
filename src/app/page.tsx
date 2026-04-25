@@ -217,26 +217,26 @@ export default function Page() {
       {/* HERO */}
       <section id="inicio" className="relative overflow-hidden bg-slate-900">
         <div className="absolute inset-0">
-          <div className="relative mx-auto h-full w-full max-w-[1536px]">
+          <div className="relative mx-auto h-full w-full max-w-[1720px]">
             <Image
-              src={`${BASE_PATH}/tornirepuestospublicidad1.jpeg`}
-              alt="Repuestos y mantenimiento"
+              src={`${BASE_PATH}/hero/hero-truck-lab.png`}
+              alt="Tractomula Tornirepuestos en carretera"
               fill
               quality={95}
               sizes="100vw"
-              className="object-cover object-[78%_center] md:object-[86%_center]"
+              className="object-cover object-[72%_center] md:object-[76%_center] lg:object-[78%_center]"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/88 via-slate-950/72 to-slate-900/35" />
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/70 via-50% to-slate-900/22" />
           </div>
         </div>
 
-        <div className="relative mx-auto max-w-6xl px-4 py-24 md:py-32">
-          <div className="max-w-2xl text-white">
-            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+        <div className="relative mx-auto max-w-6xl px-4 py-16 md:py-24 lg:py-28">
+          <div className="max-w-xl rounded-3xl border border-white/20 bg-slate-950/50 p-6 text-left text-white shadow-[0_20px_60px_rgba(2,6,23,0.55)] backdrop-blur-sm sm:p-8">
+            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
               {brand.tagline}
             </h1>
-            <p className="mt-4 text-lg text-white/80">{brand.subtitle}</p>
+            <p className="mt-4 max-w-lg text-lg text-white/85">{brand.subtitle}</p>
 
             <div className="mt-8 flex flex-wrap gap-3">
               <PrimaryButton
@@ -262,7 +262,7 @@ export default function Page() {
             Categorías
           </h2>
           <p className="mt-3 max-w-3xl text-sm text-slate-600">
-            Un solo catálogo por categorías, cada una con imagen y estilo “destacado”.
+            Un solo catálogo por categorías, cada una con imagen y estilo "destacado".
             Entra a cada categoría para ver el detalle y cotizar más rápido.
           </p>
 
@@ -272,7 +272,7 @@ export default function Page() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-12">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_4px_20px_rgba(2,6,23,0.07)]">
           <h2 className="mt-2 text-3xl font-extrabold" style={{ color: "var(--tp-blue-800)" }}>
             Soluciones más buscadas
           </h2>
@@ -284,7 +284,7 @@ export default function Page() {
               <Link
                 key={item.slug}
                 href={`/${item.slug}`}
-                className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-slate-300 hover:bg-white"
+                className="rounded-2xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_6px_20px_rgba(2,6,23,0.09)]"
               >
                 <div className="text-sm font-extrabold text-slate-900">{item.title}</div>
                 <div className="mt-2 text-sm text-slate-600">{item.summary}</div>
@@ -296,23 +296,25 @@ export default function Page() {
       </section>
 
       {/* HIGHLIGHTS */}
-      <section className="mx-auto max-w-6xl px-4 py-14">
-        <div className="grid gap-4 lg:grid-cols-3">
-          {highlights.map((h) => (
-            <div
-              key={h.title}
-              className="rounded-3xl border border-white/10 bg-[var(--tp-surface-card)] p-7 text-white shadow-[0_18px_60px_rgba(2,6,23,0.55)] backdrop-blur"
-            >
+      <section className="bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-14">
+          <div className="grid gap-5 lg:grid-cols-3">
+            {highlights.map((h) => (
               <div
-                className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 text-white shadow-[0_10px_30px_rgba(225,6,0,0.28)]"
-                style={{ background: "var(--tp-action-primary)" }}
+                key={h.title}
+                className="flex gap-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_4px_20px_rgba(2,6,23,0.07)] transition hover:shadow-[0_8px_32px_rgba(2,6,23,0.11)]"
               >
-                ⚙️
+                <div
+                  className="mt-0.5 shrink-0 h-10 w-1 rounded-full"
+                  style={{ background: "var(--tp-action-primary)" }}
+                />
+                <div>
+                  <div className="text-base font-extrabold text-slate-900">{h.title}</div>
+                  <p className="mt-1.5 text-sm leading-relaxed text-slate-600">{h.desc}</p>
+                </div>
               </div>
-              <div className="text-lg font-extrabold">{h.title}</div>
-              <p className="mt-2 text-sm text-white/75">{h.desc}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
@@ -398,70 +400,71 @@ export default function Page() {
       </section>
 
       {/* ABOUT + TESTIMONIALS */}
-      <section id="nosotros" className="mx-auto max-w-6xl px-4 py-14">
-        <div className="grid gap-8 lg:grid-cols-[1fr_1.2fr]">
-          <div>
-            <div className="text-xs uppercase tracking-wide text-slate-500">Nosotros</div>
-            <h2
-              className="mt-2 text-3xl font-extrabold"
-              style={{ color: "var(--tp-blue-800)" }}
-            >
-              Repuestos con respaldo
-            </h2>
-            <p className="mt-4 text-slate-600">
-              Somos una empresa confiable con más de 20 años de trayectoria,
-              especializada en la comercialización de partes y piezas para vehículos
-              pesados. Nuestro objetivo es simple: ayudarte a conseguir la pieza
-              correcta, a tiempo y con asesoría clara.
-            </p>
-            <p className="mt-3 text-slate-600">
-              Si no tienes la referencia exacta, no pasa nada: con una foto o la placa
-              te guiamos para validar compatibilidad y darte opciones.
-            </p>
-
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              {[
-                "Asesoría para compatibilidad",
-                "Cotización clara por WhatsApp",
-                "Atención a flotas y talleres",
-                "Envíos a todo Colombia",
-              ].map((x) => (
-                <div
-                  key={x}
-                  className="flex items-center gap-3 rounded-3xl bg-[var(--tp-surface-card)] px-6 py-4 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)]"
-                >
-                  <span style={{ color: "var(--tp-action-primary)" }}>▲</span>
-                  <span className="text-base font-semibold">{x}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-6">
-              <Link
-                href="/nosotros"
-                className="inline-flex items-center gap-2 text-sm font-semibold"
-                style={{ color: "var(--tp-action-primary)" }}
+      <section id="nosotros" className="bg-slate-50">
+        <div className="mx-auto max-w-6xl px-4 py-14">
+          <div className="grid gap-8 lg:grid-cols-[1fr_1.2fr]">
+            <div>
+              <div className="text-xs uppercase tracking-wide text-slate-500">Nosotros</div>
+              <h2
+                className="mt-2 text-3xl font-extrabold"
+                style={{ color: "var(--tp-blue-800)" }}
               >
-                Ver historia completa →
-              </Link>
-            </div>
-          </div>
+                Repuestos con respaldo
+              </h2>
+              <p className="mt-4 text-slate-600">
+                Somos una empresa confiable con más de 20 años de trayectoria,
+                especializada en la comercialización de partes y piezas para vehículos
+                pesados. Nuestro objetivo es simple: ayudarte a conseguir la pieza
+                correcta, a tiempo y con asesoría clara.
+              </p>
+              <p className="mt-3 text-slate-600">
+                Si no tienes la referencia exacta, no pasa nada: con una foto o la placa
+                te guiamos para validar compatibilidad y darte opciones.
+              </p>
 
-          {/* Mantener este bloque CLARO como la referencia */}
-          <div className="rounded-3xl border border-white/10 bg-[var(--tp-surface-card)] p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.35)] backdrop-blur">
-            <div className="text-sm font-extrabold text-white/90">
-              Lo que dicen nuestros clientes
-            </div>
-            <div className="mt-4 grid gap-4">
-              {testimonials.map((t, i) => (
-                <div
-                  key={i}
-                  className="rounded-2xl border border-white/10 bg-[var(--tp-surface-card)] p-5 text-white shadow-[0_10px_30px_rgba(2,6,23,0.25)] backdrop-blur"
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {[
+                  "Asesoría para compatibilidad",
+                  "Cotización clara por WhatsApp",
+                  "Atención a flotas y talleres",
+                  "Envíos a todo Colombia",
+                ].map((x) => (
+                  <div
+                    key={x}
+                    className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm"
+                  >
+                    <span style={{ color: "var(--tp-action-primary)" }}>▲</span>
+                    <span className="text-sm font-semibold text-slate-900">{x}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6">
+                <Link
+                  href="/nosotros"
+                  className="inline-flex items-center gap-2 text-sm font-semibold"
+                  style={{ color: "var(--tp-action-primary)" }}
                 >
-                  <div className="text-sm text-white/90">“{t.quote}”</div>
-                  <div className="mt-2 text-xs text-white/60">{t.meta}</div>
-                </div>
-              ))}
+                  Ver historia completa →
+                </Link>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-white/10 bg-[var(--tp-surface-card)] p-6 text-white shadow-[0_12px_40px_rgba(2,6,23,0.22)]">
+              <div className="text-sm font-extrabold text-white/90">
+                Lo que dicen nuestros clientes
+              </div>
+              <div className="mt-4 grid gap-3">
+                {testimonials.map((t, i) => (
+                  <div
+                    key={i}
+                    className="rounded-2xl border border-white/10 bg-white/[0.07] p-5"
+                  >
+                    <div className="text-sm text-white/90">"{t.quote}"</div>
+                    <div className="mt-2 text-xs text-white/55">{t.meta}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -480,11 +483,11 @@ export default function Page() {
 
           <FaqTabs items={faqs} />
 
-          <div className="mt-10 rounded-2xl border border-white/20 bg-[var(--tp-surface-card)] p-6 text-white">
+          <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <div className="text-sm font-extrabold text-white/95">¿Listo para cotizar?</div>
-                <div className="mt-1 text-sm text-white/75">
+                <div className="text-sm font-extrabold text-slate-900">¿Listo para cotizar?</div>
+                <div className="mt-1 text-sm text-slate-600">
                   Escríbenos por WhatsApp y te respondemos.
                 </div>
               </div>
@@ -494,7 +497,7 @@ export default function Page() {
                 )}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold text-white"
+                className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold text-white shrink-0"
                 style={{ background: "var(--tp-action-primary)" }}
               >
                 Cotizar ahora
@@ -664,11 +667,11 @@ export default function Page() {
         )}
         target="_blank"
         rel="noreferrer"
-        className="fixed bottom-5 right-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl shadow-lg"
+        className="fixed bottom-6 right-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.25)]"
         aria-label="WhatsApp"
         title="Cotizar por WhatsApp"
       >
-        <WhatsAppIcon className="h-12 w-12" />
+        <WhatsAppIcon className="h-14 w-14" />
       </a>
     </div>
   );

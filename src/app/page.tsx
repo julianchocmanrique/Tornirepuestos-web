@@ -296,22 +296,22 @@ export default function Page() {
       </section>
 
       {/* HIGHLIGHTS */}
-      <section style={{ background: "var(--tp-blue-800)" }}>
+      <section className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-14">
           <div className="grid gap-5 lg:grid-cols-3">
             {highlights.map((h) => (
               <div
                 key={h.title}
-                className="rounded-3xl border border-white/10 bg-white/[0.06] p-7 text-white"
+                className="flex gap-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_4px_20px_rgba(2,6,23,0.07)] transition hover:shadow-[0_8px_32px_rgba(2,6,23,0.11)]"
               >
                 <div
-                  className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 text-white shadow-[0_8px_24px_rgba(225,6,0,0.35)]"
+                  className="mt-0.5 shrink-0 h-10 w-1 rounded-full"
                   style={{ background: "var(--tp-action-primary)" }}
-                >
-                  ⚙️
+                />
+                <div>
+                  <div className="text-base font-extrabold text-slate-900">{h.title}</div>
+                  <p className="mt-1.5 text-sm leading-relaxed text-slate-600">{h.desc}</p>
                 </div>
-                <div className="text-lg font-extrabold">{h.title}</div>
-                <p className="mt-2 text-sm text-white/75">{h.desc}</p>
               </div>
             ))}
           </div>

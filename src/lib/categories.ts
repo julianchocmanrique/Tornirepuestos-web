@@ -14,7 +14,7 @@ export const categories: Category[] = [
     title: "Frenos",
     kicker: "DISCOS · BANDAS · VÁLVULAS",
     desc: "Componentes de freno para trabajo pesado y alto rendimiento.",
-    img: "https://images.unsplash.com/photo-1613214150384-14921ff659b2?auto=format&fit=crop&w=1800&q=75",
+    img: "/categories/frenos-bg-lab.png",
     whatYouCanAsk: [
       "Discos, bandas y pastillas",
       "Cámaras, válvulas y accesorios",
@@ -34,7 +34,7 @@ export const categories: Category[] = [
     title: "Filtración",
     kicker: "ACEITE · AIRE · COMBUSTIBLE",
     desc: "Filtros y separadores para proteger el motor y mejorar eficiencia.",
-    img: "https://images.unsplash.com/photo-1527383418406-f85a3b146499?auto=format&fit=crop&w=1600&q=75",
+    img: "/categories/filtracion-bg-lab.jpeg",
     whatYouCanAsk: [
       "Filtro de aceite / aire / combustible",
       "Separador de agua",
@@ -51,15 +51,17 @@ export const categories: Category[] = [
     title: "Suspensión",
     kicker: "NEUMÁTICA · RÍGIDA",
     desc: "Confort, estabilidad y control de carga para ruta y ciudad.",
-    img: "https://images.unsplash.com/photo-1669136048337-5daa3adef7b2?auto=format&fit=crop&w=1600&q=75",
+    img: "/categories/suspension-bg-lab.png",
     whatYouCanAsk: [
       "Amortiguadores",
       "Bolsas de aire (neumática)",
+      "Hojas de muelle",
       "Bujes y componentes de suspensión",
     ],
     productsExample: [
       { name: "Amortiguador", note: "Por eje y medida" },
       { name: "Bolsa de aire", note: "Por placa o referencia" },
+      { name: "Hojas de muelle", note: "Por arco, largo y capacidad de carga" },
       { name: "Bujes / kits", note: "Según brazo y aplicación" },
     ],
   },
@@ -68,7 +70,7 @@ export const categories: Category[] = [
     title: "Motor",
     kicker: "SELLOS · EMPAQUES",
     desc: "Consumibles y repuestos para mantenimiento preventivo.",
-    img: "https://images.unsplash.com/photo-1429772011165-0c2e054367b8?auto=format&fit=crop&w=1600&q=75",
+    img: "/categories/motor-bg-lab.png",
     whatYouCanAsk: [
       "Sellos y empaques",
       "Componentes de mantenimiento",
@@ -85,7 +87,7 @@ export const categories: Category[] = [
     title: "Eléctricos y luces",
     kicker: "LUCES · CONECTORES",
     desc: "Iluminación y eléctricos para seguridad y señalización.",
-    img: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1600&q=75",
+    img: "/categories/luces-bg-lab.png",
     whatYouCanAsk: [
       "Stops, farolas y exploradoras",
       "Bombillos y conectores",
@@ -102,7 +104,7 @@ export const categories: Category[] = [
     title: "Transmisión",
     kicker: "FULLER · CRUCETAS",
     desc: "Componentes para torque, fuerza y durabilidad.",
-    img: "https://images.unsplash.com/photo-1711199694531-e982a79ea381?auto=format&fit=crop&w=1600&q=75",
+    img: "/categories/transmision-bg-lab.png",
     whatYouCanAsk: [
       "Crucetas y cardanes",
       "Componentes de caja",
@@ -119,7 +121,7 @@ export const categories: Category[] = [
     title: "Rodamientos y retenedores",
     kicker: "KITS · RETENES",
     desc: "Repuestos de precisión para reducir desgaste y vibración.",
-    img: "https://images.unsplash.com/photo-1589391349202-900abe66462a?auto=format&fit=crop&w=1600&q=75",
+    img: "/categories/rodamientos-bg-lab.png",
     whatYouCanAsk: [
       "Rodamientos",
       "Retenes",
@@ -136,7 +138,7 @@ export const categories: Category[] = [
     title: "Mangueras",
     kicker: "AIRE · ABRAZADERAS",
     desc: "Conexiones seguras para sistemas de aire y servicio.",
-    img: "https://images.unsplash.com/photo-1598023707207-276835c2b5fe?auto=format&fit=crop&w=1600&q=80",
+    img: "/categories/mangueras-bg-lab.png",
     whatYouCanAsk: [
       "Mangueras de aire y servicio",
       "Abrazaderas",

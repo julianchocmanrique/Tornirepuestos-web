@@ -46,6 +46,30 @@ function getImageForItem(item: CatalogItem, seed = 0) {
 }
 
 function getFeaturedPhotoForItem(item: CatalogItem) {
+  const customFeaturedByCode: Record<string, string> = {
+    PHD: "/featured/phd.png",
+    MANILA6: "/featured/manila6.png",
+    PHG: "/featured/phg.png",
+    MANILA8: "/featured/manila8.png",
+    "ROJA-BLANCA-3MCINTAREFLE": "/featured/roja-blanca-3mcintarefle.png",
+    "ROJA-ROJA-3MCINTA": "/featured/roja-roja-3mcinta.png",
+    N16: "/featured/n16.png",
+    "NN3*16CENCAU": "/featured/nn3-16cencau.png",
+    NN316CENCAU: "/featured/nn3-16cencau.png",
+    "4CB": "/featured/4cb.png",
+    "3MCINTABLANCA": "/featured/3mcintablanca.png",
+    "3/8CAULONA": "/featured/3-8caulona.png",
+    N14: "/featured/n14.png",
+    "3/8SIN": "/featured/3-8sin.png",
+    N8: "/featured/n8.png",
+    CBN00: "/featured/cbn00.png",
+    "5/16SIN": "/featured/5-16sin.png",
+  };
+  const exactCode = item.code.trim().toUpperCase();
+  if (customFeaturedByCode[exactCode]) {
+    return customFeaturedByCode[exactCode];
+  }
+
   const txt = `${item.name} ${item.groupInf} ${item.groupSup} ${item.kind}`.toLowerCase();
   const byFamily: Record<string, string[]> = {
     frenos: [
@@ -189,7 +213,8 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
       if (!cycle || Number.isNaN(cycle)) return;
       sliderCycleWidthRef.current = cycle;
       if (sliderOffsetRef.current === 0) {
-        sliderOffsetRef.current = -cycle / 2;
+        // Inicia alineado al primer card completo para evitar cortes visuales.
+        sliderOffsetRef.current = 0;
         el.style.transform = `translateX(${sliderOffsetRef.current}px)`;
       }
     };
@@ -403,32 +428,32 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
                 sliderPausedRef.current = false;
               }}
               onClick={() => toggleProductSelection(item.id)}
-              className={`min-w-[260px] cursor-pointer overflow-hidden rounded-2xl border bg-white shadow-sm transition ${
+              className={`w-[320px] flex-none cursor-pointer overflow-hidden rounded-2xl border bg-white shadow-sm transition ${
                 selectedIds.includes(item.id)
                   ? "border-red-300 ring-2 ring-red-200"
                   : "border-slate-200 hover:-translate-y-0.5 hover:shadow-md"
-              }`}
+              } flex h-[430px] flex-col`}
             >
-              <div className="relative h-32">
+              <div className="relative aspect-[5/4] w-full bg-slate-950">
                 <Image
                   src={featuredImageMap.get(item.id) || getFeaturedPhotoForItem(item)}
                   alt={item.name}
                   fill
                   unoptimized
-                  className="object-cover"
+                  className="object-cover object-center"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-900/25 to-transparent" />
                 <div className="absolute left-2 top-2 rounded-lg bg-white/90 px-2 py-1 text-[10px] font-semibold text-slate-700">
                   {item.code}
                 </div>
               </div>
-              <div className="space-y-2 p-3">
-                <div className="line-clamp-2 text-sm font-extrabold text-slate-900">{item.name}</div>
+              <div className="flex flex-1 flex-col space-y-2 p-3">
+                <div className="line-clamp-2 min-h-10 text-sm font-extrabold text-slate-900">{item.name}</div>
                 <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs">
                   <div className="text-emerald-700">Stock disponible</div>
                   <div className="font-extrabold text-emerald-900">{formatNumber(item.stock)}</div>
                 </div>
-                <div className="text-xs font-semibold text-slate-600">
+                <div className="mt-auto text-xs font-semibold text-slate-600">
                   {selectedIds.includes(item.id) ? "Seleccionado para cotización" : "Clic para agregar a cotización"}
                 </div>
               </div>

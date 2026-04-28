@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { CatalogSearchGrid, type CatalogItem } from "@/components/CatalogSearchGrid";
 import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
 import inventoryCatalog from "@/data/inventory-catalog.json";
-import inventoryTopSellers from "@/data/inventory-top-sellers.json";
 import { categories } from "@/lib/categories";
 
 export const metadata: Metadata = {
@@ -32,7 +31,13 @@ export const metadata: Metadata = {
 
 export default function CatalogoPage() {
   const items = inventoryCatalog as CatalogItem[];
-  const topSellers = inventoryTopSellers as CatalogItem[];
+  const topSellers = [...items]
+    .sort((a, b) => {
+      const salesDiff = (b.totalSales || 0) - (a.totalSales || 0);
+      if (salesDiff !== 0) return salesDiff;
+      return (b.stock || 0) - (a.stock || 0);
+    })
+    .slice(0, 20);
   const indexedSamples = items.slice(0, 30);
 
   const itemListJsonLd = {

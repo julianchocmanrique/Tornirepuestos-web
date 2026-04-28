@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { CatalogSearchGrid, type CatalogItem } from "@/components/CatalogSearchGrid";
 import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
-import inventoryCatalog from "@/data/inventory-catalog.json";
+import { readCatalogItems } from "@/lib/catalogStore";
 import { categories } from "@/lib/categories";
 
 export const metadata: Metadata = {
@@ -29,8 +29,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function CatalogoPage() {
-  const items = inventoryCatalog as CatalogItem[];
+export const dynamic = "force-dynamic";
+
+export default async function CatalogoPage() {
+  const items = (await readCatalogItems()) as CatalogItem[];
   const topSellers = [...items]
     .sort((a, b) => {
       const salesDiff = (b.totalSales || 0) - (a.totalSales || 0);

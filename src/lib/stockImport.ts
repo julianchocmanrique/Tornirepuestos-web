@@ -1,7 +1,8 @@
 import fs from "node:fs/promises";
-import path from "node:path";
 
 import { read, utils } from "xlsx";
+import { PERSONALIZED_FEATURED_CODES } from "@/lib/featuredCodes";
+import { resolveCatalogPath } from "@/lib/catalogStore";
 
 function normalizeKey(key: string) {
   return key
@@ -83,15 +84,8 @@ export async function importStockFromExcel(params: {
     stockByCode.set(code.toUpperCase(), stock);
   }
 
-  const catalogPath = path.join(process.cwd(), "src/data/inventory-catalog.json");
-  const topSellersPath = path.join(process.cwd(), "src/data/inventory-top-sellers.json");
-
+  const catalogPath = await resolveCatalogPath();
   const catalog = JSON.parse(await fs.readFile(catalogPath, "utf8")) as Array<Record<string, unknown>>;
-  const topSellers = JSON.parse(await fs.readFile(topSellersPath, "utf8")) as Array<Record<string, unknown>>;
-
-  const featuredCodes = new Set(
-    topSellers.map((item) => String(item.code || "").trim().toUpperCase()).filter(Boolean)
-  );
 
   let matched = 0;
   let updated = 0;
@@ -101,7 +95,7 @@ export async function importStockFromExcel(params: {
     const code = String(item.code || "").trim().toUpperCase();
     if (!code) continue;
 
-    if (featuredCodes.has(code)) {
+    if (PERSONALIZED_FEATURED_CODES.has(code)) {
       skippedFeatured += 1;
       continue;
     }

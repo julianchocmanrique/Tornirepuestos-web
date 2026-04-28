@@ -52,9 +52,7 @@ export function StockUploadForm() {
       }
 
       const r = data.result;
-      setMessage(
-        `OK. Filas: ${r.totalRows}, utiles: ${r.usableRows}, invalidas: ${r.invalidRows}, coincidencias: ${r.matched}, actualizados: ${r.updated}, destacados omitidos automaticamente: ${r.skippedFeatured}.`
-      );
+      if (r) setMessage("Stock de inventario actualizado.");
     } catch {
       setError("Error de red al subir el archivo.");
     } finally {
@@ -68,26 +66,46 @@ export function StockUploadForm() {
   }
 
   return (
-    <form className="mt-6 space-y-4" onSubmit={onSubmit}>
+    <form className="space-y-5" onSubmit={onSubmit}>
       <div>
-        <label className="mb-1 block text-sm font-semibold text-slate-700">Archivo Excel (.xlsx, .xls)</label>
-        <input
-          type="file"
-          accept=".xlsx,.xls"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
-          className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
-          required
-        />
+        <label className="mb-2 block text-sm font-semibold text-slate-700">Archivo Excel (.xlsx, .xls)</label>
+        <div className="flex w-full items-center overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm">
+          <label
+            htmlFor="stock-file-input"
+            className="inline-flex cursor-pointer items-center border-r border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            Seleccionar archivo
+          </label>
+          <input
+            id="stock-file-input"
+            type="file"
+            accept=".xlsx,.xls"
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            className="sr-only"
+            required
+          />
+          <div className={`truncate px-3 py-2.5 text-sm ${file ? "text-slate-800" : "text-slate-400"}`}>
+            {file ? file.name : "Sin archivo seleccionado"}
+          </div>
+        </div>
       </div>
 
-      {message ? <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700">{message}</p> : null}
-      {error ? <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{error}</p> : null}
+      {message ? (
+        <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+          {message}
+        </p>
+      ) : null}
+      {error ? (
+        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+          {error}
+        </p>
+      ) : null}
 
       <div className="flex flex-wrap gap-3">
         <button
           type="submit"
           disabled={loading}
-          className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-500 disabled:opacity-60"
+          className="rounded-xl bg-blue-600 px-5 py-2.5 font-semibold text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? "Procesando..." : "Subir y actualizar stock"}
         </button>
@@ -95,7 +113,7 @@ export function StockUploadForm() {
         <button
           type="button"
           onClick={logout}
-          className="rounded-xl border border-slate-300 px-4 py-2 font-semibold text-slate-700 hover:bg-slate-100"
+          className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 font-semibold text-slate-700 hover:bg-slate-100"
         >
           Cerrar sesión
         </button>

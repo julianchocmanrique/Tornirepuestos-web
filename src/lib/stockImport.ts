@@ -63,8 +63,24 @@ export async function importStockFromExcel(params: {
     throw new Error("El archivo no tiene filas de datos.");
   }
 
-  const codeCandidates = ["codigo", "code", "referencia", "sku", "item", "cod"];
-  const stockCandidates = ["stock", "existencia", "cantidad", "saldo", "inventario", "disponible"];
+  const codeCandidates = [
+    "codigo",
+    "codigoproducto",
+    "code",
+    "referencia",
+    "sku",
+    "item",
+    "cod",
+  ];
+  const stockCandidates = [
+    "stock",
+    "existencia",
+    "existencias",
+    "cantidad",
+    "saldo",
+    "inventario",
+    "disponible",
+  ];
 
   const stockByCode = new Map<string, number>();
   let invalidRows = 0;

@@ -25,12 +25,20 @@ export default async function AdminCatalogoStockPage() {
                 Carga un archivo de inventario para sincronizar stock del catálogo de forma automática.
               </p>
             </div>
-            <Link
-              href="/admin/login"
-              className="rounded-xl border border-slate-500/60 bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20"
-            >
-              Cambiar usuario
-            </Link>
+            <div className="flex gap-2">
+              <Link
+                href="/admin/whatsapp-metricas"
+                className="rounded-xl border border-slate-500/60 bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20"
+              >
+                Ver métricas WhatsApp
+              </Link>
+              <Link
+                href="/admin/login"
+                className="rounded-xl border border-slate-500/60 bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20"
+              >
+                Cambiar usuario
+              </Link>
+            </div>
           </div>
         </div>
 

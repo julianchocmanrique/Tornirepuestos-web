@@ -7,20 +7,20 @@ import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
 const solution = getSeoSolutionBySlug("suspencion-rigida")!;
 
 export const metadata: Metadata = {
-  title: "Suspención rígida",
+  title: "Suspensión rígida para camiones | Cotización técnica",
   description: solution.summary,
   keywords: [...solution.searchTerms, ...solution.relatedSearches],
   alternates: { canonical: "/suspencion-rigida" },
   openGraph: {
     type: "article",
     url: absoluteUrl("/suspencion-rigida"),
-    title: `${solution.title} | Tornirepuestos`,
+    title: `${solution.title} para camiones | Tornirepuestos`,
     description: solution.summary,
     images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${solution.title} | Tornirepuestos`,
+    title: `${solution.title} para camiones | Tornirepuestos`,
     description: solution.summary,
     images: [DEFAULT_OG_IMAGE],
   },

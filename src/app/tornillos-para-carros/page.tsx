@@ -7,20 +7,20 @@ import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
 const solution = getSeoSolutionBySlug("tornillos-para-carros")!;
 
 export const metadata: Metadata = {
-  title: "Tornillos para carros",
+  title: "Tornillos para carros y vehículos pesados | Cotiza por WhatsApp",
   description: solution.summary,
   keywords: [...solution.searchTerms, ...solution.relatedSearches],
   alternates: { canonical: "/tornillos-para-carros" },
   openGraph: {
     type: "article",
     url: absoluteUrl("/tornillos-para-carros"),
-    title: `${solution.title} | Tornirepuestos`,
+    title: `${solution.title} | Cotización rápida en Tornirepuestos`,
     description: solution.summary,
     images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${solution.title} | Tornirepuestos`,
+    title: `${solution.title} | Cotización rápida en Tornirepuestos`,
     description: solution.summary,
     images: [DEFAULT_OG_IMAGE],
   },

@@ -40,8 +40,8 @@ export async function generateMetadata({
     };
   }
 
-  const title = `${cat.title} para vehículos pesados`;
-  const description = `${cat.desc} Cotiza ${cat.title.toLowerCase()} por WhatsApp con Tornirepuestos.`;
+  const title = `${cat.title} para camiones y buses | Cotiza por WhatsApp`;
+  const description = `${cat.desc} Cotiza ${cat.title.toLowerCase()} con asesoría técnica por referencia, placa o foto. Atención en Santa Marta y envíos a toda Colombia.`;
   const url = absoluteUrl(`/categorias/${cat.slug}`);
 
   return {

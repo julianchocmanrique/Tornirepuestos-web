@@ -5,9 +5,9 @@ import { categories } from "@/lib/categories";
 import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Categorías",
+  title: "Categorías de repuestos para camiones y buses | Tornirepuestos",
   description:
-    "Explora todas las categorías de repuestos de Tornirepuestos para vehículos pesados, buses y maquinaria.",
+    "Explora categorías de repuestos para camiones, buses y maquinaria: frenos, filtración, suspensión, transmisión, eléctricos y más. Cotiza por WhatsApp.",
   alternates: {
     canonical: "/categorias",
   },

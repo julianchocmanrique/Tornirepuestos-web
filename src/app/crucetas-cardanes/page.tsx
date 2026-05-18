@@ -7,20 +7,20 @@ import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
 const solution = getSeoSolutionBySlug("crucetas-cardanes")!;
 
 export const metadata: Metadata = {
-  title: "Crucetas y cardanes",
+  title: "Crucetas y cardanes para camiones | Cotiza por WhatsApp",
   description: solution.summary,
   keywords: [...solution.searchTerms, ...solution.relatedSearches],
   alternates: { canonical: "/crucetas-cardanes" },
   openGraph: {
     type: "article",
     url: absoluteUrl("/crucetas-cardanes"),
-    title: `${solution.title} | Tornirepuestos`,
+    title: `${solution.title} para camiones | Tornirepuestos`,
     description: solution.summary,
     images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${solution.title} | Tornirepuestos`,
+    title: `${solution.title} para camiones | Tornirepuestos`,
     description: solution.summary,
     images: [DEFAULT_OG_IMAGE],
   },

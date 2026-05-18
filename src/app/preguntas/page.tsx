@@ -5,22 +5,22 @@ import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
 import { wa } from "@/lib/wa";
 
 export const metadata: Metadata = {
-  title: "Preguntas Frecuentes",
-  description: "Preguntas frecuentes de Tornirepuestos sobre cotizaciones, compatibilidad y envíos.",
+  title: "Preguntas frecuentes sobre cotización y repuestos | Tornirepuestos",
+  description: "Resuelve dudas sobre cotización por WhatsApp, compatibilidad por referencia o placa y envíos de repuestos para camiones y buses en Colombia.",
   alternates: {
     canonical: "/preguntas",
   },
   openGraph: {
     type: "website",
     url: absoluteUrl("/preguntas"),
-    title: "Preguntas Frecuentes | Tornirepuestos",
-    description: "Preguntas frecuentes de Tornirepuestos sobre cotizaciones, compatibilidad y envíos.",
+    title: "Preguntas frecuentes sobre cotización y repuestos | Tornirepuestos",
+    description: "Resuelve dudas sobre cotización por WhatsApp, compatibilidad y envíos de repuestos para camiones y buses.",
     images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Preguntas Frecuentes | Tornirepuestos",
-    description: "Preguntas frecuentes de Tornirepuestos sobre cotizaciones, compatibilidad y envíos.",
+    title: "Preguntas frecuentes sobre cotización y repuestos | Tornirepuestos",
+    description: "Resuelve dudas sobre cotización por WhatsApp, compatibilidad y envíos de repuestos para camiones y buses.",
     images: [DEFAULT_OG_IMAGE],
   },
 };

@@ -315,14 +315,14 @@ export const SEO_SOLUTIONS: SeoSolution[] = [
   },
   {
     slug: "suspencion-rigida",
-    title: "Suspención rígida",
-    h1: "Suspención rígida para camión: diagnóstico, repuestos y cotización",
+    title: "Suspensión rígida",
+    h1: "Suspensión rígida para camión: diagnóstico, repuestos y cotización",
     summary:
-      "Cotiza repuestos de suspención rígida con guía técnica por aplicación, carga y condición de trabajo para camiones y flotas.",
+      "Cotiza repuestos de suspensión rígida con guía técnica por aplicación, carga y condición de trabajo para camiones y flotas.",
     intro:
-      "En Tornirepuestos te ayudamos a identificar repuestos de suspención rígida por referencia, medidas y síntoma de falla. Si tienes foto del componente o datos del vehículo, te guiamos para cotizar la opción correcta con disponibilidad real.",
+      "En Tornirepuestos te ayudamos a identificar repuestos de suspensión rígida por referencia, medidas y síntoma de falla. Si tienes foto del componente o datos del vehículo, te guiamos para cotizar la opción correcta con disponibilidad real.",
     useCases: [
-      "Reposición de componentes de suspención rígida por desgaste en operación de carga.",
+      "Reposición de componentes de suspensión rígida por desgaste en operación de carga.",
       "Mantenimiento preventivo en flotas con rutas urbanas y de carretera.",
       "Corrección de ruidos, golpeteos y pérdida de estabilidad en ejes rígidos.",
       "Intervención por fatiga de bujes, pernos o elementos de sujeción.",
@@ -334,9 +334,9 @@ export const SEO_SOLUTIONS: SeoSolution[] = [
       "Valida medidas críticas antes de confirmar pedido para evitar devoluciones.",
     ],
     longIntro: [
-      "La suspención rígida es uno de los sistemas más exigidos en operación de carga. Trabaja bajo vibración constante, golpes, torsión y variaciones de peso, por lo que el desgaste de sus componentes impacta directamente la estabilidad del vehículo y la seguridad de la operación.",
+      "La suspensión rígida es uno de los sistemas más exigidos en operación de carga. Trabaja bajo vibración constante, golpes, torsión y variaciones de peso, por lo que el desgaste de sus componentes impacta directamente la estabilidad del vehículo y la seguridad de la operación.",
       "Cuando hay juego, ruido o pérdida de alineación, cambiar solo una pieza sin diagnóstico completo puede generar una falla recurrente. En Tornirepuestos te orientamos para validar aplicación y compatibilidad antes de comprar, reduciendo tiempo detenido y costos por retrabajo.",
-      "Esta página está enfocada en clientes de transporte, talleres y flotas que necesitan una solución rápida y técnica para suspención rígida. Con datos básicos y evidencia visual podemos avanzar en una cotización más precisa y útil desde el primer contacto.",
+      "Esta página está enfocada en clientes de transporte, talleres y flotas que necesitan una solución rápida y técnica para suspensión rígida. Con datos básicos y evidencia visual podemos avanzar en una cotización más precisa y útil desde el primer contacto.",
     ],
     symptoms: [
       "Golpeteo o ruido metálico en zonas de bache, curva o carga máxima.",
@@ -358,7 +358,7 @@ export const SEO_SOLUTIONS: SeoSolution[] = [
       {
         title: "Diagnóstico inicial",
         description:
-          "Recibimos síntomas, fotos y datos del vehículo para identificar qué componente de suspención rígida está comprometido.",
+          "Recibimos síntomas, fotos y datos del vehículo para identificar qué componente de suspensión rígida está comprometido.",
       },
       {
         title: "Validación de aplicación",
@@ -388,7 +388,7 @@ export const SEO_SOLUTIONS: SeoSolution[] = [
       {
         title: "Qué revisar además de la pieza principal",
         paragraphs: [
-          "En suspención rígida, la falla visible muchas veces es consecuencia de otro componente fatigado. Por ejemplo, cambiar solo un buje sin revisar pernos, soportes y puntos de fijación puede mantener holguras y causar daño prematuro del repuesto nuevo.",
+          "En suspensión rígida, la falla visible muchas veces es consecuencia de otro componente fatigado. Por ejemplo, cambiar solo un buje sin revisar pernos, soportes y puntos de fijación puede mantener holguras y causar daño prematuro del repuesto nuevo.",
           "Por eso recomendamos intervenir con criterio de conjunto: inspección de componentes relacionados, verificación de ajuste y evaluación de desgaste en ejes y llantas. Esto ayuda a mejorar estabilidad y prolongar vida útil de la reparación.",
         ],
         bullets: [
@@ -399,7 +399,7 @@ export const SEO_SOLUTIONS: SeoSolution[] = [
         ],
       },
       {
-        title: "Cómo prevenir fallas repetitivas en suspención rígida",
+        title: "Cómo prevenir fallas repetitivas en suspensión rígida",
         paragraphs: [
           "La prevención en vehículos de carga depende de revisar el sistema según severidad de ruta, peso transportado y frecuencia de operación. Programar inspecciones evita que una holgura pequeña evolucione a daño mayor en la estructura de suspensión.",
           "También es clave usar repuestos compatibles con la exigencia real de trabajo. Elegir solo por precio, sin validar aplicación, puede aumentar la frecuencia de reemplazo y afectar la continuidad de la flota.",
@@ -413,7 +413,7 @@ export const SEO_SOLUTIONS: SeoSolution[] = [
     ],
     faqs: [
       {
-        q: "¿Qué información necesitan para cotizar suspención rígida?",
+        q: "¿Qué información necesitan para cotizar suspensión rígida?",
         a: "Marca, modelo, fotos y medidas del componente. Con eso validamos aplicación y te cotizamos opción compatible.",
       },
       {

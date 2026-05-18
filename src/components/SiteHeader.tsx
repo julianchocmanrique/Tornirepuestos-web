@@ -13,6 +13,8 @@ const navLinks = [
   { href: '/nosotros', label: 'Nosotros' },
   { href: '/preguntas', label: 'Preguntas' },
   { href: '/contacto', label: 'Contacto' },
+  { href: '/buzon-sugerencias', label: 'Sugerencias' },
+  { href: '/politica-tratamiento-datos', label: 'Política de datos' },
 ];
 
 export function SiteHeader() {

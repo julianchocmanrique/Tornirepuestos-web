@@ -7,20 +7,20 @@ import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
 const solution = getSeoSolutionBySlug("compresor")!;
 
 export const metadata: Metadata = {
-  title: "Compresor Cummins 350",
+  title: "Compresor Cummins 350 para camión | Cotización y compatibilidad",
   description: solution.summary,
   keywords: [...solution.searchTerms, ...solution.relatedSearches],
   alternates: { canonical: "/compresor" },
   openGraph: {
     type: "article",
     url: absoluteUrl("/compresor"),
-    title: `${solution.title} | Tornirepuestos`,
+    title: `${solution.title} para camión | Tornirepuestos`,
     description: solution.summary,
     images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${solution.title} | Tornirepuestos`,
+    title: `${solution.title} para camión | Tornirepuestos`,
     description: solution.summary,
     images: [DEFAULT_OG_IMAGE],
   },

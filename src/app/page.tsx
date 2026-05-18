@@ -8,7 +8,7 @@ import { categories } from "@/lib/categories";
 import { STORE_LOCATIONS } from "@/lib/locations";
 import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
 import { SEO_SOLUTIONS } from "@/lib/seoSolutions";
-import { wa } from "@/lib/wa";
+import { wa, waDirect } from "@/lib/wa";
 
 const brand = {
   name: "TORNIREPUESTOS",
@@ -91,9 +91,9 @@ const faqs = [
 ];
 
 export const metadata: Metadata = {
-  title: "Inicio",
+  title: "Repuestos para camiones y buses en Santa Marta | Cotiza por WhatsApp",
   description:
-    "Cotiza repuestos para vehículos pesados, buses y maquinaria en Tornirepuestos. Atención por WhatsApp y envíos a todo Colombia.",
+    "Tornirepuestos: repuestos para camiones, buses y maquinaria en Santa Marta. Cotiza por WhatsApp con validación por referencia, placa o foto y envío a toda Colombia.",
   alternates: {
     canonical: "/",
   },
@@ -107,9 +107,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: absoluteUrl("/"),
-    title: "Tornirepuestos",
+    title: "Repuestos para camiones y buses en Santa Marta | Tornirepuestos",
     description:
-      "Cotiza repuestos para vehículos pesados, buses y maquinaria en Tornirepuestos.",
+      "Cotiza repuestos para vehículos pesados, buses y maquinaria con asesoría rápida por WhatsApp y envío nacional.",
     images: [
       {
         url: DEFAULT_OG_IMAGE,
@@ -121,9 +121,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tornirepuestos",
+    title: "Repuestos para camiones y buses en Santa Marta | Tornirepuestos",
     description:
-      "Cotiza repuestos para vehículos pesados, buses y maquinaria en Tornirepuestos.",
+      "Cotiza repuestos para vehículos pesados, buses y maquinaria con asesoría rápida por WhatsApp y envío nacional.",
     images: [DEFAULT_OG_IMAGE],
   },
 };
@@ -204,7 +204,7 @@ export default function Page() {
         longitude: location.longitude,
       },
       branchCode: String(idx + 1),
-      sameAs: [location.maps, wa(location.waText)],
+      sameAs: [location.maps, waDirect(location.waText)],
     })),
   };
 
@@ -655,6 +655,12 @@ export default function Page() {
             </a>
             <a className="hover:text-slate-900" href="/contacto">
               Contacto
+            </a>
+            <a className="hover:text-slate-900" href="/buzon-sugerencias">
+              Buzón de sugerencias
+            </a>
+            <a className="hover:text-slate-900" href="/politica-tratamiento-datos">
+              Política de datos
             </a>
           </div>
         </div>

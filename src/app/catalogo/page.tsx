@@ -6,23 +6,27 @@ import { readCatalogItems } from "@/lib/catalogStore";
 import { categories } from "@/lib/categories";
 
 export const metadata: Metadata = {
-  title: "Catálogo",
+  title: "Catálogo de inventario (uso interno de cotización)",
   description:
-    "Catálogo de inventario Tornirepuestos para vehículos pesados, buses y maquinaria. Busca, filtra y cotiza por WhatsApp.",
+    "Consulta de inventario para soporte de cotización en Tornirepuestos. Usa código o descripción y solicita confirmación por WhatsApp.",
   alternates: {
     canonical: "/catalogo",
+  },
+  robots: {
+    index: false,
+    follow: true,
   },
   openGraph: {
     type: "website",
     url: absoluteUrl("/catalogo"),
-    title: "Catálogo de Inventario | Tornirepuestos",
+    title: "Catálogo de inventario | Tornirepuestos",
     description:
       "Consulta el inventario real de Tornirepuestos con buscador, filtros y productos más vendidos.",
     images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Catálogo de Inventario | Tornirepuestos",
+    title: "Catálogo de inventario | Tornirepuestos",
     description:
       "Consulta el inventario real de Tornirepuestos con buscador, filtros y productos más vendidos.",
     images: [DEFAULT_OG_IMAGE],

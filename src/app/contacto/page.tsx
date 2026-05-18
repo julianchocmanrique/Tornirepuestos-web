@@ -4,22 +4,22 @@ import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
 import { STORE_LOCATIONS } from "@/lib/locations";
 
 export const metadata: Metadata = {
-  title: "Contacto",
-  description: "Canales de contacto de Tornirepuestos en Santa Marta. Atención en dos sedes.",
+  title: "Contacto Tornirepuestos Santa Marta | Cotiza por WhatsApp",
+  description: "Contacta a Tornirepuestos en Santa Marta. Dos sedes, atención por WhatsApp, validación de compatibilidad y envíos a toda Colombia.",
   alternates: {
     canonical: "/contacto",
   },
   openGraph: {
     type: "website",
     url: absoluteUrl("/contacto"),
-    title: "Contacto | Tornirepuestos",
-    description: "Canales de contacto de Tornirepuestos en Santa Marta. Atención en dos sedes.",
+    title: "Contacto Tornirepuestos Santa Marta | Cotiza por WhatsApp",
+    description: "Contacta a Tornirepuestos en Santa Marta. Dos sedes, atención por WhatsApp y envíos a toda Colombia.",
     images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Contacto | Tornirepuestos",
-    description: "Canales de contacto de Tornirepuestos en Santa Marta. Atención en dos sedes.",
+    title: "Contacto Tornirepuestos Santa Marta | Cotiza por WhatsApp",
+    description: "Contacta a Tornirepuestos en Santa Marta. Dos sedes, atención por WhatsApp y envíos a toda Colombia.",
     images: [DEFAULT_OG_IMAGE],
   },
 };

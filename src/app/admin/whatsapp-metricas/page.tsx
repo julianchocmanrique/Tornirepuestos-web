@@ -1,18 +1,7 @@
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-
-import { getCookieName, verifySessionToken } from "@/lib/adminAuth";
 import { getWaStats } from "@/lib/waStats";
 
 export default async function AdminWhatsappMetricasPage() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(getCookieName())?.value;
-
-  if (!verifySessionToken(token)) {
-    redirect("/admin/login");
-  }
-
   const stats = await getWaStats();
   const byDayEntries = Object.entries(stats.byDay).sort((a, b) =>
     a[0] < b[0] ? 1 : -1,

@@ -3,6 +3,17 @@ import { getWaStats } from "@/lib/waStats";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+const APP_TIMEZONE = "America/Bogota";
+
+function formatBogotaDateTime(value: string) {
+  return new Date(value).toLocaleString("es-CO", {
+    timeZone: APP_TIMEZONE,
+    dateStyle: "short",
+    timeStyle: "medium",
+    hour12: true,
+  });
+}
+
 export default async function AdminWhatsappMetricasPage() {
   const stats = await getWaStats();
   const byDayEntries = Object.entries(stats.byDay).sort((a, b) =>
@@ -42,7 +53,7 @@ export default async function AdminWhatsappMetricasPage() {
             </p>
             <p className="mt-2 text-sm font-semibold text-slate-900">
               {stats.lastClickAt
-                ? new Date(stats.lastClickAt).toLocaleString("es-CO")
+                ? formatBogotaDateTime(stats.lastClickAt)
                 : "Sin registros"}
             </p>
           </article>
@@ -107,7 +118,7 @@ export default async function AdminWhatsappMetricasPage() {
                   >
                     <p>
                       <span className="font-semibold text-slate-900">Fecha:</span>{" "}
-                      {new Date(event.at).toLocaleString("es-CO")}
+                      {formatBogotaDateTime(event.at)}
                     </p>
                     <p className="truncate">
                       <span className="font-semibold text-slate-900">IP:</span>{" "}

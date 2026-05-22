@@ -21,6 +21,17 @@ const STATS_FILE =
   path.join(process.env.TMPDIR || "/tmp", "tornirepuestos", "wa-stats.json");
 const DATA_DIR = path.dirname(STATS_FILE);
 const MAX_RECENT_EVENTS = 120;
+const APP_TIMEZONE = "America/Bogota";
+
+function getBogotaDay(isoDate: string) {
+  const dayFormatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: APP_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  return dayFormatter.format(new Date(isoDate));
+}
 
 function emptyStats(): WaStats {
   return {
@@ -63,7 +74,7 @@ async function writeStats(stats: WaStats) {
 
 export async function registerWaClick(event: WaClickEvent) {
   const stats = await readStats();
-  const day = event.at.slice(0, 10);
+  const day = getBogotaDay(event.at);
 
   stats.totalClicks += 1;
   stats.lastClickAt = event.at;

@@ -1,13 +1,16 @@
 name: Deploy Tornirepuestos-web to VPS
 
 on:
-  push:
-    branches: [ "main" ]
   workflow_dispatch:
+
+concurrency:
+  group: tornirepuestos-prod-deploy
+  cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
@@ -22,5 +25,5 @@ jobs:
             git fetch --all
             git reset --hard origin/main
             cd /root/.openclaw/workspace/deployments/tornirepuestos-web
-            docker compose up -d --build
+            docker compose up -d --build --remove-orphans
             docker compose ps

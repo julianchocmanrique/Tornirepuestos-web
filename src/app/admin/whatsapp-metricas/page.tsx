@@ -1,5 +1,8 @@
 import { getWaStats } from "@/lib/waStats";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function AdminWhatsappMetricasPage() {
   const stats = await getWaStats();
   const byDayEntries = Object.entries(stats.byDay).sort((a, b) =>

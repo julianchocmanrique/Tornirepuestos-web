@@ -16,8 +16,10 @@ export type WaStats = {
   recentEvents: WaClickEvent[];
 };
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const STATS_FILE = path.join(DATA_DIR, "wa-stats.json");
+const STATS_FILE =
+  process.env.WA_STATS_FILE ||
+  path.join(process.env.TMPDIR || "/tmp", "tornirepuestos", "wa-stats.json");
+const DATA_DIR = path.dirname(STATS_FILE);
 const MAX_RECENT_EVENTS = 120;
 
 function emptyStats(): WaStats {

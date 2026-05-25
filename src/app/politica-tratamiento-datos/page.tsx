@@ -49,31 +49,32 @@ export default function PoliticaTratamientoDatosPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,#eef4ff_0%,#f8fafc_22%,#f8fafc_100%)] text-slate-900">
+    <main className="min-h-screen bg-slate-50 text-slate-900">
       <section className="mx-auto max-w-6xl px-4 py-10 sm:py-12">
-        <header className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-6 shadow-[0_12px_40px_-25px_rgba(15,23,42,0.45)] sm:p-10">
-          <div className="pointer-events-none absolute -right-20 -top-16 h-56 w-56 rounded-full bg-blue-100/70 blur-2xl" />
-          <div className="pointer-events-none absolute -left-16 -bottom-20 h-56 w-56 rounded-full bg-red-100/60 blur-2xl" />
-          <div className="relative">
-            <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">
-              Legal
+        <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Política corporativa
+          </p>
+          <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-5xl">
+            Política de Tratamiento de Datos Personales
+          </h1>
+          <p className="mt-3 text-sm text-slate-600 sm:text-base">
+            Última actualización: <strong>18 de mayo de 2026</strong>.
+          </p>
+          <p className="mt-4 max-w-3xl text-sm leading-relaxed text-slate-700 sm:text-base">
+            Este documento describe de forma clara cómo recolectamos, usamos y protegemos
+            la información personal de clientes, proveedores y usuarios que se comunican
+            con Tornirepuestos por nuestros canales de atención.
+          </p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+              Responsable: <strong>Tornirepuestos</strong>
             </div>
-            <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-5xl">
-          Política de Tratamiento de Datos Personales
-            </h1>
-            <p className="mt-4 text-sm text-slate-600 sm:text-base">
-              Última actualización: <strong>18 de mayo de 2026</strong>.
-            </p>
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                Responsable: <strong>Tornirepuestos</strong>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                Canal: <strong>ventas@tornirepuestos.com</strong>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                Teléfono: <strong>+57 310 653 1208</strong>
-              </div>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+              Correo: <strong>ventas@tornirepuestos.com</strong>
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+              Teléfono: <strong>+57 310 653 1208</strong>
             </div>
           </div>
         </header>
@@ -88,7 +89,7 @@ export default function PoliticaTratamientoDatosPage() {
                 <a
                   key={section.id}
                   href={`#${section.id}`}
-                  className="block rounded-xl border border-transparent px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-200 hover:bg-slate-50 hover:text-slate-900"
+                  className="block rounded-lg border border-transparent px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-200 hover:bg-slate-50 hover:text-slate-900"
                 >
                   {section.title}
                 </a>
@@ -97,28 +98,15 @@ export default function PoliticaTratamientoDatosPage() {
           </aside>
 
           <div className="space-y-4">
-            {sections.map((section, idx) => (
+            {sections.map((section) => (
               <section
                 key={section.id}
                 id={section.id}
-                className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 sm:p-6"
+                className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
               >
-                <div className="flex items-start gap-3">
-                  <div
-                    className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-extrabold text-white"
-                    style={{
-                      background:
-                        idx % 2 === 0
-                          ? "linear-gradient(135deg,#0f172a,#1d4ed8)"
-                          : "linear-gradient(135deg,#0f172a,#dc2626)",
-                    }}
-                  >
-                    {idx + 1}
-                  </div>
-                  <h2 className="text-xl font-extrabold text-slate-900 sm:text-2xl">
-                    {section.title.replace(/^\d+\.\s*/, "")}
-                  </h2>
-                </div>
+                <h2 className="text-xl font-extrabold text-slate-900 sm:text-2xl">
+                  {section.title}
+                </h2>
                 {section.id === "canales" ? (
                   <p className="mt-3 text-base leading-relaxed text-slate-700">
                     Para ejercer tus derechos o resolver dudas, escríbenos a{" "}

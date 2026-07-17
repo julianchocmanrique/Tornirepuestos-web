@@ -435,21 +435,19 @@ export default function Page() {
       {/* BRAND STRIP */}
       <section className="relative z-20 bg-white">
         <div className="mx-auto max-w-6xl px-4">
-          <div className="-mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_18px_55px_rgba(15,23,42,0.12)]">
-            <div className="grid gap-0 lg:grid-cols-[280px_1fr]">
-              <div className="border-b border-slate-200 bg-slate-950 px-5 py-5 text-white lg:border-b-0 lg:border-r lg:border-slate-800">
+          <div className="-mt-7 overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.12)]">
+            <div className="grid gap-0 lg:grid-cols-[250px_1fr]">
+              <div className="bg-slate-950 px-5 py-4 text-white">
                 <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
                   Marcas y referencias
                 </div>
-                <h2 className="mt-2 text-xl font-extrabold">
-                  Repuestos para trabajo pesado
-                </h2>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">
-                  Buscamos equivalencias y referencias para camiones, buses, tractomulas y maquinaria.
+                <h2 className="mt-1 text-lg font-extrabold">Trabajo pesado</h2>
+                <p className="mt-1 text-xs leading-relaxed text-white/68">
+                  Equivalencias y referencias para camiones, buses y tractomulas.
                 </p>
               </div>
 
-              <div className="relative overflow-hidden bg-gradient-to-r from-white via-slate-50 to-white py-5">
+              <div className="relative flex min-h-[112px] items-center overflow-hidden bg-gradient-to-r from-white via-slate-50 to-white">
                 <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-white to-transparent" />
                 <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-white to-transparent" />
                 <div className="tp-brand-marquee-track">
@@ -469,82 +467,97 @@ export default function Page() {
       </section>
 
       {/* QUICK CONTACT */}
-      <section className="relative z-10 bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-8">
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.12)] md:p-6">
-            <div className="grid gap-4 lg:grid-cols-[1.2fr_0.9fr_0.9fr] lg:items-stretch">
-              <div className="rounded-2xl bg-slate-950 p-5 text-white">
-                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
-                  Contacto rápido
-                </div>
-                <h2 className="mt-2 text-2xl font-extrabold">
-                  Cotiza por WhatsApp en minutos
-                </h2>
-                <p className="mt-2 text-sm leading-relaxed text-white/75">
-                  Envíanos la referencia, una foto o la placa. Te ayudamos a validar compatibilidad,
-                  disponibilidad y envío.
-                </p>
-                <div className="mt-5 flex flex-wrap gap-3">
-                  <a
-                    href={wa(
-                      "Hola, quiero cotizar un repuesto. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
-                    )}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold text-white"
-                    style={{ background: "var(--tp-action-primary)" }}
-                  >
-                    <WhatsAppIcon className="h-6 w-6" />
-                    Abrir WhatsApp
-                  </a>
-                  <a
-                    href="tel:+573106531208"
-                    className="inline-flex items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white hover:bg-white/15"
-                  >
-                    Llamar: +57 310 653 1208
-                  </a>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Atención
-                </div>
-                <div className="mt-3 space-y-3 text-sm text-slate-700">
-                  <div>
-                    <div className="font-extrabold text-slate-900">WhatsApp principal</div>
-                    <div className="mt-1">+57 310 653 1208</div>
+      <section className="relative z-10 bg-gradient-to-b from-white to-slate-50">
+        <div className="mx-auto max-w-6xl px-4 py-7">
+          <div className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-[0_16px_45px_rgba(15,23,42,0.10)]">
+            <div className="grid gap-0 lg:grid-cols-[1.05fr_1.45fr]">
+              <div className="relative bg-slate-950 p-6 text-white">
+                <div className="absolute right-0 top-0 h-28 w-28 rounded-full bg-red-500/20 blur-2xl" />
+                <div className="relative">
+                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
+                    Contacto rápido
                   </div>
-                  <div>
-                    <div className="font-extrabold text-slate-900">Correo</div>
+                  <h2 className="mt-2 text-2xl font-extrabold">
+                    Cotiza sin perder tiempo
+                  </h2>
+                  <p className="mt-2 text-sm leading-relaxed text-white/75">
+                    Envíanos referencia, foto, placa o ciudad destino. Te ayudamos a validar la pieza correcta para camión, tractomula o maquinaria.
+                  </p>
+                  <div className="mt-5 flex flex-wrap gap-3">
                     <a
-                      href="mailto:ventas@tornirepuestos.com"
-                      className="mt-1 inline-block hover:text-slate-950"
+                      href={wa(
+                        "Hola, quiero cotizar un repuesto. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
+                      )}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold text-white"
+                      style={{ background: "var(--tp-action-primary)" }}
                     >
-                      ventas@tornirepuestos.com
+                      <WhatsAppIcon className="h-6 w-6" />
+                      Abrir WhatsApp
+                    </a>
+                    <a
+                      href="tel:+573106531208"
+                      className="inline-flex items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white hover:bg-white/15"
+                    >
+                      Llamar
                     </a>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Sedes
-                </div>
-                <div className="mt-3 space-y-2 text-sm text-slate-700">
-                  {STORE_LOCATIONS.map((location) => (
-                    <div key={`quick-${location.id}`}>
-                      <span className="font-extrabold text-slate-900">{location.name}: </span>
-                      {location.address}
+              <div className="grid gap-0 md:grid-cols-2">
+                <div className="border-b border-slate-200 p-6 md:border-b-0 md:border-r">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Atención
+                  </div>
+                  <div className="mt-4 space-y-4 text-sm text-slate-700">
+                    <div className="flex items-start gap-3">
+                      <WhatsAppIcon className="h-8 w-8 shrink-0" />
+                      <div>
+                        <div className="font-extrabold text-slate-900">WhatsApp principal</div>
+                        <a href="tel:+573106531208" className="mt-1 inline-block hover:text-slate-950">
+                          +57 310 653 1208
+                        </a>
+                      </div>
                     </div>
-                  ))}
+                    <div>
+                      <div className="font-extrabold text-slate-900">Correo</div>
+                      <a
+                        href="mailto:ventas@tornirepuestos.com"
+                        className="mt-1 inline-block hover:text-slate-950"
+                      >
+                        ventas@tornirepuestos.com
+                      </a>
+                    </div>
+                  </div>
                 </div>
-                <Link
-                  href="/contacto"
-                  className="mt-4 inline-flex items-center text-sm font-semibold text-red-600"
-                >
-                  Ver mapas y ubicaciones →
-                </Link>
+
+                <div className="p-6">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Ubicación
+                  </div>
+                  <div className="mt-4 space-y-3 text-sm text-slate-700">
+                    {STORE_LOCATIONS.map((location) => (
+                      <a
+                        key={`quick-${location.id}`}
+                        href={location.maps}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="block rounded-2xl border border-slate-200 bg-slate-50 p-3 transition hover:border-red-200 hover:bg-red-50/40"
+                      >
+                        <span className="font-extrabold text-slate-900">{location.name}</span>
+                        <span className="mt-1 block text-slate-600">{location.address}</span>
+                      </a>
+                    ))}
+                  </div>
+                  <Link
+                    href="/contacto"
+                    className="mt-4 inline-flex items-center text-sm font-semibold text-red-600"
+                  >
+                    Ver mapas y ubicaciones →
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

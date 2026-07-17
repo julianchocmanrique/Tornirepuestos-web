@@ -102,8 +102,8 @@ const testimonials = [
 const faqs = [
   {
     category: "General",
-    q: "¿Atienden qué tipo de vehículos?",
-    a: "Vehículos pesados, buses y maquinaria. También atendemos flotas y talleres.",
+    q: "¿Para qué tipo de vehículos vendemos repuestos?",
+    a: "Vendemos repuestos para vehículos pesados, tractomulas, camiones, buses y maquinaria. También apoyamos a flotas y talleres con cotizaciones por referencia, placa o foto.",
   },
   {
     category: "General",

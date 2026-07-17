@@ -35,8 +35,8 @@ const faqs = [
     a: "Sí. Coordinamos envíos a todo Colombia y te confirmamos tiempos según destino.",
   },
   {
-    q: "¿Atienden qué tipo de vehículos?",
-    a: "Vehículos pesados, buses y maquinaria. También atendemos flotas y talleres.",
+    q: "¿Para qué tipo de vehículos vendemos repuestos?",
+    a: "Vendemos repuestos para vehículos pesados, tractomulas, camiones, buses y maquinaria. También apoyamos a flotas y talleres con cotizaciones por referencia, placa o foto.",
   },
   {
     q: "¿Puedo cotizar con solo una foto?",

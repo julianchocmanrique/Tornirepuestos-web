@@ -145,8 +145,54 @@ body {
   will-change: transform;
 }
 
+/* Home brand marquee */
+.tp-brand-marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 0.85rem;
+  padding-inline: 1.25rem;
+  animation: tp-brand-marquee 34s linear infinite;
+  will-change: transform;
+}
+
+.tp-brand-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+.tp-brand-pill {
+  display: inline-flex;
+  min-width: 132px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9)),
+    radial-gradient(circle at 18% 20%, rgba(225, 6, 0, 0.12), transparent 42%);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  color: #10233b;
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  padding: 0.8rem 1.1rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+@keyframes tp-brand-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tp-catalog-slider-track {
     transform: none;
+  }
+  .tp-brand-marquee-track {
+    animation: none;
   }
 }

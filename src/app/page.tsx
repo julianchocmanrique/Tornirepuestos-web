@@ -54,6 +54,33 @@ const heroStats = [
   { value: "Envíos", label: "a todo Colombia" },
 ];
 
+const supplierBrands = [
+  "Cummins",
+  "Bendix",
+  "Spicer",
+  "Timken",
+  "Stemco",
+  "Hendrickson",
+  "Wabco",
+  "Horton",
+  "Dayco",
+  "Gates",
+  "Goodyear",
+  "Sealco",
+  "Vaden",
+  "Tenneco",
+  "Fras-le",
+  "National",
+  "BorgWarner",
+  "Donaldson",
+  "Fleetguard",
+  "Meritor",
+  "Eaton",
+  "SKF",
+  "Fersa",
+  "Mid-America",
+];
+
 const testimonials = [
   {
     quote:
@@ -307,10 +334,46 @@ export default function Page() {
         </div>
       </section>
 
+      {/* BRAND STRIP */}
+      <section className="relative z-20 bg-white">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="-mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_18px_55px_rgba(15,23,42,0.12)]">
+            <div className="grid gap-0 lg:grid-cols-[280px_1fr]">
+              <div className="border-b border-slate-200 bg-slate-950 px-5 py-5 text-white lg:border-b-0 lg:border-r lg:border-slate-800">
+                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
+                  Marcas y referencias
+                </div>
+                <h2 className="mt-2 text-xl font-extrabold">
+                  Repuestos para trabajo pesado
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-white/70">
+                  Buscamos equivalencias y referencias para camiones, buses, tractomulas y maquinaria.
+                </p>
+              </div>
+
+              <div className="relative overflow-hidden bg-gradient-to-r from-white via-slate-50 to-white py-5">
+                <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-white to-transparent" />
+                <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-white to-transparent" />
+                <div className="tp-brand-marquee-track">
+                  {[...supplierBrands, ...supplierBrands].map((brandName, idx) => (
+                    <div
+                      key={`${brandName}-${idx}`}
+                      className="tp-brand-pill"
+                    >
+                      {brandName}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* QUICK CONTACT */}
       <section className="relative z-10 bg-white">
         <div className="mx-auto max-w-6xl px-4 py-8">
-          <div className="-mt-12 rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.12)] md:p-6">
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.12)] md:p-6">
             <div className="grid gap-4 lg:grid-cols-[1.2fr_0.9fr_0.9fr] lg:items-stretch">
               <div className="rounded-2xl bg-slate-950 p-5 text-white">
                 <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">

@@ -24,6 +24,15 @@ jobs:
             cd /root/.openclaw/workspace/Tornirepuestos-web
             git fetch --all
             git reset --hard origin/main
+            if [ -f /etc/nginx/sites-available/tornirepuestos.conf ]; then
+              if grep -q "client_max_body_size" /etc/nginx/sites-available/tornirepuestos.conf; then
+                sed -i 's/client_max_body_size .*/client_max_body_size 25M;/' /etc/nginx/sites-available/tornirepuestos.conf
+              else
+                sed -i '/server_name/a \    client_max_body_size 25M;' /etc/nginx/sites-available/tornirepuestos.conf
+              fi
+              nginx -t
+              systemctl reload nginx
+            fi
             cd /root/.openclaw/workspace/deployments/tornirepuestos-web
             docker compose up -d --build --remove-orphans
             docker compose ps

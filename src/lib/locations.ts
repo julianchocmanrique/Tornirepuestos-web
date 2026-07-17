@@ -27,15 +27,16 @@ export const STORE_LOCATIONS: StoreLocation[] = [
   },
   {
     id: "sede-2",
-    name: "Sede 2",
-    address: "Sector Bomba Zuca / Troncal del Caribe, Santa Marta",
-    streetAddress: "Sector Bomba Zuca / Troncal del Caribe",
+    name: "Tornirepuestos Bomba Zuca",
+    address: "Troncal del Caribe, diagonal a la Bomba Zuca, Santa Marta",
+    streetAddress: "Troncal del Caribe, diagonal a la Bomba Zuca",
     locality: "Santa Marta",
     latitude: 11.183433,
     longitude: -74.194969,
-    embed: "https://www.google.com/maps?q=11.183433,-74.194969&output=embed",
+    embed:
+      "https://www.google.com/maps?q=Tornirepuestos%2C%20Troncal%20del%20Caribe%20diagonal%20a%20la%20Bomba%20Zuca%2C%20Santa%20Marta%2C%20Magdalena&output=embed",
     maps:
-      "https://www.google.com/maps/dir/Torni+Repuestos,+Santa+Marta,+Magdalena/11.183433,-74.194969/@11.2231232,-74.1953911,13.17z/data=!4m8!4m7!1m5!1m1!1s0x8ef4f60b4f12e23d:0xf825f5fb9f7f9bbc!2m2!1d-74.1950117!2d11.18341!1m0?entry=ttu&g_ep=EgoyMDI2MDQwOC4wIKXMDSoASAFQAw%3D%3D",
-    waText: "Quiero llegar a la sede 2 (11.183433, -74.194969). ¿Me ayudas con la ubicación?",
+      "https://www.google.com/maps/search/?api=1&query=Tornirepuestos%2C%20Troncal%20del%20Caribe%20diagonal%20a%20la%20Bomba%20Zuca%2C%20Santa%20Marta%2C%20Magdalena",
+    waText: "Quiero llegar a Tornirepuestos Bomba Zuca. ¿Me ayudas con la ubicación?",
   },
 ];

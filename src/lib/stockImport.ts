@@ -1,5 +1,7 @@
 import fs from "node:fs/promises";
+import path from "node:path";
 
+import JSZip from "jszip";
 import { read, utils } from "xlsx";
 import { PERSONALIZED_FEATURED_CODES } from "@/lib/featuredCodes";
 import { resolveCatalogPath } from "@/lib/catalogStore";
@@ -70,9 +72,73 @@ function buildProductName(code: string, description: string) {
   return `${code} ${description}`;
 }
 
+function safeFileName(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+function getExtension(mediaPath: string) {
+  const ext = path.posix.extname(mediaPath).toLowerCase();
+  if ([ ".png", ".jpg", ".jpeg", ".webp" ].includes(ext)) return ext;
+  return ".png";
+}
+
 function inferKind(description: string, group: string) {
   const source = description || group || "Producto";
   return source.split(/\s+/).slice(0, 3).join(" ").toUpperCase();
+}
+
+async function extractEmbeddedImagesByRow(fileBuffer: Buffer) {
+  const zip = await JSZip.loadAsync(fileBuffer);
+  const result = new Map<number, { mediaPath: string; buffer: Buffer }>();
+  const drawingPaths = Object.keys(zip.files)
+    .filter((filePath) => /^xl\/drawings\/drawing\d+\.xml$/.test(filePath))
+    .sort();
+
+  for (const drawingPath of drawingPaths) {
+    const drawingFile = zip.file(drawingPath);
+    if (!drawingFile) continue;
+
+    const relsPath = drawingPath.replace("xl/drawings/", "xl/drawings/_rels/") + ".rels";
+    const relsFile = zip.file(relsPath);
+    if (!relsFile) continue;
+
+    const [drawingXml, relsXml] = await Promise.all([
+      drawingFile.async("string"),
+      relsFile.async("string"),
+    ]);
+
+    const rels = new Map<string, string>();
+    for (const match of relsXml.matchAll(/<Relationship\b[^>]*Id="([^"]+)"[^>]*Target="([^"]+)"[^>]*>/g)) {
+      const [, id, target] = match;
+      const normalizedTarget = path.posix.normalize(path.posix.join(path.posix.dirname(drawingPath), target));
+      rels.set(id, normalizedTarget);
+    }
+
+    for (const anchor of drawingXml.matchAll(/<xdr:oneCellAnchor\b[\s\S]*?<\/xdr:oneCellAnchor>/g)) {
+      const xml = anchor[0];
+      const rowMatch = xml.match(/<xdr:row>(\d+)<\/xdr:row>/);
+      const embedMatch = xml.match(/r:embed="([^"]+)"/);
+      if (!rowMatch || !embedMatch) continue;
+
+      const row = Number(rowMatch[1]);
+      const mediaPath = rels.get(embedMatch[1]);
+      if (!mediaPath) continue;
+
+      const mediaFile = zip.file(mediaPath);
+      if (!mediaFile) continue;
+
+      const buffer = await mediaFile.async("nodebuffer");
+      result.set(row, { mediaPath, buffer });
+    }
+  }
+
+  return result;
 }
 
 export async function importStockFromExcel(params: {
@@ -140,10 +206,15 @@ export async function importStockFromExcel(params: {
   };
 
   const rowsByCode = new Map<string, ImportRow>();
+  const imagesByRow = await extractEmbeddedImagesByRow(params.fileBuffer);
+  const imageOutputDir = path.join(process.cwd(), "public", "productos", "catalogo");
   let invalidRows = 0;
   let rowsWithProductInfo = 0;
+  let extractedImages = 0;
 
-  for (const row of rows) {
+  await fs.mkdir(imageOutputDir, { recursive: true });
+
+  for (const [idx, row] of rows.entries()) {
     const codeVal = pickColumn(row, codeCandidates);
     const stockVal = pickColumn(row, stockCandidates);
     const descriptionPage = cleanText(pickColumn(row, descriptionCandidates));
@@ -155,7 +226,20 @@ export async function importStockFromExcel(params: {
     const code = normalizeCode(codeVal);
     const stock = parseStockValue(stockVal);
     const hasStock = Number.isFinite(stock);
-    const hasProductInfo = Boolean(descriptionPage || brand || group || equivalences || photoUrl);
+    const sheetRow = Number((row as Record<string, unknown>).__rowNum__);
+    const drawingRow = Number.isFinite(sheetRow) ? sheetRow : idx + 1;
+    const embeddedImage = imagesByRow.get(drawingRow);
+    let finalPhotoUrl = photoUrl;
+
+    if (code && embeddedImage) {
+      const ext = getExtension(embeddedImage.mediaPath);
+      const fileName = `${safeFileName(code)}${ext}`;
+      await fs.writeFile(path.join(imageOutputDir, fileName), embeddedImage.buffer);
+      finalPhotoUrl = `/productos/catalogo/${fileName}`;
+      extractedImages += 1;
+    }
+
+    const hasProductInfo = Boolean(descriptionPage || brand || group || equivalences || finalPhotoUrl);
 
     if (!code || (!hasStock && !hasProductInfo)) {
       invalidRows += 1;
@@ -171,7 +255,7 @@ export async function importStockFromExcel(params: {
       brand,
       group,
       equivalences,
-      photoUrl,
+      photoUrl: finalPhotoUrl,
     });
   }
 
@@ -299,6 +383,7 @@ export async function importStockFromExcel(params: {
     created,
     rowsWithProductInfo,
     skippedFeatured,
+    extractedImages,
     mode: "compare",
     skipFeatured: true,
   };

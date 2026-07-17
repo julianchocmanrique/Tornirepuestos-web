@@ -15,6 +15,7 @@ type ApiResult = {
       created: number;
       rowsWithProductInfo: number;
       skippedFeatured: number;
+      extractedImages: number;
       mode: "compare" | "force";
       skipFeatured: boolean;
   };
@@ -82,7 +83,8 @@ export function StockUploadForm() {
           `Archivo procesado: ${r.usableRows} filas útiles. ` +
             `Stock actualizado: ${r.updated}. ` +
             `Fichas actualizadas: ${r.infoUpdated}. ` +
-            `Productos nuevos: ${r.created}.`
+            `Productos nuevos: ${r.created}. ` +
+            `Fotos extraídas: ${r.extractedImages}.`
         );
       }
     } catch (err) {

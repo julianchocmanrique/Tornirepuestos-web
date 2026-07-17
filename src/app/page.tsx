@@ -117,8 +117,8 @@ const faqs = [
   },
   {
     category: "General",
-    q: "¿Qué información acelera la cotización?",
-    a: "Placa, referencia, foto de la etiqueta, medidas (si aplica) y ciudad de destino.",
+    q: "¿Qué información necesitamos para cotizar más rápido?",
+    a: "Envíanos la placa del vehículo, referencia de la pieza, foto clara o etiqueta, medidas si aplica, marca/modelo y ciudad de destino. Con esos datos podemos validar compatibilidad y disponibilidad más rápido.",
   },
   {
     category: "General",

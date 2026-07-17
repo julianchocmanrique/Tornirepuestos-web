@@ -43,6 +43,10 @@ const faqs = [
     a: "Sí. Una foto bien tomada + datos básicos ayuda a validar compatibilidad.",
   },
   {
+    q: "¿Qué información necesitamos para cotizar más rápido?",
+    a: "Envíanos la placa del vehículo, referencia de la pieza, foto clara o etiqueta, medidas si aplica, marca/modelo y ciudad de destino. Con esos datos podemos validar compatibilidad y disponibilidad más rápido.",
+  },
+  {
     q: "¿Cómo sé si la pieza es compatible?",
     a: "Te ayudamos a validar compatibilidad antes de comprar para evitar devoluciones y pérdidas de tiempo.",
   },

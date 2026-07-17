@@ -30,8 +30,8 @@ const highlights = [
     desc: "Envíanos placa, referencia o una foto. Te respondemos con disponibilidad y precio.",
   },
   {
-    title: "Te ayudamos a acertar",
-    desc: "Validamos compatibilidad para que compres la pieza correcta desde el inicio.",
+    title: "Te acompañamos en tu compra",
+    desc: "Te guiamos por WhatsApp para elegir la referencia adecuada y comprar con más confianza.",
   },
   {
     title: "Entrega ",

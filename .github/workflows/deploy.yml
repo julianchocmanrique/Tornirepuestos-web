@@ -42,6 +42,10 @@ jobs:
               cp -a "$BACKUP_DIR/catalogo/." public/productos/catalogo/
             fi
 
+            docker builder prune -af || true
+            docker image prune -af || true
+            docker container prune -f || true
+
             if [ -f /etc/nginx/sites-available/tornirepuestos.conf ]; then
               if grep -q "client_max_body_size" /etc/nginx/sites-available/tornirepuestos.conf; then
                 sed -i 's/client_max_body_size .*/client_max_body_size 25M;/' /etc/nginx/sites-available/tornirepuestos.conf

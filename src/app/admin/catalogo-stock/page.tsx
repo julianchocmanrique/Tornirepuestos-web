@@ -20,9 +20,10 @@ export default async function AdminCatalogoStockPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-300">Panel administrativo</p>
-              <h1 className="mt-2 text-3xl font-extrabold">Actualizar stock por Excel</h1>
+              <h1 className="mt-2 text-3xl font-extrabold">Actualizar productos por Excel</h1>
               <p className="mt-2 max-w-2xl text-sm text-slate-200">
-                Carga un archivo de inventario para sincronizar stock del catálogo de forma automática.
+                Carga un archivo para sincronizar stock y enriquecer fichas del catálogo con
+                descripción, marca, grupo, equivalencias y foto por URL.
               </p>
             </div>
             <div className="flex gap-2">
@@ -49,8 +50,10 @@ export default async function AdminCatalogoStockPage() {
             <h2 className="text-sm font-extrabold uppercase tracking-wide text-slate-700">Recomendaciones</h2>
             <ul className="mt-3 space-y-3 text-sm text-slate-600">
               <li>Usa archivo `.xlsx` o `.xls` exportado del sistema de inventario.</li>
-              <li>Encabezados válidos: `Codigo Producto` y `Existencias`.</li>
-              <li>Si el archivo no cambia stock, se mostrará éxito sin cambios.</li>
+              <li>Encabezados válidos: `CODIGO`, `DESCRIPCION PAGINA`, `MARCA`, `GRUPO`, `EQUIVALENCIAS`, `FOTO`.</li>
+              <li>También reconoce stock con columnas como `Stock`, `Existencias`, `Cantidad` o `Disponible`.</li>
+              <li>Para foto usa una URL pública o una ruta del sitio como `/productos/foto.jpg`; las imágenes pegadas dentro de Excel no siempre se pueden extraer.</li>
+              <li>Si el código ya existe, actualiza la ficha. Si no existe, crea el producto con disponibilidad para consultar.</li>
             </ul>
           </aside>
         </div>

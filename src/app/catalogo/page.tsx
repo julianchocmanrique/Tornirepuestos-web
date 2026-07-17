@@ -4,6 +4,7 @@ import { CatalogSearchGrid, type CatalogItem } from "@/components/CatalogSearchG
 import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
 import { readCatalogItems } from "@/lib/catalogStore";
 import { categories } from "@/lib/categories";
+import { productLines } from "@/lib/productLines";
 
 export const metadata: Metadata = {
   title: "Catálogo de inventario (uso interno de cotización)",
@@ -45,6 +46,7 @@ export default async function CatalogoPage() {
     })
     .slice(0, 20);
   const indexedSamples = items.slice(0, 30);
+  const queryByCategory = new Map(productLines.map((line) => [line.categorySlug, line.catalogQuery]));
 
   const itemListJsonLd = {
     "@context": "https://schema.org",
@@ -129,7 +131,7 @@ export default async function CatalogoPage() {
               {categories.map((cat) => (
                 <a
                   key={cat.slug}
-                  href={`/catalogo?cat=${cat.slug}`}
+                  href={`/catalogo?q=${encodeURIComponent(queryByCategory.get(cat.slug) || cat.title)}`}
                   className="inline-flex items-center rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                 >
                   {cat.title}

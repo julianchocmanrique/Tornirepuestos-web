@@ -5,17 +5,22 @@ import { FormEvent, useState } from "react";
 type ApiResult = {
   ok: boolean;
   error?: string;
-  result?: {
-    totalRows: number;
-    usableRows: number;
-    invalidRows: number;
-    matched: number;
-    updated: number;
-    skippedFeatured: number;
-    mode: "compare" | "force";
-    skipFeatured: boolean;
+    result?: {
+      totalRows: number;
+      usableRows: number;
+      invalidRows: number;
+      matched: number;
+      updated: number;
+      infoUpdated: number;
+      created: number;
+      rowsWithProductInfo: number;
+      skippedFeatured: number;
+      mode: "compare" | "force";
+      skipFeatured: boolean;
   };
 };
+
+const MAX_BROWSER_UPLOAD_MB = 20;
 
 export function StockUploadForm() {
   const [file, setFile] = useState<File | null>(null);
@@ -28,6 +33,15 @@ export function StockUploadForm() {
 
     if (!file) {
       setError("Selecciona un archivo Excel primero.");
+      return;
+    }
+
+    if (file.size > MAX_BROWSER_UPLOAD_MB * 1024 * 1024) {
+      setError(
+        `El archivo pesa ${(file.size / 1024 / 1024).toFixed(1)} MB. ` +
+          `Para evitar caída del VPS, sube un Excel de máximo ${MAX_BROWSER_UPLOAD_MB} MB ` +
+          "o reemplaza fotos pegadas por URLs en la columna FOTO."
+      );
       return;
     }
 
@@ -44,17 +58,40 @@ export function StockUploadForm() {
         body: form,
       });
 
-      const data = (await res.json()) as ApiResult;
+      const contentType = res.headers.get("content-type") || "";
+      const data = contentType.includes("application/json")
+        ? ((await res.json()) as ApiResult)
+        : ({ ok: false, error: await res.text() } as ApiResult);
 
       if (!res.ok || !data.ok || !data.result) {
-        setError(data.error || "No se pudo actualizar el stock.");
+        if (res.status === 413) {
+          setError("El archivo es demasiado grande para el servidor. Quita fotos pegadas o usa URLs en la columna FOTO.");
+          return;
+        }
+        if (res.status === 401) {
+          setError("Tu sesión expiró. Inicia sesión de nuevo y vuelve a subir el archivo.");
+          return;
+        }
+        setError(data.error || `No se pudo actualizar el archivo. Código: ${res.status}.`);
         return;
       }
 
       const r = data.result;
-      if (r) setMessage("Stock de inventario actualizado.");
-    } catch {
-      setError("Error de red al subir el archivo.");
+      if (r) {
+        setMessage(
+          `Archivo procesado: ${r.usableRows} filas útiles. ` +
+            `Stock actualizado: ${r.updated}. ` +
+            `Fichas actualizadas: ${r.infoUpdated}. ` +
+            `Productos nuevos: ${r.created}.`
+        );
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "";
+      setError(
+        message
+          ? `No se pudo completar la subida: ${message}`
+          : "No se pudo conectar con el servidor al subir el archivo."
+      );
     } finally {
       setLoading(false);
     }
@@ -107,7 +144,7 @@ export function StockUploadForm() {
           disabled={loading}
           className="rounded-xl bg-blue-600 px-5 py-2.5 font-semibold text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {loading ? "Procesando..." : "Subir y actualizar stock"}
+          {loading ? "Procesando..." : "Subir y actualizar productos"}
         </button>
 
         <button

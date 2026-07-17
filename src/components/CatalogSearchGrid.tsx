@@ -15,6 +15,9 @@ export type CatalogItem = {
   groupSup: string;
   groupInf: string;
   kind: string;
+  brand?: string;
+  equivalences?: string;
+  photoUrl?: string;
   stock: number;
   totalSales: number;
   lastSaleDate: string;
@@ -34,6 +37,8 @@ function hashSeed(text: string) {
 }
 
 function getImageForItem(item: CatalogItem, seed = 0) {
+  if (item.photoUrl) return item.photoUrl;
+
   const stableSeed = `${item.id}|${item.code}|${item.name}|${item.groupInf}|${item.groupSup}`;
   const hash = hashSeed(stableSeed);
 
@@ -46,6 +51,8 @@ function getImageForItem(item: CatalogItem, seed = 0) {
 }
 
 function getFeaturedPhotoForItem(item: CatalogItem) {
+  if (item.photoUrl) return item.photoUrl;
+
   const customFeaturedByCode: Record<string, string> = {
     PHD: "/featured/phd.png",
     MANILA6: "/featured/manila6.png",
@@ -343,6 +350,8 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
         !q ||
         item.name.toLowerCase().includes(q) ||
         item.code.toLowerCase().includes(q) ||
+        (item.brand || "").toLowerCase().includes(q) ||
+        (item.equivalences || "").toLowerCase().includes(q) ||
         item.groupInf.toLowerCase().includes(q) ||
         item.groupSup.toLowerCase().includes(q);
 
@@ -521,7 +530,7 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
         <span className="font-bold text-slate-900">{formatNumber(visibleItems.length)}</span>{" "}
         de{" "}
         <span className="font-bold text-slate-900">{formatNumber(filteredItems.length)}</span>{" "}
-        productos con stock
+        productos encontrados
       </div>
 
       <LazyMotion features={domAnimation}>
@@ -585,13 +594,32 @@ export function CatalogSearchGrid({ items, topSellers }: Props) {
                 {item.name}
               </div>
               <div className="line-clamp-2 text-xs text-slate-600">Disponible para cotización inmediata.</div>
-
-              <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-xs">
-                <div className="text-emerald-700">Stock disponible</div>
-                <div className="mt-1 text-2xl font-extrabold text-emerald-900">
-                  {formatNumber(item.stock)}
+              {item.brand ? (
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Marca: <span className="text-slate-700">{item.brand}</span>
                 </div>
-              </div>
+              ) : null}
+              {item.equivalences ? (
+                <div className="line-clamp-2 text-xs text-slate-600">
+                  Equivalencias: {item.equivalences}
+                </div>
+              ) : null}
+
+              {item.stock > 0 ? (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-xs">
+                  <div className="text-emerald-700">Stock disponible</div>
+                  <div className="mt-1 text-2xl font-extrabold text-emerald-900">
+                    {formatNumber(item.stock)}
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-xs">
+                  <div className="text-slate-500">Disponibilidad</div>
+                  <div className="mt-1 text-base font-extrabold text-slate-800">
+                    Consultar por WhatsApp
+                  </div>
+                </div>
+              )}
 
               <a
                 href={wa(`Quiero cotizar ${item.name} (${item.code}).`)}

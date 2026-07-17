@@ -21,9 +21,27 @@ jobs:
           command_timeout: 30m
           script: |
             set -e
+            BACKUP_DIR="$(mktemp -d)"
+            CONTAINER_NAME="tornirepuestos-web"
+
+            if docker ps -a --format '{{.Names}}' | grep -qx "$CONTAINER_NAME"; then
+              mkdir -p "$BACKUP_DIR/catalogo"
+              docker cp "$CONTAINER_NAME:/app/public/data/inventory-catalog.json" "$BACKUP_DIR/inventory-catalog.json" 2>/dev/null || true
+              docker cp "$CONTAINER_NAME:/app/public/productos/catalogo/." "$BACKUP_DIR/catalogo/" 2>/dev/null || true
+            fi
+
             cd /root/.openclaw/workspace/Tornirepuestos-web
             git fetch --all
             git reset --hard origin/main
+
+            mkdir -p public/data public/productos/catalogo
+            if [ -s "$BACKUP_DIR/inventory-catalog.json" ]; then
+              cp "$BACKUP_DIR/inventory-catalog.json" public/data/inventory-catalog.json
+            fi
+            if [ -d "$BACKUP_DIR/catalogo" ] && [ "$(ls -A "$BACKUP_DIR/catalogo" 2>/dev/null)" ]; then
+              cp -a "$BACKUP_DIR/catalogo/." public/productos/catalogo/
+            fi
+
             if [ -f /etc/nginx/sites-available/tornirepuestos.conf ]; then
               if grep -q "client_max_body_size" /etc/nginx/sites-available/tornirepuestos.conf; then
                 sed -i 's/client_max_body_size .*/client_max_body_size 25M;/' /etc/nginx/sites-available/tornirepuestos.conf

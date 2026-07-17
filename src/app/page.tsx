@@ -12,9 +12,9 @@ import { wa, waDirect } from "@/lib/wa";
 
 const brand = {
   name: "TORNIREPUESTOS",
-  tagline: "¿Tu camión está listo para rodar?",
+  tagline: "Repuestos para tractomulas y camiones en Santa Marta",
   subtitle:
-    "Menos paradas, más camino. Cotiza repuestos para camión por WhatsApp con asesoría rápida y envío nacional.",
+    "Menos paradas, más camino. Cotiza repuestos para vehículos pesados con asesoría rápida, validación por referencia y envío nacional.",
   colors: {
     blue: "var(--tp-blue-800)",
     accent: "var(--tp-action-primary)", // rojo promo
@@ -37,6 +37,21 @@ const highlights = [
     title: "Entrega ",
     desc: "Coordinamos envío según tu ciudad y urgencia. También puedes recoger en tienda.",
   },
+];
+
+const heroProductLines = [
+  "Frenos",
+  "Motor",
+  "Crucetas y cardanes",
+  "Suspensión",
+  "Filtración",
+  "Mangueras",
+];
+
+const heroStats = [
+  { value: "+20 años", label: "experiencia y respaldo" },
+  { value: "2 sedes", label: "atención en Santa Marta" },
+  { value: "Envíos", label: "a todo Colombia" },
 ];
 
 const testimonials = [
@@ -231,12 +246,35 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="relative mx-auto max-w-6xl px-4 py-16 md:py-24 lg:py-28">
-          <div className="max-w-xl rounded-3xl border border-white/20 bg-slate-950/50 p-6 text-left text-white shadow-[0_20px_60px_rgba(2,6,23,0.55)] backdrop-blur-sm sm:p-8">
-            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+        <div className="relative mx-auto max-w-6xl px-4 py-14 md:py-20 lg:py-24">
+          <div className="max-w-2xl rounded-3xl border border-white/20 bg-slate-950/58 p-6 text-left text-white shadow-[0_24px_70px_rgba(2,6,23,0.6)] backdrop-blur-sm sm:p-8">
+            <div className="flex flex-wrap gap-2">
+              {["Vehículos pesados", "Buses", "Maquinaria", "Flotas y talleres"].map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white/80"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            <h1 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
               {brand.tagline}
             </h1>
-            <p className="mt-4 max-w-lg text-lg text-white/85">{brand.subtitle}</p>
+            <p className="mt-4 max-w-xl text-lg leading-relaxed text-white/85">{brand.subtitle}</p>
+
+            <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {heroProductLines.map((line) => (
+                <Link
+                  key={line}
+                  href={`/catalogo?q=${encodeURIComponent(line)}`}
+                  className="rounded-2xl border border-white/15 bg-white/[0.08] px-3 py-2 text-sm font-semibold text-white/86 transition hover:bg-white/[0.13]"
+                >
+                  {line}
+                </Link>
+              ))}
+            </div>
 
             <div className="mt-8 flex flex-wrap gap-3">
               <PrimaryButton
@@ -246,6 +284,24 @@ export default function Page() {
               >
                 Cotizar por WhatsApp
               </PrimaryButton>
+              <SecondaryButton href="/catalogo">Ver catálogo</SecondaryButton>
+            </div>
+
+            <div className="mt-7 grid gap-3 sm:grid-cols-3">
+              {heroStats.map((stat) => (
+                <div
+                  key={stat.value}
+                  className="rounded-2xl border border-white/12 bg-[var(--tp-surface-card)] px-4 py-3"
+                >
+                  <div className="text-lg font-extrabold">{stat.value}</div>
+                  <div className="mt-1 text-xs leading-snug text-white/68">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-red-400/25 bg-red-500/10 px-4 py-3 text-sm text-white/82">
+              Atención ágil por WhatsApp: envía referencia, foto o placa y te ayudamos a confirmar
+              compatibilidad antes de comprar.
             </div>
           </div>
         </div>

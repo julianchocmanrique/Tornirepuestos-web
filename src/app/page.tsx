@@ -251,6 +251,89 @@ export default function Page() {
         </div>
       </section>
 
+      {/* QUICK CONTACT */}
+      <section className="relative z-10 bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-8">
+          <div className="-mt-12 rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.12)] md:p-6">
+            <div className="grid gap-4 lg:grid-cols-[1.2fr_0.9fr_0.9fr] lg:items-stretch">
+              <div className="rounded-2xl bg-slate-950 p-5 text-white">
+                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
+                  Contacto rápido
+                </div>
+                <h2 className="mt-2 text-2xl font-extrabold">
+                  Cotiza por WhatsApp en minutos
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-white/75">
+                  Envíanos la referencia, una foto o la placa. Te ayudamos a validar compatibilidad,
+                  disponibilidad y envío.
+                </p>
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <a
+                    href={wa(
+                      "Hola, quiero cotizar un repuesto. Es para: (camión/bus/maquinaria). Referencia o foto: ____. Ciudad destino: ____."
+                    )}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold text-white"
+                    style={{ background: "var(--tp-action-primary)" }}
+                  >
+                    <WhatsAppIcon className="h-6 w-6" />
+                    Abrir WhatsApp
+                  </a>
+                  <a
+                    href="tel:+573106531208"
+                    className="inline-flex items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white hover:bg-white/15"
+                  >
+                    Llamar: +57 310 653 1208
+                  </a>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Atención
+                </div>
+                <div className="mt-3 space-y-3 text-sm text-slate-700">
+                  <div>
+                    <div className="font-extrabold text-slate-900">WhatsApp principal</div>
+                    <div className="mt-1">+57 310 653 1208</div>
+                  </div>
+                  <div>
+                    <div className="font-extrabold text-slate-900">Correo</div>
+                    <a
+                      href="mailto:ventas@tornirepuestos.com"
+                      className="mt-1 inline-block hover:text-slate-950"
+                    >
+                      ventas@tornirepuestos.com
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Sedes
+                </div>
+                <div className="mt-3 space-y-2 text-sm text-slate-700">
+                  {STORE_LOCATIONS.map((location) => (
+                    <div key={`quick-${location.id}`}>
+                      <span className="font-extrabold text-slate-900">{location.name}: </span>
+                      {location.address}
+                    </div>
+                  ))}
+                </div>
+                <Link
+                  href="/contacto"
+                  className="mt-4 inline-flex items-center text-sm font-semibold text-red-600"
+                >
+                  Ver mapas y ubicaciones →
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CATEGORIES */}
       <section id="categorias" className="bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 py-14">

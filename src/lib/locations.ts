@@ -27,16 +27,16 @@ export const STORE_LOCATIONS: StoreLocation[] = [
   },
   {
     id: "sede-2",
-    name: "Tornirepuestos Bomba Zuca",
-    address: "Troncal del Caribe, diagonal a la Bomba Zuca, Santa Marta",
-    streetAddress: "Troncal del Caribe, diagonal a la Bomba Zuca",
+    name: "Sede Alterna",
+    address: "Sector Puerto Mosquito, Vía Alterna, Santa Marta",
+    streetAddress: "Sector Puerto Mosquito, Vía Alterna",
     locality: "Santa Marta",
     latitude: 11.183433,
     longitude: -74.194969,
     embed:
-      "https://www.google.com/maps?q=Tornirepuestos%2C%20Troncal%20del%20Caribe%20diagonal%20a%20la%20Bomba%20Zuca%2C%20Santa%20Marta%2C%20Magdalena&output=embed",
+      "https://www.google.com/maps?q=Sector%20Puerto%20Mosquito%2C%20V%C3%ADa%20Alterna%2C%20Santa%20Marta%2C%20Magdalena&output=embed",
     maps:
-      "https://www.google.com/maps/search/?api=1&query=Tornirepuestos%2C%20Troncal%20del%20Caribe%20diagonal%20a%20la%20Bomba%20Zuca%2C%20Santa%20Marta%2C%20Magdalena",
-    waText: "Quiero llegar a Tornirepuestos Bomba Zuca. ¿Me ayudas con la ubicación?",
+      "https://www.google.com/maps/search/?api=1&query=Sector%20Puerto%20Mosquito%2C%20V%C3%ADa%20Alterna%2C%20Santa%20Marta%2C%20Magdalena",
+    waText: "Quiero llegar a la sede alterna en Sector Puerto Mosquito, Vía Alterna. ¿Me ayudas con la ubicación?",
   },
 ];

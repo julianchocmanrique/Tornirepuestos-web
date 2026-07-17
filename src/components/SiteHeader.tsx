@@ -41,7 +41,7 @@ export function SiteHeader() {
               <div className="text-base font-extrabold leading-tight text-slate-900 sm:text-lg">
                 TORNIREPUESTOS
               </div>
-              <div className="text-xs leading-tight text-slate-500 sm:text-sm">Santa Marta · 2 sedes</div>
+              <div className="text-xs leading-tight text-slate-500 sm:text-sm">Región Caribe · 2 sedes</div>
             </div>
           </Link>
 

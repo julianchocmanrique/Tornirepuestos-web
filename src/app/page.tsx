@@ -12,9 +12,9 @@ import { wa, waDirect } from "@/lib/wa";
 
 const brand = {
   name: "TORNIREPUESTOS",
-  tagline: "Repuestos para tractomulas y camiones en Santa Marta",
+  tagline: "Repuestos para tractomulas y camiones en la Región Caribe",
   subtitle:
-    "Menos paradas, más camino. Cotiza repuestos para vehículos pesados con asesoría rápida, validación por referencia y envío nacional.",
+    "Menos paradas, más camino. Cotiza repuestos para vehículos pesados con asesoría rápida, validación por referencia y cobertura desde la Región Caribe para todo Colombia.",
   colors: {
     blue: "var(--tp-blue-800)",
     accent: "var(--tp-action-primary)", // rojo promo
@@ -50,7 +50,7 @@ const heroProductLines = [
 
 const heroStats = [
   { value: "+20 años", label: "experiencia y respaldo" },
-  { value: "2 sedes", label: "atención en Santa Marta" },
+  { value: "Región Caribe", label: "atención para transporte pesado" },
   { value: "Envíos", label: "a todo Colombia" },
 ];
 
@@ -79,6 +79,29 @@ const supplierBrands = [
   "SKF",
   "Fersa",
   "Mid-America",
+];
+
+const socialLinks = [
+  {
+    label: "WhatsApp",
+    href: wa("Hola, quiero cotizar un repuesto. ¿Me ayudas con disponibilidad y precio?"),
+    icon: "whatsapp",
+  },
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/TORNIREPUESTOS1",
+    icon: "facebook",
+  },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/tornirepuestos_/",
+    icon: "instagram",
+  },
+  {
+    label: "Ubicación",
+    href: STORE_LOCATIONS[0].maps,
+    icon: "location",
+  },
 ];
 
 const testimonials = [
@@ -133,9 +156,9 @@ const faqs = [
 ];
 
 export const metadata: Metadata = {
-  title: "Repuestos para camiones y buses en Santa Marta | Cotiza por WhatsApp",
+  title: "Repuestos para tractomulas y camiones en la Región Caribe | Tornirepuestos",
   description:
-    "Tornirepuestos: repuestos para camiones, buses y maquinaria en Santa Marta. Cotiza por WhatsApp con validación por referencia, placa o foto y envío a toda Colombia.",
+    "Tornirepuestos: repuestos para tractomulas, camiones, buses y maquinaria en la Región Caribe. Cotiza por WhatsApp con validación por referencia, placa o foto y envío a toda Colombia.",
   alternates: {
     canonical: "/",
   },
@@ -149,9 +172,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: absoluteUrl("/"),
-    title: "Repuestos para camiones y buses en Santa Marta | Tornirepuestos",
+    title: "Repuestos para tractomulas y camiones en la Región Caribe | Tornirepuestos",
     description:
-      "Cotiza repuestos para vehículos pesados, buses y maquinaria con asesoría rápida por WhatsApp y envío nacional.",
+      "Cotiza repuestos para vehículos pesados, tractomulas, buses y maquinaria con asesoría rápida por WhatsApp y envío nacional.",
     images: [
       {
         url: DEFAULT_OG_IMAGE,
@@ -163,9 +186,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Repuestos para camiones y buses en Santa Marta | Tornirepuestos",
+    title: "Repuestos para tractomulas y camiones en la Región Caribe | Tornirepuestos",
     description:
-      "Cotiza repuestos para vehículos pesados, buses y maquinaria con asesoría rápida por WhatsApp y envío nacional.",
+      "Cotiza repuestos para vehículos pesados, tractomulas, buses y maquinaria con asesoría rápida por WhatsApp y envío nacional.",
     images: [DEFAULT_OG_IMAGE],
   },
 };
@@ -183,6 +206,53 @@ function WhatsAppIcon({ className }: { className?: string }) {
       <circle cx="16" cy="16" r="9.4" stroke="#fff" strokeWidth="2.4" />
       <path
         d="M21.13 19.6c-.27.75-1.36 1.36-2.2 1.53-.58.12-1.33.2-3.63-.72-3-1.2-4.94-4.13-5.09-4.33-.15-.2-1.2-1.56-1.2-2.98 0-1.41.77-2.1 1.04-2.38.28-.28.6-.36.8-.36h.58c.2 0 .44-.07.68.51.25.59.86 2.07.93 2.21.08.15.12.31.03.52-.1.2-.15.32-.29.49-.14.17-.3.38-.44.52-.14.13-.28.27-.12.52.16.25.72 1.15 1.54 1.85 1.06.92 1.96 1.2 2.24 1.33.28.13.44.1.61-.07.17-.18.69-.77.88-1.03.19-.26.38-.22.64-.12.26.09 1.66.75 1.94.88.29.13.48.2.54.31.07.11.07.63-.18 1.33Z"
+        fill="#fff"
+      />
+    </svg>
+  );
+}
+
+function SocialIcon({ icon, className }: { icon: string; className?: string }) {
+  if (icon === "whatsapp") {
+    return <WhatsAppIcon className={className} />;
+  }
+
+  if (icon === "facebook") {
+    return (
+      <svg className={className} viewBox="0 0 32 32" fill="none" aria-hidden>
+        <rect width="32" height="32" rx="8" fill="#1877F2" />
+        <path
+          d="M18.34 28v-9.85h3.3l.5-3.84h-3.8v-2.45c0-1.11.31-1.87 1.9-1.87h2.03V6.55c-.35-.05-1.56-.15-2.96-.15-2.93 0-4.94 1.79-4.94 5.07v2.84h-3.32v3.84h3.32V28h3.97Z"
+          fill="#fff"
+        />
+      </svg>
+    );
+  }
+
+  if (icon === "instagram") {
+    return (
+      <svg className={className} viewBox="0 0 32 32" fill="none" aria-hidden>
+        <defs>
+          <linearGradient id="instagramGradient" x1="4" y1="28" x2="28" y2="4">
+            <stop stopColor="#FEDA75" />
+            <stop offset=".35" stopColor="#FA7E1E" />
+            <stop offset=".62" stopColor="#D62976" />
+            <stop offset="1" stopColor="#4F5BD5" />
+          </linearGradient>
+        </defs>
+        <rect width="32" height="32" rx="9" fill="url(#instagramGradient)" />
+        <rect x="8.5" y="8.5" width="15" height="15" rx="4.2" stroke="#fff" strokeWidth="2" />
+        <circle cx="16" cy="16" r="3.8" stroke="#fff" strokeWidth="2" />
+        <circle cx="21" cy="11" r="1.2" fill="#fff" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg className={className} viewBox="0 0 32 32" fill="none" aria-hidden>
+      <rect width="32" height="32" rx="8" fill="#E50909" />
+      <path
+        d="M16 5.5c-4 0-7.25 3.05-7.25 6.82 0 4.99 7.25 14.18 7.25 14.18s7.25-9.19 7.25-14.18C23.25 8.55 20 5.5 16 5.5Zm0 9.78a2.85 2.85 0 1 1 0-5.7 2.85 2.85 0 0 1 0 5.7Z"
         fill="#fff"
       />
     </svg>
@@ -312,6 +382,34 @@ export default function Page() {
                 Cotizar por WhatsApp
               </PrimaryButton>
               <SecondaryButton href="/catalogo">Ver catálogo</SecondaryButton>
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-white/15 bg-white/[0.07] p-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/55">
+                    Contacto y ubicación
+                  </div>
+                  <p className="mt-1 text-sm text-white/78">
+                    Escríbenos o llega a nuestras sedes. Atendemos transporte pesado en la Región Caribe.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {socialLinks.map((item) => (
+                    <a
+                      key={item.label}
+                      href={item.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/15"
+                      aria-label={item.label}
+                    >
+                      <SocialIcon icon={item.icon} className="h-6 w-6 shrink-0" />
+                      <span>{item.label}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
             </div>
 
             <div className="mt-7 grid gap-3 sm:grid-cols-3">

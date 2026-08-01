@@ -960,6 +960,9 @@ export default function Page() {
             <a className="hover:text-slate-900" href="/categorias">
               Categorías
             </a>
+            <a className="hover:text-slate-900" href="/mayoristas">
+              Mayoristas
+            </a>
             <a className="hover:text-slate-900" href="/nosotros">
               Nosotros
             </a>

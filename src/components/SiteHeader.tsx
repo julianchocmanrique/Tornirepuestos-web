@@ -10,6 +10,7 @@ const navLinks = [
   { href: '/', label: 'Inicio' },
   { href: '/catalogo', label: 'Catálogo' },
   { href: '/productos', label: 'Productos' },
+  { href: '/mayoristas', label: 'Mayoristas' },
   { href: '/categorias', label: 'Categorías' },
   { href: '/nosotros', label: 'Nosotros' },
   { href: '/preguntas', label: 'Preguntas' },

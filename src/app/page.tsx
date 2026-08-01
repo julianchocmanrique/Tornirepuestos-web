@@ -54,6 +54,29 @@ const heroStats = [
   { value: "Envíos", label: "a todo Colombia" },
 ];
 
+const digitalClientPaths = [
+  {
+    label: "Cliente final",
+    title: "Encuentra la pieza y compra rápido",
+    description:
+      "Para quien busca una referencia puntual: filtro ISX, cruceta Fuller, retén Meritor, repuesto Cummins o una pieza por foto.",
+    examples: ["Filtro para ISX", "Cruceta para Fuller", "Retén Meritor", "Repuesto Cummins"],
+    href: "/catalogo",
+    cta: "Buscar en catálogo",
+    dark: false,
+  },
+  {
+    label: "Cliente mayorista",
+    title: "Programa para compras por volumen",
+    description:
+      "Para almacenes, talleres, flotas, transportadoras, comercializadores y distribuidores que compran de forma recurrente.",
+    examples: ["Precios por volumen", "10.000+ referencias", "Asesor exclusivo", "Envíos nacionales"],
+    href: "/mayoristas",
+    cta: "Ver programa mayorista",
+    dark: true,
+  },
+];
+
 const supplierBrands = [
   "Cummins",
   "Bendix",
@@ -158,7 +181,7 @@ const faqs = [
 export const metadata: Metadata = {
   title: "Repuestos para tractomulas y camiones en la Región Caribe | Tornirepuestos",
   description:
-    "Tornirepuestos: repuestos para tractomulas, camiones, buses y maquinaria en la Región Caribe. Cotiza por WhatsApp con validación por referencia, placa o foto y envío a toda Colombia.",
+    "Tornirepuestos atiende clientes finales y mayoristas con repuestos para tractomulas, camiones, buses y maquinaria. Cotiza por WhatsApp o conoce el programa para distribuidores.",
   alternates: {
     canonical: "/",
   },
@@ -174,7 +197,7 @@ export const metadata: Metadata = {
     url: absoluteUrl("/"),
     title: "Repuestos para tractomulas y camiones en la Región Caribe | Tornirepuestos",
     description:
-      "Cotiza repuestos para vehículos pesados, tractomulas, buses y maquinaria con asesoría rápida por WhatsApp y envío nacional.",
+      "Encuentra repuestos puntuales o conoce el programa mayorista para almacenes, talleres, flotas y distribuidores.",
     images: [
       {
         url: DEFAULT_OG_IMAGE,
@@ -188,7 +211,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Repuestos para tractomulas y camiones en la Región Caribe | Tornirepuestos",
     description:
-      "Cotiza repuestos para vehículos pesados, tractomulas, buses y maquinaria con asesoría rápida por WhatsApp y envío nacional.",
+      "Encuentra repuestos puntuales o conoce el programa mayorista para almacenes, talleres, flotas y distribuidores.",
     images: [DEFAULT_OG_IMAGE],
   },
 };
@@ -560,6 +583,82 @@ export default function Page() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* BUYER PATHS */}
+      <section className="bg-slate-50">
+        <div className="mx-auto max-w-6xl px-4 py-12">
+          <div className="mb-7 max-w-3xl">
+            <div className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">
+              Dos formas de comprar
+            </div>
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950">
+              Separamos la atención para responder mejor
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-slate-600">
+              No todos los clientes llegan con la misma necesidad. Un comprador final quiere resolver una pieza rápido; un mayorista necesita respaldo, volumen y atención comercial.
+            </p>
+          </div>
+
+          <div className="grid gap-5 lg:grid-cols-2">
+            {digitalClientPaths.map((path) => (
+              <article
+                key={path.label}
+                className={`relative overflow-hidden rounded-[2rem] border p-6 shadow-[0_16px_45px_rgba(15,23,42,0.08)] md:p-8 ${
+                  path.dark
+                    ? "border-slate-900 bg-slate-950 text-white"
+                    : "border-slate-200 bg-white text-slate-900"
+                }`}
+              >
+                {path.dark ? (
+                  <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-red-500/20 blur-3xl" />
+                ) : (
+                  <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-slate-200/60 blur-3xl" />
+                )}
+                <div className="relative">
+                  <div
+                    className={`inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.18em] ${
+                      path.dark ? "bg-white/10 text-white/70" : "bg-slate-100 text-slate-500"
+                    }`}
+                  >
+                    {path.label}
+                  </div>
+                  <h3 className="mt-4 text-2xl font-black tracking-tight md:text-3xl">{path.title}</h3>
+                  <p className={`mt-3 text-sm leading-relaxed ${path.dark ? "text-white/72" : "text-slate-600"}`}>
+                    {path.description}
+                  </p>
+
+                  <div className="mt-5 grid gap-2 sm:grid-cols-2">
+                    {path.examples.map((example) => (
+                      <div
+                        key={example}
+                        className={`rounded-2xl px-4 py-3 text-sm font-bold ${
+                          path.dark
+                            ? "border border-white/12 bg-white/[0.07] text-white/86"
+                            : "border border-slate-200 bg-slate-50 text-slate-700"
+                        }`}
+                      >
+                        {example}
+                      </div>
+                    ))}
+                  </div>
+
+                  <Link
+                    href={path.href}
+                    className={`mt-6 inline-flex items-center justify-center rounded-2xl px-6 py-4 text-sm font-black uppercase tracking-wide transition ${
+                      path.dark
+                        ? "bg-white text-slate-950 hover:bg-slate-100"
+                        : "text-white hover:opacity-90"
+                    }`}
+                    style={path.dark ? undefined : { background: "var(--tp-action-primary)" }}
+                  >
+                    {path.cta}
+                  </Link>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>

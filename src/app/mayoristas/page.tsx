@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { DEFAULT_OG_IMAGE, absoluteUrl } from "@/lib/seo";
-import { wa } from "@/lib/wa";
+import { WHOLESALE_WHATSAPP_DISPLAY, waWholesale } from "@/lib/wa";
 import { MayoristaForm } from "./MayoristaForm";
 
 const benefits = [
@@ -70,7 +70,7 @@ export default function MayoristasPage() {
 
             <div className="mt-9 flex flex-wrap gap-3">
               <a
-                href={wa("Hola, quiero información para ser cliente mayorista Tornirepuestos. ¿Me puede contactar un asesor comercial?")}
+                href={waWholesale("Hola, quiero información para ser cliente mayorista Tornirepuestos. ¿Me puede contactar un asesor comercial?")}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center justify-center rounded-2xl px-7 py-4 text-sm font-extrabold uppercase tracking-wide text-white shadow-[0_18px_40px_rgba(229,9,9,0.28)] transition hover:opacity-90"
@@ -105,7 +105,9 @@ export default function MayoristasPage() {
                 </div>
                 <div className="col-span-2 rounded-2xl border border-red-100 bg-red-50 p-4">
                   <div className="text-sm font-black text-red-700">Asesor comercial exclusivo</div>
-                  <div className="mt-1 text-xs leading-relaxed text-red-900/70">Para prospectos de alto volumen y compras recurrentes.</div>
+                  <div className="mt-1 text-xs leading-relaxed text-red-900/70">
+                    Línea mayorista: {WHOLESALE_WHATSAPP_DISPLAY}.
+                  </div>
                 </div>
               </div>
             </div>

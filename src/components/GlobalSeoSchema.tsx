@@ -14,7 +14,7 @@ export function GlobalSeoSchema() {
         contactPoint: [
           {
             "@type": "ContactPoint",
-            telephone: "+57 310 653 1208",
+            telephone: "+57 305 356 0953",
             contactType: "customer service",
             availableLanguage: ["Spanish"],
             areaServed: "CO",
@@ -42,7 +42,7 @@ export function GlobalSeoSchema() {
         name: "Tornirepuestos",
         url: SITE_URL,
         image: `${SITE_URL}/tornirepuestos.jpeg`,
-        telephone: "+57 310 653 1208",
+        telephone: "+57 305 356 0953",
         department: STORE_LOCATIONS.map((location, idx) => ({
           "@type": "AutoPartsStore",
           "@id": `${SITE_URL}/#${location.id}`,

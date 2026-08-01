@@ -326,7 +326,7 @@ export default function Page() {
       name: `Tornirepuestos - ${location.name}`,
       image: absoluteUrl("/tornirepuestos.jpeg"),
       url: absoluteUrl("/"),
-      telephone: "+57 310 653 1208",
+      telephone: "+57 305 356 0953",
       address: {
         "@type": "PostalAddress",
         streetAddress: location.streetAddress,
@@ -520,7 +520,7 @@ export default function Page() {
                       Abrir WhatsApp
                     </a>
                     <a
-                      href="tel:+573106531208"
+                      href="tel:+573053560953"
                       className="inline-flex items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white hover:bg-white/15"
                     >
                       Llamar
@@ -539,8 +539,8 @@ export default function Page() {
                       <WhatsAppIcon className="h-8 w-8 shrink-0" />
                       <div>
                         <div className="font-extrabold text-slate-900">WhatsApp principal</div>
-                        <a href="tel:+573106531208" className="mt-1 inline-block hover:text-slate-950">
-                          +57 310 653 1208
+                        <a href="tel:+573053560953" className="mt-1 inline-block hover:text-slate-950">
+                          +57 305 356 0953
                         </a>
                       </div>
                     </div>
@@ -754,7 +754,7 @@ export default function Page() {
                 >
                   Abrir WhatsApp
                 </PrimaryButton>
-                <SecondaryButton href="tel:+573106531208">Llamar</SecondaryButton>
+                <SecondaryButton href="tel:+573053560953">Llamar</SecondaryButton>
               </div>
 
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -940,7 +940,7 @@ export default function Page() {
                   <WhatsAppIcon className="h-7 w-7" />
                   <span>WhatsApp</span>
                 </div>
-                <div className="mt-1 text-sm text-slate-600">+57 310 653 1208</div>
+                <div className="mt-1 text-sm text-slate-600">+57 305 356 0953</div>
                 <a
                   className="mt-3 inline-flex items-center gap-2 text-sm font-semibold"
                   style={{ color: "var(--tp-action-primary)" }}
@@ -973,10 +973,10 @@ export default function Page() {
                   ))}
                 </div>
                 <a
-                  href="tel:+573106531208"
+                  href="tel:+573053560953"
                   className="mt-3 inline-block text-sm font-semibold text-slate-700 hover:text-slate-900"
                 >
-                  Llamar: +57 310 653 1208
+                  Llamar: +57 305 356 0953
                 </a>
 
               </div>

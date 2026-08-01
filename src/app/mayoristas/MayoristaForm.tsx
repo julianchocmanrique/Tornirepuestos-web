@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import { wa } from "@/lib/wa";
+import { waWholesale } from "@/lib/wa";
 
 const businessTypes = [
   "Almacén de repuestos",
@@ -52,7 +52,7 @@ export function MayoristaForm() {
     [compraMensual, contacto, correo, ciudad, departamento, empresa, marcas, nit, tipoNegocio, whatsapp]
   );
 
-  const waLink = wa(mensajeCompuesto);
+  const waLink = waWholesale(mensajeCompuesto);
   const mailLink = `mailto:ventas@tornirepuestos.com?subject=${encodeURIComponent(
     `Cliente mayorista: ${empresa || "Nueva solicitud"}`
   )}&body=${encodeURIComponent(mensajeCompuesto)}`;

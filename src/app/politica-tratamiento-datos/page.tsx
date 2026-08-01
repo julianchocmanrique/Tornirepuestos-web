@@ -44,7 +44,7 @@ export default function PoliticaTratamientoDatosPage() {
     {
       id: "canales",
       title: "5. Canales de atención",
-      body: "Para ejercer tus derechos o resolver dudas, escríbenos a ventas@tornirepuestos.com o contáctanos al +57 310 653 1208.",
+      body: "Para ejercer tus derechos o resolver dudas, escríbenos a ventas@tornirepuestos.com o contáctanos al +57 305 356 0953.",
     },
   ];
 
@@ -74,7 +74,7 @@ export default function PoliticaTratamientoDatosPage() {
               Correo: <strong>ventas@tornirepuestos.com</strong>
             </div>
             <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-              Teléfono: <strong>+57 310 653 1208</strong>
+              Teléfono: <strong>+57 305 356 0953</strong>
             </div>
           </div>
         </header>
@@ -118,10 +118,10 @@ export default function PoliticaTratamientoDatosPage() {
                     </a>{" "}
                     o contáctanos al{" "}
                     <a
-                      href="tel:+573106531208"
+                      href="tel:+573053560953"
                       className="font-semibold text-[var(--tp-action-primary)] underline-offset-2 hover:underline"
                     >
-                      +57 310 653 1208
+                      +57 305 356 0953
                     </a>
                     .
                   </p>

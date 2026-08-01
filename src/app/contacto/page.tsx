@@ -49,8 +49,8 @@ export default function ContactoPage() {
 
           <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="text-sm font-bold text-slate-900">Teléfono</div>
-            <a href="tel:+573106531208" className="mt-2 inline-block text-sm text-slate-700">
-              +57 310 653 1208
+            <a href="tel:+573053560953" className="mt-2 inline-block text-sm text-slate-700">
+              +57 305 356 0953
             </a>
           </article>
 

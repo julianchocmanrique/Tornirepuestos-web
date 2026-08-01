@@ -4,6 +4,7 @@ import {
   INTERNAL_WA_MIRROR_PHONE_E164,
   WA_PREFIX,
   WHATSAPP_PHONE_E164,
+  WHOLESALE_WHATSAPP_PHONE_E164,
   waDirect,
 } from "@/lib/wa";
 import { sendInternalEmailNotification } from "@/lib/internalNotifyEmail";
@@ -13,12 +14,15 @@ const WEBHOOK_TIMEOUT_MS = 2500;
 
 export async function GET(req: NextRequest) {
   const text = req.nextUrl.searchParams.get("text") || "";
+  const requestedPhone = req.nextUrl.searchParams.get("phone") || WHATSAPP_PHONE_E164;
+  const allowedPhones = new Set([WHATSAPP_PHONE_E164, WHOLESALE_WHATSAPP_PHONE_E164]);
+  const destinationPhone = allowedPhones.has(requestedPhone) ? requestedPhone : WHATSAPP_PHONE_E164;
   const finalText = WA_PREFIX + text;
 
   const payload = {
     at: new Date().toISOString(),
     source: "web-whatsapp-redirect",
-    destinationPublic: WHATSAPP_PHONE_E164,
+    destinationPublic: destinationPhone,
     destinationInternalMirror: INTERNAL_WA_MIRROR_PHONE_E164,
     path: req.nextUrl.pathname,
     query: req.nextUrl.search,
@@ -72,5 +76,5 @@ export async function GET(req: NextRequest) {
     console.error("[WA_EMAIL_NOTIFY_ERROR]", error);
   }
 
-  return NextResponse.redirect(waDirect(text), { status: 302 });
+  return NextResponse.redirect(waDirect(text, destinationPhone), { status: 302 });
 }

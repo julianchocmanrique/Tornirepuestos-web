@@ -20,7 +20,7 @@ const navLinks = [
 ];
 
 export function SiteHeader() {
-  const phone = '+57 310 653 1208';
+  const phone = '+57 305 356 0953';
   const waText = 'Hola, quiero cotizar un repuesto. ¿Me ayudas con disponibilidad y precio?';
   const [mobileOpen, setMobileOpen] = useState(false);
 

@@ -21,8 +21,8 @@ export const STORE_LOCATIONS: StoreLocation[] = [
     latitude: 11.18341,
     longitude: -74.1950117,
     embed:
-      "https://www.google.com/maps?q=Calle%2030%20N%2060-250,%20Santa%20Marta,%20Colombia&output=embed",
-    maps: "https://www.google.com/maps/search/?api=1&query=Calle%2030%20N%2060-250,%20Santa%20Marta,%20Colombia",
+      "https://www.google.com/maps?q=TORNIREPUESTOS%2C%20Cl.%2030%20%2360-250%2C%20Santa%20Marta%2C%20Magdalena&output=embed",
+    maps: "https://maps.app.goo.gl/78M1UoDuRUNRFYtW6?g_st=iw",
     waText: "Quiero llegar a la sede principal (Calle 30 N 60-250). ¿Me compartes ubicación y referencia?",
   },
   {
@@ -34,8 +34,8 @@ export const STORE_LOCATIONS: StoreLocation[] = [
     latitude: 11.1772915,
     longitude: -74.1921815,
     embed:
-      "https://www.google.com/maps?q=11.1772915,-74.1921815&z=15&output=embed",
-    maps: "https://www.google.com/maps/dir/?api=1&destination=11.1772915,-74.1921815",
+      "https://www.google.com/maps?q=Torni%20Repuestos%2C%20Sector%20Puerto%20Mosquito%2C%20V%C3%ADa%20Alterna%2C%20Santa%20Marta%2C%20Magdalena&output=embed",
+    maps: "https://maps.app.goo.gl/xB61MyAsFJmJYQ428?g_st=iw",
     waText: "Quiero llegar a la sede alterna de Torni Repuestos en Sector Puerto Mosquito, Vía Alterna. ¿Me ayudas con la ubicación?",
   },
 ];

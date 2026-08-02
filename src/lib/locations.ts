@@ -31,11 +31,11 @@ export const STORE_LOCATIONS: StoreLocation[] = [
     address: "Torni Repuestos - Sector Puerto Mosquito, Vía Alterna, Santa Marta",
     streetAddress: "Sector Puerto Mosquito, Vía Alterna",
     locality: "Santa Marta",
-    latitude: 11.183433,
-    longitude: -74.194969,
+    latitude: 11.1772915,
+    longitude: -74.1921815,
     embed:
-      "https://www.google.com/maps?q=Torni%20Repuestos%2C%20Santa%20Marta%2C%20Magdalena&ftid=0x8ef4f60b4f12e23d:0xf825f5fb9f7f9bbc&output=embed",
-    maps: "https://maps.app.goo.gl/xB61MyAsFJmJYQ428?g_st=iw",
+      "https://www.google.com/maps?q=11.1772915,-74.1921815&z=15&output=embed",
+    maps: "https://www.google.com/maps/dir/?api=1&destination=11.1772915,-74.1921815",
     waText: "Quiero llegar a la sede alterna de Torni Repuestos en Sector Puerto Mosquito, Vía Alterna. ¿Me ayudas con la ubicación?",
   },
 ];

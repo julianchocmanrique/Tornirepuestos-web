@@ -7,6 +7,11 @@ on:
         description: 'Hash scrypt inicial de organización (opcional; no enviar la contraseña)'
         required: false
         type: string
+      diagnostics_only:
+        description: 'Solo consultar estado del módulo de baile, sin desplegar'
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: tornirepuestos-prod-deploy
@@ -21,16 +26,22 @@ jobs:
         uses: appleboy/ssh-action@v1.2.0
         env:
           BAILE_ADMIN_HASH: ${{ inputs.baile_admin_hash }}
+          DIAGNOSTICS_ONLY: ${{ inputs.diagnostics_only }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           command_timeout: 30m
-          envs: BAILE_ADMIN_HASH
+          envs: BAILE_ADMIN_HASH,DIAGNOSTICS_ONLY
           script: |
             set -euo pipefail
             BACKUP_DIR="$(mktemp -d)"
             CONTAINER_NAME="tornirepuestos-web"
+            if [ "$DIAGNOSTICS_ONLY" = "true" ]; then
+              docker exec "$CONTAINER_NAME" node -e "const fs=require('fs');const p=process.env.BAILE_DATA_DIR||'/app/data/baile'; console.log({node:process.version,uid:process.getuid(),gid:process.getgid(),directory:p}); for(const f of ['/app/data',p]){try{const s=fs.statSync(f);console.log(f,{uid:s.uid,gid:s.gid,mode:s.mode.toString(8)});}catch(e){console.log(e.message)}}"
+              docker logs --tail 80 "$CONTAINER_NAME" 2>&1
+              exit 0
+            fi
 
             if docker ps -a --format '{{.Names}}' | grep -qx "$CONTAINER_NAME"; then
               mkdir -p "$BACKUP_DIR/catalogo"
@@ -73,7 +84,10 @@ jobs:
               if docker exec "$CONTAINER_NAME" node -e "fetch('http://127.0.0.1:3000/api/baile/public').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"; then break; fi
               sleep 2
             done
-            docker exec "$CONTAINER_NAME" node -e "fetch('http://127.0.0.1:3000/api/baile/public').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+            if ! docker exec "$CONTAINER_NAME" node -e "fetch('http://127.0.0.1:3000/api/baile/public').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"; then
+              docker logs --tail 50 "$CONTAINER_NAME" 2>&1
+              exit 1
+            fi
             if [ -n "$BAILE_ADMIN_HASH" ]; then
               docker exec -i -e BAILE_ADMIN_HASH="$BAILE_ADMIN_HASH" "$CONTAINER_NAME" node < /root/.openclaw/workspace/Tornirepuestos-web/scripts/baile-admin.cjs
             fi

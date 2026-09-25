@@ -3,6 +3,7 @@ import "./globals.css";
 import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo";
 import { SiteHeader } from "@/components/SiteHeader";
 import { GlobalSeoSchema } from "@/components/GlobalSeoSchema";
+import { SiteChrome } from "@/components/SiteChrome";
 
 export const metadata: Metadata = {
   title: {
@@ -76,8 +77,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
-        <GlobalSeoSchema />
-        <SiteHeader />
+        <SiteChrome><GlobalSeoSchema /><SiteHeader /></SiteChrome>
         {children}
       </body>
     </html>

@@ -5,3 +5,5 @@ npm-debug.log*
 .env*
 !.env.example
 data/
+.baile-access.local.json
+test-results/

@@ -2,10 +2,15 @@ name: Deploy Tornirepuestos-web to VPS
 
 on:
   workflow_dispatch:
+    inputs:
+      baile_admin_hash:
+        description: 'Hash scrypt inicial de organización (opcional; no enviar la contraseña)'
+        required: false
+        type: string
 
 concurrency:
   group: tornirepuestos-prod-deploy
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -14,13 +19,16 @@ jobs:
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          BAILE_ADMIN_HASH: ${{ inputs.baile_admin_hash }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           command_timeout: 30m
+          envs: BAILE_ADMIN_HASH
           script: |
-            set -e
+            set -euo pipefail
             BACKUP_DIR="$(mktemp -d)"
             CONTAINER_NAME="tornirepuestos-web"
 
@@ -31,8 +39,8 @@ jobs:
             fi
 
             cd /root/.openclaw/workspace/Tornirepuestos-web
-            git fetch --all
-            git reset --hard origin/main
+            git fetch origin main
+            git merge --ff-only origin/main
 
             mkdir -p public/data public/productos/catalogo
             if [ -s "$BACKUP_DIR/inventory-catalog.json" ]; then
@@ -41,10 +49,6 @@ jobs:
             if [ -d "$BACKUP_DIR/catalogo" ] && [ "$(ls -A "$BACKUP_DIR/catalogo" 2>/dev/null)" ]; then
               cp -a "$BACKUP_DIR/catalogo/." public/productos/catalogo/
             fi
-
-            docker builder prune -af || true
-            docker image prune -af || true
-            docker container prune -f || true
 
             if [ -f /etc/nginx/sites-available/tornirepuestos.conf ]; then
               if grep -q "client_max_body_size" /etc/nginx/sites-available/tornirepuestos.conf; then
@@ -56,5 +60,20 @@ jobs:
               systemctl reload nginx
             fi
             cd /root/.openclaw/workspace/deployments/tornirepuestos-web
-            docker compose up -d --build --remove-orphans
-            docker compose ps
+            COMPOSE_BASE=""
+            for name in compose.yaml compose.yml docker-compose.yaml docker-compose.yml; do
+              if [ -f "$name" ]; then COMPOSE_BASE="$name"; break; fi
+            done
+            test -n "$COMPOSE_BASE"
+            docker compose -f "$COMPOSE_BASE" config --format json | docker exec -i "$CONTAINER_NAME" node -e "$(cat /root/.openclaw/workspace/Tornirepuestos-web/scripts/baile-compose.cjs)" > baile.override.json
+            docker compose -f "$COMPOSE_BASE" -f baile.override.json config --quiet
+            docker compose -f "$COMPOSE_BASE" -f baile.override.json up -d --build
+            docker compose -f "$COMPOSE_BASE" -f baile.override.json ps
+            for attempt in $(seq 1 30); do
+              if docker exec "$CONTAINER_NAME" node -e "fetch('http://127.0.0.1:3000/api/baile/public').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"; then break; fi
+              sleep 2
+            done
+            docker exec "$CONTAINER_NAME" node -e "fetch('http://127.0.0.1:3000/api/baile/public').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+            if [ -n "$BAILE_ADMIN_HASH" ]; then
+              docker exec -i -e BAILE_ADMIN_HASH="$BAILE_ADMIN_HASH" "$CONTAINER_NAME" node < /root/.openclaw/workspace/Tornirepuestos-web/scripts/baile-admin.cjs
+            fi

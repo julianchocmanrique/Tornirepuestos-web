@@ -80,6 +80,9 @@ jobs:
             docker compose -f "$COMPOSE_BASE" -f baile.override.json config --quiet
             docker compose -f "$COMPOSE_BASE" -f baile.override.json up -d --build
             docker compose -f "$COMPOSE_BASE" -f baile.override.json ps
+            APP_UID="$(docker exec "$CONTAINER_NAME" id -u)"
+            APP_GID="$(docker exec "$CONTAINER_NAME" id -g)"
+            docker exec -u 0 "$CONTAINER_NAME" sh -c "chown $APP_UID:$APP_GID /app/data/baile && chmod 700 /app/data/baile"
             for attempt in $(seq 1 30); do
               if docker exec "$CONTAINER_NAME" node -e "fetch('http://127.0.0.1:3000/api/baile/public').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"; then break; fi
               sleep 2

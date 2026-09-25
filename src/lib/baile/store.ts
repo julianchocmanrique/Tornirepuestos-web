@@ -3,7 +3,7 @@ import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { createHash, randomBytes, scrypt as scryptCallback, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
-import { initialState } from "./types";
+import { initialState, migrateState } from "./types";
 import type { State, User } from "./types";
 import { ensure } from "./domain";
 
@@ -23,7 +23,7 @@ export function db() {
   return connection;
 }
 export function readState(): State {
-  return JSON.parse(db().prepare("SELECT data FROM state WHERE id=1").get()!.data as string);
+  return migrateState(JSON.parse(db().prepare("SELECT data FROM state WHERE id=1").get()!.data as string));
 }
 // La transacción incluye las validaciones para evitar números o inscripciones duplicados.
 export function transaction<T>(fn: (state: State) => T): T {

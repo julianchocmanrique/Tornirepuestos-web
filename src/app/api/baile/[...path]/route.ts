@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID, randomBytes } from "node:crypto";
 import { db, readState, transaction, hashPassword, verifyPassword, createSession, sessionUser, tokenHash, rateLimit } from "@/lib/baile/store";
 import { DanceError, ensure, scope, enroll, review, recordPayment, saveScore, audit, eligible, validDate } from "@/lib/baile/domain";
-import type { User, State, Status, Category } from "@/lib/baile/types";
+import type { User, State, Status, Category, StageStatus } from "@/lib/baile/types";
+import { accredit, revokeAccreditation, saveSchedule } from "@/lib/baile/operations";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -55,6 +56,24 @@ export async function GET(req: NextRequest, ctx: Context) {
   try {
     const parts = (await ctx.params).path;
     if (parts[0] === "snapshot" || parts[0] === "public") return json(scope(readState(), sessionUser(req.cookies.get(COOKIE)?.value)));
+    if (parts[0] === "music-export") {
+      admin(actor(req));
+      const state = readState(); const categoryId = req.nextUrl.searchParams.get("category") || "";
+      const entries = state.enrollments.filter(e => e.musicId && eligible(state, e) && (!categoryId || e.categoryId === categoryId));
+      ensure(entries.length, "No hay pistas de competidores habilitados en esta selección.", 404);
+      const bytes = entries.reduce((n, e) => n + Number(db().prepare("SELECT length(content) AS size FROM files WHERE id=?").get(e.musicId!)?.size || 0), 0);
+      ensure(bytes <= 100 * 1024 * 1024, "La descarga supera 100 MB. Selecciona una categoría más pequeña.", 413);
+      const JSZip = (await import("jszip")).default;
+      const zip = new JSZip();
+      const safeName = (name: string) => name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 100);
+      for (const e of entries) {
+        const file = db().prepare("SELECT name,content FROM files WHERE id=?").get(e.musicId!);
+        ensure(file, "Una pista no está disponible. Revisa la inscripción antes de exportar.", 409);
+        zip.file(`${safeName(state.categories.find(c => c.id === e.categoryId)!.name)}/${String(e.competitionNumber).padStart(3, "0")}-${e.code}-${safeName(String(file.name))}`, Buffer.from(file.content as Uint8Array));
+      }
+      const output = await zip.generateAsync({ type: "uint8array", compression: "STORE" });
+      return new NextResponse(output, { headers: { "Content-Type": "application/zip", "Content-Disposition": 'attachment; filename="pistas-competencia.zip"', "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" } });
+    }
     if (parts[0] === "files" && parts[1]) {
       const user = actor(req);
       const file = db().prepare("SELECT * FROM files WHERE id=?").get(parts[1]);
@@ -105,7 +124,7 @@ export async function POST(req: NextRequest, ctx: Context) {
       const participant = transaction(s => {
         ensure(s.settings.registrationOpen, "Las inscripciones están cerradas.");
         ensure(!s.users.some(u => u.email === address) && !s.participants.some(p => p.document === document), "Ya existe un registro con ese correo o documento. Ingresa con tu cuenta.", 409);
-        const p = { id, code: `PAR-${String(s.participants.length + 1).padStart(4, "0")}`, name, document, birthDate, city, phone, email: address, academy, extra, createdAt: new Date().toISOString() };
+        const p = { id, code: `PAR-${String(s.participants.length + 1).padStart(4, "0")}`, name, document, birthDate, city, phone, email: address, academy, extra, createdAt: new Date().toISOString(), fullPassFee: s.settings.fullPassFee };
         s.users.push({ id, name, email: address, passwordHash, role: "participant", categories: [] }); s.participants.push(p); audit(s, id, "Registro creado", id); return p;
       });
       const res = json({ role: "participant", code: participant.code }, 201); res.cookies.set(COOKIE, createSession(id), cookieOptions); return res;
@@ -133,6 +152,7 @@ export async function POST(req: NextRequest, ctx: Context) {
         const e = s.enrollments.find(e => e.id === id && e.participantId === user.id); ensure(e, "Inscripción no encontrada.", 404);
         const c = s.categories.find(c => c.id === e.categoryId)!;
         ensure(eligible(s, e), "Primero debe aprobarse el pago de la categoría.");
+        ensure(!s.schedule.some(x => x.categoryId === e.categoryId && ["live", "finished"].includes(x.status)), "La competencia ya comenzó y la pista está bloqueada.", 409);
         ensure(!c.deadline || Date.now() <= Date.parse(c.deadline), "El plazo para reemplazar la pista ya terminó.");
         ensure(!s.scores.some(x => x.enrollmentId === e.id), "La competencia ya fue calificada y la pista está bloqueada.");
         putFile(file, user.id); e.musicId = file.id; e.musicName = file.name; e.musicUpdatedAt = new Date().toISOString(); audit(s, user.id, "Pista actualizada", e.id);
@@ -144,20 +164,41 @@ export async function POST(req: NextRequest, ctx: Context) {
       transaction(s => saveScore(s, user, text(f, "enrollmentId"), values)); return json({ ok: true });
     }
     admin(user);
+    if (action === "accredit") {
+      transaction(s => accredit(s, user, text(f, "participantId"), text(f, "code", 32))); return json({ ok: true });
+    }
+    if (action === "revoke-accreditation") {
+      transaction(s => revokeAccreditation(s, user, text(f, "id"), text(f, "reason", 500))); return json({ ok: true });
+    }
+    if (action === "participant-note") {
+      const participantId = text(f, "participantId"), note = text(f, "note", 1500, false);
+      transaction(s => {
+        ensure(s.participants.some(p => p.id === participantId), "Participante no encontrado.", 404);
+        const old = s.notes.find(n => n.participantId === participantId);
+        const value = { participantId, text: note, by: user.id, at: new Date().toISOString() };
+        if (old) Object.assign(old, value); else s.notes.push(value);
+        audit(s, user.id, "Observación interna actualizada", participantId);
+      }); return json({ ok: true });
+    }
+    if (action === "schedule") {
+      const startAt = text(f, "startAt", 40); ensure(Number.isFinite(Date.parse(startAt)), "Fecha de programación inválida.");
+      transaction(s => saveSchedule(s, user, { id: text(f, "id", 100, false) || randomUUID(), categoryId: text(f, "categoryId"), startAt: new Date(startAt).toISOString(), duration: numeric(f, "duration", 1, 240), stage: text(f, "stage", 80), status: text(f, "status", 20) as StageStatus, note: text(f, "note", 1000, false) }));
+      return json({ ok: true });
+    }
     if (action === "review") {
       transaction(s => review(s, user, text(f, "paymentId"), text(f, "status") as Status, text(f, "note", 1000, false))); return json({ ok: true });
     }
     if (action === "settings") {
       const name = text(f, "name", 100); const tagline = text(f, "tagline", 200); const fullPassFee = numeric(f, "fullPassFee", 1); const paymentInstructions = text(f, "paymentInstructions", 3000);
       const formula = text(f, "formula"); ensure(formula === "average" || formula === "sum", "Fórmula inválida.");
-      transaction(s => { s.settings = { ...s.settings, name, tagline, fullPassFee, paymentInstructions, formula, registrationOpen: f.get("registrationOpen") === "on" }; audit(s, user.id, "Configuración actualizada", "evento"); }); return json({ ok: true });
+      transaction(s => { ensure(formula === s.settings.formula || !s.schedule.some(x => x.status === "finished"), "No cambies la fórmula cuando hay resultados definitivos.", 409); s.settings = { ...s.settings, name, tagline, fullPassFee, paymentInstructions, formula, registrationOpen: f.get("registrationOpen") === "on", categoryRegistrationOpen: f.get("categoryRegistrationOpen") === "on" }; audit(s, user.id, "Configuración actualizada", "evento"); }); return json({ ok: true });
     }
     if (action === "category") {
       const id = text(f, "id", 100, false) || randomUUID(); const deadline = text(f, "deadline", 100, false);
       ensure(!deadline || Number.isFinite(Date.parse(deadline)), "Fecha límite inválida.");
       const c: Category = { id, name: text(f, "name", 120), rhythm: text(f, "rhythm", 80), modality: text(f, "modality", 30), division: text(f, "division", 80), fee: numeric(f, "fee", 1), active: f.get("active") === "on", deadline: deadline ? new Date(deadline).toISOString() : "" };
       ensure(["Solista", "Pareja", "Grupo"].includes(c.modality), "Modalidad inválida.");
-      transaction(s => { const old = s.categories.find(x => x.id === id); if (old) { ensure(!s.enrollments.some(e => e.categoryId === id) || (old.modality === c.modality && old.rhythm === c.rhythm && old.division === c.division), "No cambies modalidad, ritmo o división de una categoría con inscritos."); Object.assign(old, c); } else s.categories.push(c); audit(s, user.id, "Categoría actualizada", id); }); return json({ ok: true });
+      transaction(s => { ensure(!c.active || !s.schedule.some(x => x.categoryId === id && x.status === "finished"), "La categoría ya finalizó. Crea otra categoría para una nueva competencia.", 409); const old = s.categories.find(x => x.id === id); if (old) { ensure(!s.enrollments.some(e => e.categoryId === id) || (old.modality === c.modality && old.rhythm === c.rhythm && old.division === c.division), "No cambies modalidad, ritmo o división de una categoría con inscritos."); Object.assign(old, c); } else s.categories.push(c); audit(s, user.id, "Categoría actualizada", id); }); return json({ ok: true });
     }
     if (action === "judge") {
       const id = text(f, "id", 100, false); const categories = f.getAll("categories").map(String);
@@ -166,6 +207,7 @@ export async function POST(req: NextRequest, ctx: Context) {
       transaction(s => {
         ensure(categories.length > 0 && categories.every(c => s.categories.some(x => x.id === c)), "Asigna al menos una categoría válida.");
         const old = s.users.find(x => x.id === id && x.role === "judge");
+        ensure(!s.schedule.some(x => ["live", "finished"].includes(x.status) && categories.includes(x.categoryId) !== Boolean(old?.categories.includes(x.categoryId))), "No cambies los jurados de una competencia iniciada o finalizada.", 409);
         ensure(!s.users.some(x => x.email === address && x.id !== old?.id), "Ese correo ya está en uso.", 409);
         if (old) {
           ensure(!s.scores.some(x => x.judgeId === old.id && !categories.includes(s.enrollments.find(e => e.id === x.enrollmentId)!.categoryId)), "Este jurado ya calificó una categoría que intentas quitar.");
@@ -177,7 +219,7 @@ export async function POST(req: NextRequest, ctx: Context) {
     }
     if (action === "unlock") {
       const id = text(f, "scoreId"); const note = text(f, "note", 500);
-      transaction(s => { const score = s.scores.find(x => x.id === id); ensure(score, "Calificación no encontrada.", 404); score.locked = false; audit(s, user.id, `Edición autorizada: ${note}`, id); }); return json({ ok: true });
+      transaction(s => { const score = s.scores.find(x => x.id === id); ensure(score, "Calificación no encontrada.", 404); const entry = s.enrollments.find(e => e.id === score.enrollmentId)!; ensure(!s.schedule.some(x => x.categoryId === entry.categoryId && x.status === "finished"), "No se pueden reabrir notas de una categoría finalizada.", 409); score.locked = false; audit(s, user.id, `Edición autorizada: ${note}`, id); }); return json({ ok: true });
     }
     if (action === "reset-password") {
       const id = text(f, "userId"); const passwordHash = await hashPassword(text(f, "password", 160));

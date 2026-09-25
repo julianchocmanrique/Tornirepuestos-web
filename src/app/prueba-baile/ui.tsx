@@ -8,7 +8,7 @@ export const rolePath: Record<string, string> = { participant: "participante", a
 export const fileUrl = (id: string) => `/api/baile/files/${id}`;
 export const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/Bogota" });
 export function Badge({ status }: { status?: Status }) { return <span className={`dance-badge ${status || "missing"}`}>{status ? statusLabels[status] : "Por enviar"}</span>; }
-export function Field({ label, name, type = "text", value, required = true, children, ...props }: { label: string; name: string; type?: string; value?: string | number; required?: boolean; children?: ReactNode; min?: string | number; max?: string | number; minLength?: number; maxLength?: number; accept?: string; placeholder?: string; autoComplete?: string; step?: number }) {
+export function Field({ label, name, type = "text", value, required = true, children, ...props }: { label: string; name: string; type?: string; value?: string | number; required?: boolean; children?: ReactNode; min?: string | number; max?: string | number; minLength?: number; maxLength?: number; accept?: string; placeholder?: string; autoComplete?: string; step?: number; readOnly?: boolean }) {
   return <label className="dance-field"><span>{label}{!required && <small> (opcional)</small>}</span>{children || <input name={name} type={type} defaultValue={value} required={required} {...props} />}</label>;
 }
 export function Form({ action, run, children, label = "Guardar", className = "", after }: { action: string; run: Run; children: ReactNode; label?: string; className?: string; after?: () => void }) {

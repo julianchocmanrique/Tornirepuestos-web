@@ -7,6 +7,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 import { DatabaseSync } from 'node:sqlite';
+import JSZip from 'jszip';
 
 test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, async t => {
   const dir = mkdtempSync(path.join(tmpdir(), 'baile-tests-'));
@@ -37,6 +38,7 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
       },
       async snapshot() { return (await fetch(`${root}/api/baile/snapshot`, { headers: { cookie } })).json(); },
       file(id, extra = {}) { return fetch(`${root}/api/baile/files/${id}`, { headers: { cookie, ...extra } }); },
+      zip(category = '') { return fetch(`${root}/api/baile/music-export?category=${encodeURIComponent(category)}`, { headers: { cookie } }); },
     };
   }
   const admin = client(); const p = client(); const stranger = client(); const judge1 = client(); const judge2 = client(); const outsider = client();
@@ -113,7 +115,7 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     await p.post('music', { enrollmentId: entry.id, file: music() }, 400);
   });
   await t.test('resultados completos, autorización de cambios y empates', async () => {
-    for (const name of ['types', 'results']) {
+    for (const name of ['types', 'results', 'reporting']) {
       const source = readFileSync(`src/lib/baile/${name}.ts`, 'utf8').replaceAll('"./types"', '"./types.mjs"');
       writeFileSync(path.join(dir, `${name}.mjs`), ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText);
     }
@@ -121,6 +123,7 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     let s = await admin.snapshot(); assert.equal(ranking(s, entry.categoryId)[0].position, null);
     await judge2.post('score', { enrollmentId: entry.id, values: JSON.stringify([10,10,10,10,10,10]) });
     s = await admin.snapshot(); let r = ranking(s, entry.categoryId)[0]; assert.equal(r.total, 108); assert.equal(r.average, 9); assert.equal(r.position, 1);
+    assert.equal(r.final, false);
     const score = s.scores.find(x => x.judgeId === s.judges.find(j => j.email === 'jurado1@example.test').id);
     await admin.post('unlock', { scoreId: score.id, note: 'Corrección autorizada' });
     s = await admin.snapshot(); assert.equal(ranking(s, entry.categoryId)[0].position, null);
@@ -130,10 +133,102 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     assert.deepEqual(ranking(copy, entry.categoryId).map(x => x.position), [1,1]);
     copy.settings.formula = 'sum'; assert.equal(ranking(copy, entry.categoryId)[0].value, 114);
   });
+  await t.test('migración de datos existentes sin perder cuentas, pagos ni notas', async () => {
+    const connection = new DatabaseSync(path.join(dir, 'event.sqlite'));
+    const legacy = JSON.parse(connection.prepare('SELECT data FROM state WHERE id=1').get().data);
+    const original = structuredClone(legacy);
+    legacy.version = 1; delete legacy.accreditations; delete legacy.notes; delete legacy.schedule; delete legacy.settings.categoryRegistrationOpen;
+    legacy.participants.forEach(p => delete p.fullPassFee);
+    connection.prepare('UPDATE state SET data=? WHERE id=1').run(JSON.stringify(legacy)); connection.close();
+    const s = await admin.snapshot(); assert.deepEqual(s.payments, original.payments); assert.deepEqual(s.scores, original.scores); assert.deepEqual(s.enrollments, original.enrollments);
+    assert.equal(s.participants.length, original.participants.length); assert.equal(s.participants[0].fullPassFee, 180000);
+    assert.deepEqual(s.schedule, []); assert.deepEqual(s.accreditations, []); assert.deepEqual(s.notes, []); assert.equal(s.settings.categoryRegistrationOpen, true);
+    assert.equal((await admin.file(s.payments[0].receiptId)).status, 200);
+  });
+  await t.test('cierres independientes, tarifas históricas y saldos por concepto', async () => {
+    const settings = (await admin.snapshot()).settings;
+    const fields = { ...settings, fullPassFee: '250000', registrationOpen: '', categoryRegistrationOpen: 'on' };
+    const fresh = client();
+    await admin.post('settings', fields);
+    await fresh.post('register', { ...info, document: '99887766', email: 'nuevo@example.test' }, 400);
+    await p.post('enroll', { categoryId: 'salsa-parejas', team: 'Prueba', members: 'Dos personas' }, 201);
+    await admin.post('settings', { ...fields, registrationOpen: 'on', categoryRegistrationOpen: '' });
+    await p.post('enroll', { categoryId: 'urbana-grupal', team: 'Prueba', members: 'Tres personas' }, 400);
+    await fresh.post('register', { ...info, document: '99887766', email: 'nuevo@example.test' }, 201);
+    assert.equal((await fresh.snapshot()).participants[0].fullPassFee, 250000);
+    const s = await admin.snapshot(), person = (await p.snapshot()).participants[0]; assert.equal(person.fullPassFee, 180000);
+    const { charges, ageAt, whatsapp } = await import(pathToFileURL(path.join(dir, 'reporting.mjs')));
+    assert.equal(ageAt('2000-09-26', '2026-09-25'), 25); assert.equal(ageAt('2000-09-25', '2026-09-25'), 26);
+    assert.equal(whatsapp('305 356 0953'), 'https://wa.me/573053560953');
+    assert.equal(whatsapp('0000000000'), null);
+    const copy = structuredClone(s); copy.payments.find(p => p.id === passId).amount = 999999;
+    const rows = charges(copy).filter(r => r.participant.id === person.id);
+    assert.equal(rows.find(r => r.kind === 'fullpass').balance, 0); assert.equal(rows.find(r => r.id === entry2.id).balance, 90000);
+    await admin.post('settings', { ...settings, fullPassFee: '180000', registrationOpen: 'on', categoryRegistrationOpen: 'on' });
+    assert.equal((await fresh.snapshot()).participants[0].fullPassFee, 250000);
+  });
+  await t.test('acreditación única, anulación trazable y observaciones privadas', async () => {
+    const person = (await p.snapshot()).participants[0], other = (await stranger.snapshot()).participants[0];
+    await stranger.post('accredit', { participantId: other.id, code: 'RC-002' }, 403);
+    await admin.post('accredit', { participantId: other.id, code: 'RC-002' }, 409);
+    await admin.post('accredit', { participantId: person.id, code: 'rc-001' });
+    await admin.post('accredit', { participantId: person.id, code: 'RC-003' }, 409);
+    let s = await p.snapshot(); assert.equal(s.accreditations[0].code, 'RC-001');
+    assert.equal((await stranger.snapshot()).accreditations.length, 0);
+    const result = await admin.post('review', { paymentId: passId, status: 'rejected', note: 'Prueba' }, 409); assert.match(result.error, /acreditación/);
+    await admin.post('revoke-accreditation', { id: s.accreditations[0].id, reason: '' }, 400);
+    await admin.post('revoke-accreditation', { id: s.accreditations[0].id, reason: 'Cambio de manilla' });
+    assert.equal((await p.snapshot()).accreditations.length, 0);
+    await admin.post('accredit', { participantId: person.id, code: 'rc-001' }, 409);
+    await admin.post('accredit', { participantId: person.id, code: 'RC-004' });
+    await p.post('participant-note', { participantId: person.id, note: 'No autorizado' }, 403);
+    await admin.post('participant-note', { participantId: person.id, note: 'Nota interna de prueba' });
+    s = await admin.snapshot(); assert.equal(s.notes[0].text, 'Nota interna de prueba'); assert.ok(s.accreditations[0].revokedAt);
+    for (const c of [p, stranger, judge1, outsider]) assert.equal((await c.snapshot()).notes.length, 0);
+  });
+  await t.test('cabina de música: exportación ZIP privada y filtrada', async () => {
+    assert.equal((await outsider.zip()).status, 401); assert.equal((await p.zip()).status, 403); assert.equal((await judge1.zip()).status, 403);
+    assert.equal((await admin.zip('bachata-parejas')).status, 404);
+    const response = await admin.zip('salsa-solista'); assert.equal(response.status, 200); assert.equal(response.headers.get('cache-control'), 'private, no-store');
+    const zip = await JSZip.loadAsync(await response.arrayBuffer()), names = Object.keys(zip.files).filter(n => !zip.files[n].dir);
+    assert.equal(names.length, 1); assert.match(names[0], /001-INS-.*pista.wav$/); assert.equal((await zip.file(names[0]).async('nodebuffer')).byteLength, wave.length);
+  });
+  await t.test('programación sin cruces, transiciones y cierre con resultados definitivos', async () => {
+    const fields = { id: '', categoryId: 'salsa-solista', startAt: '2027-01-10T18:00:00-05:00', duration: '15', stage: 'Principal', status: 'planned', note: 'Observación interna de prueba' };
+    await p.post('schedule', fields, 403); await admin.post('schedule', { ...fields, status: 'toString' }, 400);
+    await admin.post('schedule', fields);
+    let s = await admin.snapshot(); const slot = s.schedule[0], own = (await p.snapshot()).schedule[0];
+    assert.equal(own.note, ''); assert.equal(own.startAt, '2027-01-10T23:00:00.000Z'); assert.equal((await stranger.snapshot()).schedule.length, 0);
+    await admin.post('schedule', { ...fields, startAt: '2027-01-10T20:00:00-05:00' }, 409);
+    await admin.post('schedule', { ...fields, categoryId: 'bachata-parejas', stage: 'principal', startAt: '2027-01-10T18:10:00-05:00' }, 409);
+    await admin.post('schedule', { ...fields, categoryId: 'bachata-parejas', startAt: '2027-01-10T18:15:00-05:00' });
+    const empty = (await admin.snapshot()).schedule.find(x => x.categoryId === 'bachata-parejas');
+    await admin.post('schedule', { ...empty, status: 'live' }, 400);
+    const score = s.scores.find(x => x.judgeId === s.judges.find(j => j.email === 'jurado1@example.test').id);
+    await admin.post('unlock', { scoreId: score.id, note: 'Comprobar cierre con nota pendiente' });
+    await admin.post('schedule', { ...slot, status: 'finished' }, 409);
+    await admin.post('schedule', { ...slot, status: 'live' });
+    await p.post('music', { enrollmentId: entry.id, file: music() }, 409);
+    await admin.post('review', { paymentId: categoryPayment.id, status: 'approved', note: 'Prueba' }, 409);
+    await admin.post('judge', { id: '', name: 'Tercero', email: 'tercero@example.test', password: info.password, categories: ['salsa-solista'] }, 409);
+    await admin.post('schedule', { ...slot, status: 'finished' }, 409);
+    await admin.post('schedule', { ...slot, status: 'planned' }, 409);
+    await admin.post('schedule', { ...slot, status: 'live', duration: '20' }, 409);
+    await judge1.post('score', { enrollmentId: entry.id, values: JSON.stringify([9,9,9,9,9,9]) });
+    await admin.post('schedule', { ...slot, status: 'finished' });
+    s = await admin.snapshot(); const { ranking } = await import(pathToFileURL(path.join(dir, 'results.mjs')));
+    assert.equal(ranking(s, entry.categoryId)[0].final, true); assert.equal(s.categories.find(c => c.id === entry.categoryId).active, false);
+    await admin.post('unlock', { scoreId: score.id, note: 'No permitido' }, 409);
+    await judge1.post('score', { enrollmentId: entry.id, values: JSON.stringify([10,10,10,10,10,10]) }, 409);
+    const category = s.categories.find(c => c.id === entry.categoryId);
+    await admin.post('category', { ...category, active: 'on' }, 409);
+    await admin.post('settings', { ...s.settings, formula: 'sum', registrationOpen: 'on', categoryRegistrationOpen: 'on' }, 409);
+  });
   await t.test('persistencia después de reiniciar y cierre de sesión', async () => {
     const before = await admin.snapshot(); const stopped = new Promise(r => server.once('exit', r)); server.kill('SIGTERM'); await stopped;
     server = start(); collect(server); await ready();
     const after = await admin.snapshot(); assert.equal(after.enrollments.length, before.enrollments.length); assert.equal(after.scores.length, before.scores.length);
+    assert.deepEqual(after.schedule, before.schedule); assert.deepEqual(after.accreditations, before.accreditations); assert.deepEqual(after.notes, before.notes);
     assert.equal((await admin.file(after.payments[0].receiptId)).status, 200);
     await p.post('logout'); assert.equal((await p.snapshot()).user, null);
     const connection = new DatabaseSync(path.join(dir, 'event.sqlite')); assert.equal(connection.prepare('PRAGMA integrity_check').get().integrity_check, 'ok'); connection.close();

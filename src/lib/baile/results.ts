@@ -9,9 +9,10 @@ export function ranking(s: Snapshot, categoryId: string) {
     const total = totals.reduce<number>((a, b) => a + (b || 0), 0);
     const complete = judges.length > 0 && scores.every(Boolean);
     const average = complete ? total / (judges.length * CRITERIA.length) : null;
-    return { enrollment: e, totals, total, average, complete, received: scores.filter(Boolean).length, expected: judges.length, value: complete ? (s.settings.formula === "sum" ? total : average!) : null, position: null as number | null };
+    return { enrollment: e, totals, total, average, complete, final: false, received: scores.filter(Boolean).length, expected: judges.length, value: complete ? (s.settings.formula === "sum" ? total : average!) : null, position: null as number | null };
   }).sort((a, b) => Number(b.complete) - Number(a.complete) || (b.value || 0) - (a.value || 0) || a.enrollment.competitionNumber! - b.enrollment.competitionNumber!);
   let position = 0;
-  rows.forEach((r, i) => { if (r.complete) { if (i === 0 || Math.abs(r.value! - rows[i - 1].value!) > 1e-9) position = i + 1; r.position = position; } });
+  const final = rows.length > 0 && rows.every(r => r.complete) && s.schedule.some(x => x.categoryId === categoryId && x.status === "finished");
+  rows.forEach((r, i) => { r.final = final; if (r.complete) { if (i === 0 || Math.abs(r.value! - rows[i - 1].value!) > 1e-9) position = i + 1; r.position = position; } });
   return rows;
 }

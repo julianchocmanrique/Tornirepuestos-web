@@ -1,0 +1,63 @@
+name: Inspect or clean unused build cache
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Inspect disk usage or clean only unused build cache older than 24 hours'
+        required: true
+        type: choice
+        default: inspect
+        options:
+          - inspect
+          - clean-old-build-cache
+
+permissions:
+  contents: read
+
+# Do not prune while the production deployment is building an image.
+concurrency:
+  group: tornirepuestos-prod-deploy
+  cancel-in-progress: false
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Inspect storage without changing the running application
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          MAINTENANCE_ACTION: ${{ inputs.action }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 15m
+          envs: MAINTENANCE_ACTION
+          script: |
+            set -euo pipefail
+            case "$MAINTENANCE_ACTION" in
+              inspect|clean-old-build-cache) ;;
+              *) echo "Unsupported maintenance action"; exit 1 ;;
+            esac
+            CONTAINER_NAME=tornirepuestos-web
+            before="$(docker inspect --format '{{.Id}} {{.Image}} {{.State.StartedAt}} {{.State.Running}}' "$CONTAINER_NAME")"
+            echo "=== Filesystem usage before ==="
+            df -h /
+            df -i /
+            echo "=== Docker usage before ==="
+            docker system df
+            if [ "$MAINTENANCE_ACTION" = "clean-old-build-cache" ]; then
+              # Never prune volumes, images or containers; never restart services.
+              docker builder prune --all --force --filter 'until=24h' --keep-storage 2GB
+            fi
+            echo "=== Filesystem usage after ==="
+            df -h /
+            echo "=== Docker usage after ==="
+            docker system df
+            after="$(docker inspect --format '{{.Id}} {{.Image}} {{.State.StartedAt}} {{.State.Running}}' "$CONTAINER_NAME")"
+            test "$before" = "$after"
+            test "$(docker inspect --format '{{.State.Running}}' "$CONTAINER_NAME")" = true
+            echo "Application container unchanged: same ID, image and start time."
+            docker exec "$CONTAINER_NAME" node -e "Promise.all(['/', '/api/baile/public'].map(async p => { const r=await fetch('http://127.0.0.1:3000'+p); console.log(p, r.status); if(!r.ok) throw new Error('Health check failed'); })).catch(() => process.exit(1))"

@@ -75,7 +75,7 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     assert.equal(person.registration.salsa, 'Amateur');
     assert.equal(person.registration.waiver.version, '2026-10-v1');
     assert.ok(person.registration.waiver.acceptedAt);
-    assert.match(person.registration.waiver.text, /Ritmo Caribe/);
+    assert.match(person.registration.waiver.text, /RANKIA/);
     assert.equal(snapshot.payments[0].reference, 'DEMO-REF');
     assert.equal((await p.file(person.registration.photoId)).status, 200);
     assert.equal((await stranger.file(person.registration.photoId)).status, 403);

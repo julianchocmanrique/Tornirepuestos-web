@@ -13,6 +13,7 @@ import { PublicResults } from "./PublicResults";
 import { Judge } from "./Judge";
 import { EnrollmentDetail } from "./EnrollmentDetail";
 import { EventHome } from "./EventHome";
+import { RankiaBrand } from "./RankiaBrand";
 import { ProfileSwitcher } from "./ProfileSwitcher";
 export type View = "home" | "registro" | "acceso" | "participante" | "admin" | "contratista" | "resultados" | "jurado" | "inscripcion";
 export function DanceApp({ view, enrollmentId, eventId }: { view: View; enrollmentId?: string; eventId?: string }) {
@@ -41,7 +42,7 @@ function DanceAppBody({ view, enrollmentId }: { view: View; enrollmentId?: strin
   };
   const allowed = view === "inscripcion" ? ["superadmin", "contractor"].includes(s?.user?.role || "") : view === "participante" ? s?.user?.role === "participant" : view === "admin" ? s?.user?.role === "superadmin" : view === "contratista" ? s?.user?.role === "contractor" : view === "jurado" ? s?.user?.role === "judge" : true;
   return <div className="dance-app">
-    <header className="dance-header"><Link className="dance-brand" href={base} onClick={() => setSwitching(false)}><span className="dance-brand-symbol" aria-hidden="true">r.</span><span>{s?.settings.name || "Ritmo Caribe"}<small>PLATAFORMA DE COMPETENCIA</small></span></Link><nav aria-label="Navegación del evento">
+    <header className="dance-header"><Link className="dance-brand" href={base} onClick={() => setSwitching(false)}><RankiaBrand /></Link><nav aria-label="Navegación del evento">
       <Link href={`${base}/resultados`} onClick={() => setSwitching(false)}>Resultados</Link>
       {s?.user ? <>
         <Link href={base} onClick={() => setSwitching(false)}>El evento</Link>
@@ -58,7 +59,7 @@ function DanceAppBody({ view, enrollmentId }: { view: View; enrollmentId?: strin
       {!s ? <div className="dance-container dance-loading">{error ? <button className="dance-btn" onClick={() => refresh().catch(e => setError(e.message))}>Reintentar conexión</button> : "Preparando el escenario…"}</div> : switching && s.user && s.settings.demo ? <ProfileSwitcher currentId={s.user.id} run={run} onCancel={() => { setSwitching(false); setError(""); setMessage(""); router.push(`${base}/${rolePath[s.user!.role]}`); }} /> : !allowed ? <section className="dance-container dance-auth"><Heading eyebrow="Tu acceso" title="Ingresa a tu espacio" detail="Usa la cuenta correspondiente a participante, organización o jurado." /><Link className="dance-btn" href={`${base}/acceso`}>Iniciar sesión ↗</Link></section> : <>
         {view === "home" && <Home s={s} />}
         {view === "registro" && <Register s={s} run={run} />}
-        {view === "acceso" && <section className="dance-container dance-auth"><div><Heading eyebrow="Bienvenido de nuevo" title="Nos vemos en la pista." detail="Superadministradores, contratistas, participantes y jurados ingresan con su usuario o correo y contraseña." /><div className="dance-callout">Tu cuenta te lleva directamente al espacio que te corresponde.</div></div><div className="dance-panel"><h2>Ingresa a tu cuenta</h2><Form action="login" run={run} label="Entrar"><Field label="Usuario o correo" name="email" type="text" autoComplete="username" /><Field label="Contraseña" name="password" type="password" autoComplete="current-password" maxLength={160} /></Form><p className="dance-muted">¿Es tu primera vez? <Link href={`${base}/registro`}>Crea tu registro</Link></p><p className="dance-muted">Si olvidaste tu contraseña, solicita a la organización que la restablezca.</p></div></section>}
+        {view === "acceso" && <section className="dance-container dance-auth"><div><Heading eyebrow="Bienvenido de nuevo" title="Tu lugar está aquí." detail="Superadministradores, contratistas, participantes y jurados ingresan con su usuario o correo y contraseña." /><div className="dance-callout">Tu cuenta te lleva directamente al espacio que te corresponde.</div></div><div className="dance-panel"><h2>Ingresa a tu cuenta</h2><Form action="login" run={run} label="Entrar"><Field label="Usuario o correo" name="email" type="text" autoComplete="username" /><Field label="Contraseña" name="password" type="password" autoComplete="current-password" maxLength={160} /></Form><p className="dance-muted">¿Es tu primera vez? <Link href={`${base}/registro`}>Crea tu registro</Link></p><p className="dance-muted">Si olvidaste tu contraseña, solicita a la organización que la restablezca.</p></div></section>}
         {view === "participante" && <Participant s={s} run={run} />}
         {view === "resultados" && <PublicResults />}
         {view === "contratista" && <Contractor s={s} run={run} />}
@@ -67,7 +68,7 @@ function DanceAppBody({ view, enrollmentId }: { view: View; enrollmentId?: strin
         {view === "jurado" && <Judge s={s} run={run} />}
       </>}
     </main>
-    <footer className="dance-footer"><span>{s?.settings.name || "Ritmo Caribe"} <small>{s?.settings.tagline || "Movimiento. Talento. Encuentro."}</small></span><div><Link href={`${base}/acceso`}>Acceso organización</Link><Link href={`${base}/jurado`}>Acceso jurados</Link><span>Hora de Colombia · UTC−5</span></div></footer>
+    <footer className="dance-footer"><Link className="dance-brand" href="/prueba-baile"><RankiaBrand /></Link><div><Link href={`${base}/acceso`}>Acceso organización</Link><Link href={`${base}/jurado`}>Acceso jurados</Link><span>Hora de Colombia · UTC−5</span></div></footer>
   </div>;
 }
 function Home({ s }: { s: Snapshot }) {

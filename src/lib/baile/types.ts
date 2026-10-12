@@ -23,7 +23,7 @@ export const statusLabels: Record<Status, string> = { pending: "Pendiente", revi
 export function initialState(): State {
   return {
     version: 3,
-    settings: { name: "Ritmo Caribe", tagline: "Tu talento tiene escenario.", fullPassFee: 180000, paymentInstructions: "Evento de ejemplo. Usa comprobantes ficticios para probar el proceso. La organización puede editar aquí sus instrucciones y medios de pago.", formula: "average", registrationOpen: true, categoryRegistrationOpen: true, demo: true },
+    settings: { name: "RANKIA", tagline: "Tu talento en el podio.", fullPassFee: 180000, paymentInstructions: "Evento de ejemplo. Usa comprobantes ficticios para probar el proceso. La organización puede editar aquí sus instrucciones y medios de pago.", formula: "average", registrationOpen: true, categoryRegistrationOpen: true, demo: true },
     users: [], participants: [], payments: [], enrollments: [], scores: [], audit: [], accreditations: [], notes: [], schedule: [],
     categories: [
       { id: "salsa-solista", name: "Salsa solista", modality: "Solista", rhythm: "Salsa", division: "Abierta", fee: 60000, deadline: "", active: true },
@@ -35,6 +35,11 @@ export function initialState(): State {
 }
 // Completa los campos nuevos sin reemplazar cuentas, comprobantes ni notas existentes.
 export function migrateState(s: State): State {
+  // Rename only the original sample event; signed waivers and custom events stay intact.
+  if (s.settings.name === "Ritmo Caribe") {
+    s.settings.name = "RANKIA";
+    if (["Tu talento tiene escenario.", "Movimiento. Talento. Encuentro."].includes(s.settings.tagline)) s.settings.tagline = "Tu talento en el podio.";
+  }
   s.accreditations ??= []; s.notes ??= []; s.schedule ??= [];
   s.settings.categoryRegistrationOpen ??= s.settings.registrationOpen;
   for (const p of s.participants) p.fullPassFee ??= s.settings.fullPassFee;

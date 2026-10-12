@@ -1,0 +1,131 @@
+/* Shared brand layer, scoped so the Tornirepuestos storefront is unchanged. */
+.dance-app {
+  background:
+    radial-gradient(ellipse at 0 0, #9d681b16, transparent 40rem),
+    radial-gradient(ellipse at 100% 16rem, #8e10251c, transparent 50rem),
+    var(--dance-paper);
+}
+.dance-app .dance-header {
+  background: #100b0df5;
+  border-bottom-color: #b58b484f;
+  min-height: 102px;
+}
+.dance-app .dance-brand { gap: 13px; flex-shrink: 0; }
+.rankia-mark { display: block; width: 58px; height: 64px; flex-shrink: 0; }
+.dance-app .rankia-wordmark {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 27px;
+  font-weight: 400;
+  letter-spacing: .24em;
+  color: var(--dance-gold);
+}
+.dance-app .rankia-wordmark small {
+  font-family: "Trebuchet MS", "Avenir Next", sans-serif;
+  font-size: 8px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: #e8d3ac;
+  margin-top: 10px;
+}
+.dance-app .dance-header nav a:not(.dance-btn):hover,
+.dance-app .dance-header nav button:hover { color: var(--dance-gold); }
+.dance-app .dance-btn {
+  background: linear-gradient(115deg, #aa122c, #780c20);
+  color: #fff7eb;
+  border-color: #d9aa5955;
+  box-shadow: 0 4px 18px #780c2029;
+}
+.dance-app .dance-btn:hover { background: #bb1931; border-color: var(--dance-gold); }
+.dance-app .dance-btn.secondary {
+  color: var(--dance-gold);
+  background: transparent;
+  border-color: var(--dance-line);
+  box-shadow: none;
+}
+.dance-app .dance-btn.secondary:hover { background: #e5bf7712; border-color: var(--dance-gold); }
+.dance-app .dance-eyebrow { color: var(--dance-gold); }
+.dance-app .dance-panel, .dance-app .dance-stat { box-shadow: 0 12px 35px #00000014; }
+.dance-app .dance-stat strong, .dance-app .dance-price { color: var(--dance-gold); }
+.dance-app .dance-admin-nav nav a.active,
+.dance-app .dance-admin-nav .dance-contractor-tab.active {
+  background: linear-gradient(100deg, #8c1026, #4e1420);
+  box-shadow: inset 3px 0 var(--dance-gold);
+  color: #fff7eb;
+}
+.dance-app .dance-tabs button.active { background: #48151f; color: var(--dance-gold); }
+.dance-app input::placeholder, .dance-app textarea::placeholder { color: #a39689; opacity: 1; }
+.dance-app input[type="checkbox"], .dance-app input[type="radio"] { accent-color: var(--dance-gold); }
+.dance-app .dance-status-dialog { color-scheme: dark; }
+.dance-app .dance-badge { color: #e2d6c3; background: #3d3230; }
+.dance-app .dance-badge.pending { background: #3e2b17; color: #f2c57d; }
+.dance-app .dance-badge.review { background: #3b2730; color: #f0ccdc; }
+.dance-app .dance-badge.approved, .dance-app .dance-badge.stage-finished { background: #ead0a0; color: #352515; }
+.dance-app .dance-badge.rejected, .dance-app .dance-badge.stage-live { background: #531b27; color: #ffc5cc; }
+.dance-app .dance-stage-badge.live { background: #531b27; color: #ffc5cc; }
+.dance-app .dance-stage-badge.finished { background: #ead0a0; color: #352515; }
+.dance-app .dance-stage-badge.cancelled { background: #3d3230; color: #e2d6c3; }
+.dance-app .dance-notice.success { background: #302618; color: #ffe2a8; border-color: #937542; }
+.dance-app .dance-notice.error, .dance-app .registration-error { background: #39121c; color: #ffd1d6; border-color: #9b4051; }
+.dance-app .dance-danger { color: #ffc5cc; border-color: #9b4051; background: #39121c; }
+.dance-app .dance-danger:hover:not(:disabled) { background: #551c29; }
+.dance-app .dance-status-error { color: #ffc5cc; }
+.dance-app .dance-access-list { background: var(--dance-raised); border-color: var(--dance-line); }
+.dance-app .dance-profile-avatar { color: var(--dance-gold); border: 1px solid var(--dance-line); background: linear-gradient(145deg, #3e2921, #191115); }
+.dance-app .dance-profile-avatar.superadmin { background: linear-gradient(135deg, #f4d28a, #b57c31); color: #261a0f; }
+.dance-app .dance-profile-avatar.judge { background: linear-gradient(135deg, #a81430, #490d1c); color: #ffe7b6; }
+.dance-app .dance-category-section { background: linear-gradient(120deg, #2a1018, #150e11 70%); border-block: 1px solid var(--dance-line); }
+.dance-app .dance-category { border: 1px solid var(--dance-line); background: #1e1418; }
+.dance-app .dance-bottom-cta em { color: var(--dance-gold); }
+.dance-app .dance-footer { background: #0b0809; border-color: #b58b484f; align-items: center; }
+.dance-app .dance-footer > div { flex-wrap: wrap; }
+.dance-app .event-intro { padding-block: 55px 38px; align-items: center; }
+.dance-app .event-intro h1 { font-size: clamp(42px, 5.5vw, 76px); letter-spacing: -.045em; line-height: 1.03; }
+.dance-app .event-intro h1 em { color: var(--dance-gold); }
+.dance-app .event-intro > p { border-left: 1px solid #d8b46b66; padding-left: 24px; line-height: 1.8; }
+.dance-app .event-coverflow {
+  background:
+    radial-gradient(ellipse at 15% 0, #e8b75720, transparent 42%),
+    radial-gradient(ellipse at 85% 0, #e8b75720, transparent 42%),
+    linear-gradient(120deg, transparent 25%, #7c0c223b 49%, transparent 74%),
+    #160b0f;
+  border: 1px solid #b58b484f;
+}
+.dance-app .event-cover-card { border: 1px solid #cead6866; box-shadow: 0 18px 38px #0008; }
+.dance-app .event-cover-card[data-position="active"] { border-color: #edc479; }
+.dance-app .event-cover-caption { background: linear-gradient(transparent, #19080bee); }
+.dance-app .event-cover-caption > span, .dance-app .event-cover-caption time { color: #f4d99f; }
+.dance-app .event-feature-info { padding-inline: 18px; }
+.dance-app .event-arrows button, .dance-app .event-pause { color: var(--dance-gold); }
+.dance-app .event-arrows button:not(.event-pause):hover { background: #6b1223; color: #fff7eb; }
+.dance-app .event-filters button { color: var(--dance-muted); }
+.dance-app .event-filters button[aria-pressed="true"] { background: #8d1128; color: #fff7eb; border-color: #d8b46b; }
+.dance-app .event-filters button:hover { border-color: var(--dance-gold); color: var(--dance-ink); }
+.dance-app .event-row { background: linear-gradient(110deg, #25141a, #1a1215); }
+.dance-app .event-date-block strong { color: var(--dance-gold); }
+.dance-app .event-row-link { color: var(--dance-gold); }
+.dance-app .event-page-cta { background: linear-gradient(115deg, #4d1020, #21131a); }
+.dance-app .event-page-photo { border: 1px solid #b58b4870; }
+.dance-app .registration-timeline .active button { color: var(--dance-gold); }
+.dance-app .registration-timeline .active span { background: #e5bf77; color: #20160f; border-color: #e5bf77; box-shadow: 0 0 0 6px #e5bf7714; }
+.dance-app .registration-timeline .complete span { background: #8d1128; border-color: #b54558; color: #fff7eb; }
+.dance-app .registration-aside { background: linear-gradient(155deg, #441520, #211519); border: 1px solid var(--dance-line); }
+.dance-app .registration-aside-number { color: var(--dance-gold); }
+.dance-app .registration-pass { background: #2e2119; }
+/* Signatures and uploaded receipts keep their original light document surface. */
+.dance-app .registration-signature svg, .dance-app .registration-record svg { color-scheme: light; color: #20231e; background-color: #fff; }
+@media (max-width: 700px) {
+  .dance-app .dance-header { padding: 16px; min-height: auto; gap: 18px; }
+  .dance-app .rankia-mark { width: 44px; height: 49px; }
+  .dance-app .rankia-wordmark { font-size: 24px; }
+  .dance-app .rankia-wordmark small { font-size: 7px; }
+  .dance-app .dance-header nav { gap: 8px; }
+  .dance-app .dance-header nav .dance-btn { padding: 10px 12px; gap: 10px; }
+  .dance-app .event-intro { padding-block: 34px 25px; }
+  .dance-app .event-intro > p { margin-top: 24px; padding-left: 14px; font-size: 13px; }
+  .dance-app .event-feature-info { padding-inline: 0; }
+  .dance-app .dance-footer { align-items: start; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .dance-app .event-intro { animation: rankia-arrive .6s ease-out both; }
+  @keyframes rankia-arrive { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+}

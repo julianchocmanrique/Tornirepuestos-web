@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import "./baile.css";
+import "./rankia.css";
 export const metadata: Metadata = {
-  title: { absolute: "Ritmo Caribe | Inscripciones y competencia", template: "%s | Ritmo Caribe" },
-  description: "Inscripciones, categorías y competencia de baile. Evento de ejemplo.",
+  title: { absolute: "RANKIA | Tu talento en el podio", template: "%s | RANKIA" },
+  description: "Descubre eventos, registra tu talento y sigue tus competencias en RANKIA.",
+  icons: { icon: "/baile/rankia-mark.svg" },
   alternates: { canonical: "/prueba-baile" },
   robots: { index: false, follow: false, googleBot: { index: false, follow: false } },
-  openGraph: { title: "Ritmo Caribe", description: "Tu talento tiene escenario. Plataforma de competencia de baile.", url: "/prueba-baile", images: [] },
-  twitter: { card: "summary", title: "Ritmo Caribe", description: "Plataforma de competencia de baile.", images: [] },
+  openGraph: { title: "RANKIA", description: "Tu talento en el podio. Eventos, inscripciones y competencias.", url: "/prueba-baile", images: [] },
+  twitter: { card: "summary", title: "RANKIA", description: "Tu talento en el podio. Eventos, inscripciones y competencias.", images: [] },
 };
 export default function Layout({ children }: { children: React.ReactNode }) { return children; }

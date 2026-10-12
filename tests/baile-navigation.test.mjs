@@ -42,3 +42,10 @@ test('Jurados aparece debajo de Inscripciones sin ampliar permisos del contratis
   assert.equal(adminModules.findIndex(m => m.id === 'jurados'), adminModules.findIndex(m => m.id === 'inscripciones') + 1);
   assert.equal(contractorModules.some(m => m.id === 'jurados'), false);
 });
+
+test('superadministración no muestra Acreditación y sus enlaces antiguos abren Resumen', () => {
+  assert.equal(adminModules.some(m => m.id === 'acreditacion' || m.name === 'Acreditación'), false);
+  assert.equal(adminModules.findIndex(m => m.id === 'contabilidad'), adminModules.findIndex(m => m.id === 'jurados') + 1);
+  assert.equal(normalizeModuleHash('#acreditacion'), 'resumen');
+  assert.equal(normalizeModuleHash('acreditacion'), 'resumen');
+});

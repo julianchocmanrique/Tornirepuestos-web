@@ -407,6 +407,60 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     } finally { setDemo(true); connection.close(); }
     await switcher.post('logout'); assert.equal((await switcher.profiles()).status, 401);
   });
+  await t.test('ficha editable: datos, categoría, archivos privados y bloqueos', async () => {
+    const contractor = client(); await contractor.post('login', { email: 'admin', password: 'DemoKey99' });
+    for (const action of ['enrollment-edit', 'enrollment-category', 'enrollment-note', 'enrollment-music', 'enrollment-receipt']) {
+      await contractor.post(action, {}, 403); await p.post(action, {}, 403); await outsider.post(action, {}, 401);
+    }
+    const fresh = client();
+    await admin.post('admin-register', { ...info, document: 'EDIT01', email: 'editar@example.test' }, 201);
+    await fresh.post('login', { email: 'editar@example.test', password: info.password });
+    const person = (await fresh.snapshot()).participants[0];
+    await fresh.post('payment', { enrollmentId: '', amount: String(person.fullPassFee), date, file: receipt() });
+    const pass = (await fresh.snapshot()).payments[0];
+    await admin.post('review', { paymentId: pass.id, status: 'approved', note: 'Prueba' });
+    const category = { name: 'Categoría de prueba de edición', rhythm: 'Salsa', modality: 'Solista', division: 'Abierto', active: 'on', deadline: '' };
+    for (const [id, fee] of [['edit-a', 60000], ['edit-b', 90000], ['edit-c', 90000]]) await admin.post('category', { ...category, id, fee });
+    const entry = await fresh.post('enroll', { categoryId: 'edit-a', team: '', members: '' }, 201);
+    const fields = { enrollmentId: entry.id, team: 'Nombre artístico', members: '', school: 'Escuela nueva', contactEmail: 'contacto@example.test' };
+    await admin.post('enrollment-edit', { ...fields, contactEmail: 'incorrecto' }, 400);
+    await admin.post('enrollment-edit', fields);
+    await admin.post('enrollment-note', { enrollmentId: entry.id, note: 'Nota interna de prueba' });
+    let snapshot = await fresh.snapshot();
+    assert.deepEqual(snapshot.participants[0], person);
+    assert.equal(snapshot.enrollments[0].school, fields.school); assert.equal(snapshot.enrollments[0].note, undefined);
+    assert.equal((await admin.snapshot()).enrollments.find(e => e.id === entry.id).note, 'Nota interna de prueba');
+    await admin.post('enrollment-music', { enrollmentId: entry.id, file: music() }, 409);
+    await admin.post('enrollment-category', { enrollmentId: entry.id, categoryId: 'edit-b', reason: 'Corrección' });
+    snapshot = await fresh.snapshot(); assert.equal(snapshot.enrollments[0].fee, 90000);
+    await fresh.post('payment', { enrollmentId: entry.id, amount: '90000', date, file: receipt() });
+    const payment = (await fresh.snapshot()).payments.find(p => p.enrollmentId === entry.id);
+    await admin.post('review', { paymentId: payment.id, status: 'approved', note: 'Prueba' });
+    await admin.post('enrollment-music', { enrollmentId: entry.id, file: music() });
+    const track = (await fresh.snapshot()).enrollments[0].musicId;
+    assert.equal((await fresh.file(track)).status, 200); assert.equal((await contractor.file(track)).status, 200); assert.equal((await stranger.file(track)).status, 403);
+    await admin.post('enrollment-category', { enrollmentId: entry.id, categoryId: 'edit-a', reason: 'Tarifa diferente' }, 409);
+    await admin.post('enrollment-category', { enrollmentId: entry.id, categoryId: 'edit-c', reason: 'Misma tarifa' });
+    assert.equal((await fresh.snapshot()).enrollments[0].musicId, track);
+    await admin.post('category', { ...category, id: 'edit-c', fee: 90000, deadline: '2000-01-01T00:00:00Z' });
+    await admin.post('enrollment-music', { enrollmentId: entry.id, file: music() }, 409);
+    await admin.post('category', { ...category, id: 'edit-c', fee: 90000 });
+    await admin.post('enrollment-music', { enrollmentId: entry.id, file: music() });
+    assert.notEqual((await fresh.snapshot()).enrollments[0].musicId, track);
+    await admin.post('enrollment-receipt', { enrollmentId: entry.id, file: receipt(), reason: 'Comprobante corregido' });
+    const replaced = (await fresh.snapshot()).payments.find(p => p.id === payment.id);
+    assert.equal(replaced.status, 'review'); assert.equal(replaced.amount, payment.amount); assert.equal(replaced.date, payment.date); assert.notEqual(replaced.receiptId, payment.receiptId);
+    assert.equal((await fresh.file(replaced.receiptId)).status, 200);
+    await admin.post('enrollment-music', { enrollmentId: entry.id, file: music() }, 409);
+    await admin.post('review', { paymentId: payment.id, status: 'approved', note: 'Verificado' });
+    const scored = (await admin.snapshot()).enrollments.find(e => e.id === categoryPayment.enrollmentId);
+    await admin.post('enrollment-edit', { ...fields, enrollmentId: scored.id }, 409);
+    await admin.post('enrollment-category', { enrollmentId: scored.id, categoryId: 'edit-c', reason: 'No permitido' }, 409);
+    await admin.post('enrollment-music', { enrollmentId: scored.id, file: music() }, 409);
+    await admin.post('enrollment-receipt', { enrollmentId: scored.id, file: receipt(), reason: 'No permitido' }, 409);
+    await admin.post('enrollment-edit', { ...fields, enrollmentId: 'missing' }, 404);
+    assert.equal((await fetch(root + '/prueba-baile/inscripciones/' + entry.id)).status, 200);
+  });
   await t.test('el selector comparte el límite de contraseñas con el acceso normal', async () => {
     const account = { ...info, document: 'LIMITE01', email: 'limite@example.test' };
     const created = await admin.post('admin-register', account, 201);

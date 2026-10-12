@@ -66,13 +66,13 @@ async function handleGET(req: NextRequest, ctx: Context) {
     if (parts[0] === "results") return json(publicResults(readState()));
     if (parts[0] === "users") {
       admin(actor(req));
-      return json({ users: readState().users.map(({ id, name, username, email, role, demoOnly }) => ({ id, name, username, email, role, demoOnly: !!demoOnly })) });
+      return json({ users: readState().users.map(({ id, name, username, email, role, demoOnly, disabledAt }) => ({ id, name, username, email, role, demoOnly: !!demoOnly, disabledAt })) });
     }
     if (parts[0] === "profiles") {
       actor(req);
       const state = readState();
       ensure(state.settings.demo, "El selector solo está disponible durante las pruebas.", 403);
-      return json({ profiles: state.users.map(({ id, name, role }) => ({ id, name, role })).sort((a, b) => a.name.localeCompare(b.name, "es")) });
+      return json({ profiles: state.users.filter(u => !u.disabledAt).map(({ id, name, role }) => ({ id, name, role })).sort((a, b) => a.name.localeCompare(b.name, "es")) });
     }
     if (parts[0] === "music-export") {
       admin(actor(req));
@@ -125,14 +125,14 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       const previous = actor(req); const state = readState();
       ensure(state.settings.demo, "El selector solo está disponible durante las pruebas.", 403);
       const profileId = text(f, "profileId", 80);
-      const target = state.users.find(u => u.id === profileId);
+      const target = state.users.find(u => !u.disabledAt && u.id === profileId);
       rateLimit(`login-ip:${ip}`, 80); rateLimit(`login:${target?.email || profileId}`);
       const fallback = "00000000000000000000000000000000:" + "0".repeat(128);
       const valid = await verifyPassword(text(f, "password", 160), target?.passwordHash || fallback);
       ensure(target && valid, "La contraseña no es correcta para este perfil.", 401);
       const token = transaction(s => {
         ensure(s.settings.demo, "El selector solo está disponible durante las pruebas.", 403);
-        const current = actor(req); const selected = s.users.find(u => u.id === target.id);
+        const current = actor(req); const selected = s.users.find(u => !u.disabledAt && u.id === target.id);
         ensure(current.id === previous.id && selected?.passwordHash === target.passwordHash, "La cuenta cambió. Vuelve a intentarlo.", 401);
         const token = createSession(target.id);
         db().prepare("DELETE FROM sessions WHERE token=?").run(tokenHash(req.cookies.get(sessionCookieName())!.value));
@@ -145,11 +145,13 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       const address = text(f, "email").toLowerCase();
       const state = readState();
       const globalAdmin = globalAdminFor(address);
-      const user = globalAdmin || state.users.find(u => (!u.demoOnly || state.settings.demo) && (u.email === address || u.username?.toLowerCase() === address || (u.role === "participant" && state.participants.some(p => p.id === u.id && p.document === address.toUpperCase().replace(/[\s.-]/g, "")))));
+      const user = globalAdmin || state.users.find(u => !u.disabledAt && (!u.demoOnly || state.settings.demo) && (u.email === address || u.username?.toLowerCase() === address || (u.role === "participant" && state.participants.some(p => p.id === u.id && p.document === address.toUpperCase().replace(/[\s.-]/g, "")))));
       rateLimit(`login-ip:${ip}`, 80); rateLimit(`login:${user?.email || address}`);
       const fallback = "00000000000000000000000000000000:" + "0".repeat(128);
       const valid = await verifyPassword(text(f, "password", 160), user?.passwordHash || fallback);
       ensure(user && valid, "Usuario o contraseña incorrectos.", 401);
+      const current = globalAdmin ? globalAdminFor(address) : readState().users.find(u => u.id === user.id && !u.disabledAt);
+      ensure(current && current.passwordHash === user.passwordHash, "La cuenta cambió. Vuelve a intentarlo.", 401);
       const res = json({ role: user.role }); res.cookies.set(sessionCookieName(), createSession(user.id, globalAdmin), cookieOptions); return res;
     }
     if (action === "register" || action === "admin-register") {
@@ -354,6 +356,28 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       const c: Category = { id, ...(validUntil !== undefined ? { validUntil } : {}), name: text(f, "name", 120), rhythm: text(f, "rhythm", 80), modality: text(f, "modality", 30), division: text(f, "division", 80), fee: numeric(f, "fee", 1), active: f.get("active") === "on", deadline: deadline ? new Date(deadline).toISOString() : "" };
       ensure(["Solista", "Pareja", "Grupo"].includes(c.modality), "Modalidad inválida.");
       transaction(s => { ensure(!c.active || !s.schedule.some(x => x.categoryId === id && x.status === "finished"), "La categoría ya finalizó. Crea otra categoría para una nueva competencia.", 409); const old = s.categories.find(x => x.id === id); if (old) { ensure(!s.enrollments.some(e => e.categoryId === id) || (old.modality === c.modality && old.rhythm === c.rhythm && old.division === c.division), "No cambies modalidad, ritmo o división de una categoría con inscritos."); Object.assign(old, c); } else s.categories.push(c); audit(s, user.id, "Categoría actualizada", id); }); return json({ ok: true });
+    }
+    if (action === "disable-accounts") {
+      ensure(f.get("confirm") === "disable", "Confirma la desactivación de cuentas.");
+      const ids = [...new Set(f.getAll("userId"))];
+      ensure(ids.length > 0 && ids.length <= 50 && ids.every(id => typeof id === "string" && id.length <= 100), "Selecciona entre una y cincuenta cuentas.");
+      const reason = text(f, "reason", 500);
+      transaction(s => {
+        admin(actor(req));
+        const targets = ids.map(id => s.users.find(u => u.id === id));
+        ensure(targets.every(Boolean), "Una de las cuentas ya no existe. Actualiza el listado.", 409);
+        ensure(!ids.includes(user.id), "No puedes desactivar tu propia sesión.", 409);
+        ensure(s.users.some(u => u.role === "superadmin" && !u.disabledAt && !ids.includes(u.id)), "Conserva al menos un superadministrador activo.", 409);
+        const at = new Date().toISOString();
+        for (const target of targets) {
+          if (!target || target.disabledAt) continue;
+          // Retain references used by payments, signed records and score calculations.
+          target.disabledAt = at;
+          db().prepare("DELETE FROM sessions WHERE userId=?").run(target.id);
+          audit(s, user.id, `Cuenta desactivada: ${reason}`, target.id);
+        }
+      });
+      return json({ ok: true });
     }
     if (action === "judge-delete") {
       const id = text(f, "judgeId", 100);

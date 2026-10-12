@@ -73,7 +73,7 @@ export function globalAdminFor(address: string): User | undefined {
   if (!currentEventId()) return undefined;
   return withEvent(undefined, () => {
     const state = readState();
-    return state.users.find(u => u.role === "superadmin" && (!u.demoOnly || state.settings.demo) && (u.email === address || u.username?.toLowerCase() === address));
+    return state.users.find(u => !u.disabledAt && u.role === "superadmin" && (!u.demoOnly || state.settings.demo) && (u.email === address || u.username?.toLowerCase() === address));
   });
 }
 export function createSession(userId: string, globalAdmin?: User) {
@@ -91,11 +91,11 @@ export function sessionUser(token: string | undefined): User | null {
     const [, id, digest] = String(row.userId).split(":");
     return withEvent(undefined, () => {
       const root = readState();
-      return root.users.find(u => u.id === id && u.role === "superadmin" && tokenHash(u.passwordHash) === digest && (!u.demoOnly || root.settings.demo)) || null;
+      return root.users.find(u => !u.disabledAt && u.id === id && u.role === "superadmin" && tokenHash(u.passwordHash) === digest && (!u.demoOnly || root.settings.demo)) || null;
     });
   }
   const state = readState();
-  return row ? state.users.find(u => u.id === row.userId && (!u.demoOnly || state.settings.demo)) || null : null;
+  return row ? state.users.find(u => !u.disabledAt && u.id === row.userId && (!u.demoOnly || state.settings.demo)) || null : null;
 }
 export function rateLimit(key: string, max = 15) {
   const id = tokenHash(key); const now = Date.now();

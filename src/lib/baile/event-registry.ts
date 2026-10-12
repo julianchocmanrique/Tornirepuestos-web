@@ -13,17 +13,20 @@ function registry() {
     mkdirSync(root, { recursive: true, mode: 0o700 });
     conn = new DatabaseSync(path.join(root, "events-index.sqlite"));
     conn.exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;
-      CREATE TABLE IF NOT EXISTS events (id TEXT PRIMARY KEY, listing TEXT NOT NULL, seed TEXT NOT NULL, cover BLOB, mime TEXT);`);
+      CREATE TABLE IF NOT EXISTS events (id TEXT PRIMARY KEY, listing TEXT NOT NULL, seed TEXT NOT NULL, cover BLOB, mime TEXT);
+      CREATE TABLE IF NOT EXISTS archived_events (id TEXT PRIMARY KEY, actor TEXT NOT NULL, archivedAt TEXT NOT NULL, replacementId TEXT NOT NULL);`);
     connections.set(root, conn);
   }
   return conn;
 }
 
 export function listEvents(): EventListing[] {
-  return [...eventCatalog, ...registry().prepare("SELECT listing FROM events ORDER BY rowid DESC").all().map(r => JSON.parse(String(r.listing)) as EventListing)];
+  const archived = new Set(registry().prepare("SELECT id FROM archived_events").all().map(r => String(r.id)));
+  return [...eventCatalog, ...registry().prepare("SELECT listing FROM events ORDER BY rowid DESC").all().map(r => JSON.parse(String(r.listing)) as EventListing)].filter(e => !archived.has(e.id));
 }
 export function findRegisteredEvent(id: string): EventListing | undefined {
   if (!/^[a-z0-9][a-z0-9-]{2,59}$/.test(id)) return undefined;
+  if (registry().prepare("SELECT id FROM archived_events WHERE id=?").get(id)) return undefined;
   const builtin = eventCatalog.find(e => e.id === id);
   if (builtin) return builtin;
   const row = registry().prepare("SELECT listing FROM events WHERE id=?").get(id);
@@ -40,10 +43,29 @@ export function insertEvent(listing: EventListing, seed: State, cover?: { buffer
   const conn = registry();
   conn.exec("BEGIN IMMEDIATE");
   try {
-    ensure(!findRegisteredEvent(listing.id), "Ese enlace ya pertenece a otro evento. Elige otro identificador.", 409);
+    ensure(!eventCatalog.some(e => e.id === listing.id) && !conn.prepare("SELECT id FROM events WHERE id=?").get(listing.id), "Ese enlace ya pertenece a otro evento. Elige otro identificador.", 409);
     // The listing, initial configuration and public cover are committed together.
     // The event database initializes lazily with this seed and never replaces existing data.
     conn.prepare("INSERT INTO events VALUES (?,?,?,?,?)").run(listing.id, JSON.stringify(listing), JSON.stringify(seed), cover?.buffer || null, cover?.mime || null);
+    conn.exec("COMMIT");
+  } catch (error) { conn.exec("ROLLBACK"); throw error; }
+}
+
+// Retire only explicitly selected examples, retaining their database, files and
+// original seed. Reserving their IDs prevents old data leaking into a new event.
+export function archiveDemoEvents(ids: string[], replacementId: string, actor: string) {
+  const conn = registry();
+  conn.exec("BEGIN IMMEDIATE");
+  try {
+    ensure(ids.length > 0 && ids.length <= 50 && new Set(ids).size === ids.length, "Selecciona los eventos de ejemplo sin repetirlos.");
+    ensure(findRegisteredEvent(replacementId)?.demo, "El evento de prueba que se conservará debe estar publicado.");
+    for (const id of ids) {
+      ensure(id !== replacementId, "No puedes retirar el evento que se conservará.");
+      ensure(findRegisteredEvent(id)?.demo, "Solo se pueden retirar eventos de ejemplo publicados. Revisa la selección.", 409);
+    }
+    const insert = conn.prepare("INSERT INTO archived_events VALUES (?,?,?,?)");
+    const at = new Date().toISOString();
+    for (const id of ids) insert.run(id, actor, at, replacementId);
     conn.exec("COMMIT");
   } catch (error) { conn.exec("ROLLBACK"); throw error; }
 }

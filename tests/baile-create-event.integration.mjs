@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { once } from 'node:events';
 import ts from 'typescript';
+import { DatabaseSync } from 'node:sqlite';
 
 test('Crear eventos: publicación, aislamiento, accesos, tarifas y persistencia', { timeout: 120000 }, async t => {
   const dir = mkdtempSync(path.join(tmpdir(), 'baile-create-event-'));
@@ -122,5 +123,37 @@ test('Crear eventos: publicación, aislamiento, accesos, tarifas y persistencia'
     const owner=client(custom.id); await owner.post('login',credentials); const state=await owner.get();
     assert.deepEqual(state.settings.criteria,custom.criteria); assert.equal(state.categories.length,2);
     assert.deepEqual(state.judges[0].categories,state.categories.map(c=>c.id));
+  });
+  await t.test('retira ejemplos sin eliminar datos, protege eventos reales y reserva enlaces', async () => {
+    const retired = {...draft, id:'ejemplo-archivado', demo:true};
+    const kept = {...draft, id:'ejemplo-conservado', demo:true};
+    await admin.post('create-event',fields(retired),201);
+    await admin.post('create-event',fields(kept),201);
+    const owner=client(retired.id); await owner.post('login',credentials);
+    await owner.post('admin-register',{name:'Ejemplo Conservado',document:'ARCHIVE01',birthDate:'2000-01-01',email:'archive@example.test',phone:'0000000000',city:'Prueba',academy:'Prueba',extra:'',consent:'on',password:'Prueba-archivo-123',passId:'pase-1'},201);
+    const payload={eventIds:JSON.stringify([retired.id,'encuentro-salsa']),keepEventId:kept.id,confirm:'archive-examples'};
+    await guest.post('archive-demo-events',payload,401);
+    const contractor=client(kept.id); await contractor.post('login',kept.contractor);
+    await contractor.post('archive-demo-events',payload,403);
+    await admin.post('archive-demo-events',{...payload,confirm:''},400);
+    await admin.post('archive-demo-events',{...payload,eventIds:JSON.stringify([retired.id,draft.id])},409);
+    assert.ok((await guest.get()).events.some(e=>e.id===retired.id),'invalid batch must not partially archive');
+    await admin.post('archive-demo-events',{...payload,eventIds:JSON.stringify([kept.id])},400);
+    await admin.post('archive-demo-events',{...payload,eventIds:JSON.stringify([retired.id,retired.id])},400);
+    await admin.post('archive-demo-events',{...payload,keepEventId:'no-existe'},400);
+    const result=await admin.post('archive-demo-events',payload); assert.equal(result.dataRetained,true);
+    const listing=(await guest.get()).events;
+    assert.ok(!listing.some(e=>[retired.id,'encuentro-salsa'].includes(e.id)));
+    assert.ok(listing.some(e=>e.id===kept.id)); assert.ok(listing.some(e=>e.id===draft.id));
+    for(const url of ['/api/baile/eventos/'+retired.id+'/public','/api/baile/event-cover/'+retired.id,'/prueba-baile/eventos/'+retired.id]) assert.equal((await fetch(root+url)).status,404,url);
+    await admin.post('create-event',fields(retired),409);
+    await admin.post('create-event',fields({...retired,id:'encuentro-salsa'}),409);
+    const db=new DatabaseSync(path.join(dir,'events',retired.id,'event.sqlite'));
+    assert.equal(JSON.parse(db.prepare('SELECT data FROM state WHERE id=1').get().data).participants.length,1); db.close();
+    const done=once(server,'exit'); server.kill('SIGTERM'); await done; await start();
+    assert.ok(!(await guest.get()).events.some(e=>e.id===retired.id));
+    assert.ok((await guest.get()).events.some(e=>e.id===kept.id));
+    const after=await admin.get();
+    for(const key of ['participants','enrollments','payments','scores']) assert.deepEqual(after[key],before[key]);
   });
 });

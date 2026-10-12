@@ -3,7 +3,7 @@ import { scoringConfiguration } from "@/lib/baile/scoring-config";
 import { parseCategoryWorkbook, categoryIdentity } from "@/lib/baile/category-excel";
 import { protectedJudgeCategories } from "@/lib/baile/types";
 import { withEvent, sessionCookieName } from "@/lib/baile/event-scope";
-import { findRegisteredEvent as findEvent, listEvents, insertEvent, eventCover } from "@/lib/baile/event-registry";
+import { findRegisteredEvent as findEvent, listEvents, insertEvent, eventCover, archiveDemoEvents } from "@/lib/baile/event-registry";
 import { prepareEvent } from "@/lib/baile/create-event";
 import { eventHref } from "@/lib/baile/event-catalog";
 import { DOCUMENT_TYPES, LEVELS, WAIVER_VERSION, colombiaDate, isMinor, validSignature, waiverText, type Registration } from "@/lib/baile/registration";
@@ -265,6 +265,16 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       transaction(s => review(s, user, text(f, "paymentId"), text(f, "status") as Status, text(f, "note", 1000, false))); return json({ ok: true });
     }
     admin(user);
+    if (action === "archive-demo-events") {
+      const global = withEvent(undefined, () => readState().users.some(u => u.id === user.id && u.role === "superadmin" && !u.disabledAt && u.passwordHash === user.passwordHash));
+      ensure(global, "Solo superadministración global puede retirar eventos.", 403);
+      ensure(f.get("confirm") === "archive-examples", "Confirma el retiro de los eventos de ejemplo.");
+      let ids: unknown;
+      try { ids = JSON.parse(text(f, "eventIds", 4000)); } catch { throw new DanceError("Revisa los eventos seleccionados."); }
+      ensure(Array.isArray(ids) && ids.every(id => typeof id === "string"), "Revisa los eventos seleccionados.");
+      archiveDemoEvents(ids as string[], text(f, "keepEventId", 60), user.id);
+      return json({ ok: true, archived: ids, dataRetained: true });
+    }
     if (action === "create-event") {
       const rootAdmin = () => withEvent(undefined, () => {
         const state = readState();

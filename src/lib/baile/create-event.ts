@@ -1,6 +1,5 @@
 import { audit, ensure, validDate } from "./domain";
 import { EVENT_CATEGORIES, colombiaDay, type EventListing } from "./event-catalog";
-import { EVENT_COVERS } from "./event-draft";
 import { initialState } from "./types";
 import type { User } from "./types";
 
@@ -35,9 +34,8 @@ export function prepareEvent(input: unknown, actor: string, customCover: boolean
   ensure(demo || end >= today, "Para un evento real, la fecha final no puede estar en el pasado.");
   const category = str(d.category, "el tipo de evento");
   ensure(EVENT_CATEGORIES.some(c => c === category), "Selecciona un tipo de evento válido.");
-  const image = str(d.image, "la portada", 200);
-  ensure(customCover || EVENT_COVERS.some(c => c.src === image), "Selecciona una portada o sube una imagen JPG/PNG.");
-  const listing: EventListing = { id, name: str(d.name, "el nombre", 100), date: start, publishedAt: new Date().toISOString(), city: str(d.city, "la ciudad", 100), category: category as EventListing["category"], genre: str(d.genre, "la disciplina", 80), image: customCover ? `/api/baile/event-cover/${id}` : image, imageAlt: str(d.imageAlt, "la descripción de la portada", 200), description: str(d.description, "el resumen", 2000), demo };
+  ensure(customCover, "Sube la fotografía o el afiche del evento en JPG o PNG.");
+  const listing: EventListing = { id, name: str(d.name, "el nombre", 100), date: start, publishedAt: new Date().toISOString(), city: str(d.city, "la ciudad", 100), category: category as EventListing["category"], genre: str(d.genre, "la disciplina", 80), image: `/api/baile/event-cover/${id}`, imageAlt: str(d.imageAlt, "la descripción de la portada", 200), description: str(d.description, "el resumen", 2000), demo };
   function validity(value: unknown) {
     const until = date(value, "la vigencia", true);
     ensure(!until || until <= end, "Las tarifas no pueden vencer después del evento.");

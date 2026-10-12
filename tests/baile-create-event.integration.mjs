@@ -34,14 +34,14 @@ test('Crear eventos: publicación, aislamiento, accesos, tarifas y persistencia'
   const before = await admin.get();
   const draft = {
     id: 'festival-prueba-2099', name: 'Festival de integración', category: 'Danza', genre: 'Salsa', tagline: 'Prueba de aislamiento', description: 'Un evento independiente para pruebas.',
-    start: '2099-11-10', end: '2099-11-12', city: 'Santa Marta', venue: 'Teatro de prueba, calle 10', image: '/baile/eventos/salsa.webp', imageAlt: 'Portada de prueba', demo: false,
+    start: '2099-11-10', end: '2099-11-12', city: 'Santa Marta', venue: 'Teatro de prueba, calle 10', imageAlt: 'Portada de prueba', demo: false,
     registrationOpen: false, categoryRegistrationOpen: false, paymentInstructions: 'Usar únicamente comprobantes ficticios.', scoring: 'sunfest-v1',
     passes: [{ name: 'Competidor', fee: '32000', benefits: 'Talleres\nDerecho de competidor', canCompete: true, validUntil: '' }, { name: 'Acompañante', fee: '12000', benefits: 'Ver competencia', canCompete: false, validUntil: '' }],
     categories: [{ name: 'Salsa solista', modality: 'Solista', rhythm: 'Salsa', division: 'Amateur', fee: '88000', deadline: '2099-11-09T18:00', validUntil: '2099-11-10' }],
     contractor: { name: 'Contratista', email: 'contratista@example.test', password: 'prueba-contratista-123' },
     judges: [{ name: 'Jurado', email: 'jurado@example.test', password: 'prueba-jurado-123', categories: [0] }],
   };
-  const fields = d => ({ event: JSON.stringify(d), confirm: 'publish' });
+  const fields = d => ({ event: JSON.stringify(d), confirm: 'publish', cover: file() });
   const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aWQAAAABJRU5ErkJggg==', 'base64');
   const file = () => new File([png], 'portada.png', { type: 'image/png' });
   await t.test('sin autorización, sin confirmación o con datos inválidos no crea nada', async () => {
@@ -49,7 +49,8 @@ test('Crear eventos: publicación, aislamiento, accesos, tarifas y persistencia'
     await admin.post('create-event', fields(draft), 403, 'https://otro.example');
     await admin.post('create-event', { event: JSON.stringify(draft) }, 400);
     await admin.post('create-event', { event: 'bad json', confirm: 'publish' }, 400);
-    for (const delta of [{ id: '../escape' }, { id: 'ab' }, { end: '2099-11-01' }, { passes: [] }, { categories: [] }, { scoring: 'inventado' }, { demo: 'false' }, { image: 'https://example.test/imagen.svg' }, { judges: [{ ...draft.judges[0], categories: [99] }] }, { contractor: { ...draft.contractor, password: '123' } }, { passes: [{ ...draft.passes[0], fee: '12.5' }] }, { passes: [{ ...draft.passes[0], canCompete: false }] }, { categories: [{ ...draft.categories[0], deadline: '2099-11-09T25:99' }] }]) {
+    await admin.post('create-event', { event: JSON.stringify(draft), confirm: 'publish' }, 400);
+    for (const delta of [{ id: '../escape' }, { id: 'ab' }, { end: '2099-11-01' }, { passes: [] }, { categories: [] }, { scoring: 'inventado' }, { demo: 'false' }, { judges: [{ ...draft.judges[0], categories: [99] }] }, { contractor: { ...draft.contractor, password: '123' } }, { passes: [{ ...draft.passes[0], fee: '12.5' }] }, { passes: [{ ...draft.passes[0], canCompete: false }] }, { categories: [{ ...draft.categories[0], deadline: '2099-11-09T25:99' }] }]) {
       await admin.post('create-event', fields({ ...draft, ...delta }), 400);
     }
     await admin.post('create-event', fields({ ...draft, id: 'thesunfest' }), 409);

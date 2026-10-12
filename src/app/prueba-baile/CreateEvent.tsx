@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type InputHTMLAttributes } from "react";
 import { EVENT_CATEGORIES, eventHref, type EventListing } from "@/lib/baile/event-catalog";
-import { EVENT_COVERS, emptyCategory, emptyPass, newEventDraft, type EventDraft } from "@/lib/baile/event-draft";
+import { emptyCategory, emptyPass, newEventDraft, type EventDraft } from "@/lib/baile/event-draft";
 import { scoringCriteria, money } from "@/lib/baile/types";
 import type { Run } from "./ui";
 import "./create-event.css";
@@ -21,6 +21,7 @@ export function CreateEvent({ run, events = [], demoEnabled }: { run: Run; event
   const [cover, setCover] = useState<File | null>(null), [preview, setPreview] = useState("");
   const [confirm, setConfirm] = useState(false), [created, setCreated] = useState("");
   const form = useRef<HTMLFormElement>(null), title = useRef<HTMLHeadingElement>(null);
+  const coverInput = useRef<HTMLInputElement>(null);
   useEffect(() => { title.current?.focus(); }, [step, created]);
   useEffect(() => {
     if (!cover) { setPreview(""); return; }
@@ -31,6 +32,7 @@ export function CreateEvent({ run, events = [], demoEnabled }: { run: Run; event
   function next() {
     setError("");
     if (!form.current?.reportValidity()) return;
+    if (step === 1 && !cover) { setError("Sube la fotografía o el afiche del evento."); return; }
     if (step === 0 && events.some(e => e.id === draft.id)) { setError("Ese enlace ya pertenece a otro evento. Elige otro identificador."); return; }
     if (step === 1 && draft.end < draft.start) { setError("La fecha final no puede ser anterior al inicio."); return; }
     if (step === 2 && !draft.passes.some(p => p.canCompete)) { setError("Incluye un pase con derecho de competidor."); return; }
@@ -39,6 +41,7 @@ export function CreateEvent({ run, events = [], demoEnabled }: { run: Run; event
   }
   async function publish() {
     if (busy || !confirm) return;
+    if (!cover) { setError("Sube la fotografía o el afiche del evento."); setStep(1); return; }
     setBusy(true); setError("");
     try {
       const data = new FormData(); data.set("event", JSON.stringify(draft)); data.set("confirm", "publish"); if (cover) data.set("cover", cover);
@@ -69,10 +72,9 @@ export function CreateEvent({ run, events = [], demoEnabled }: { run: Run; event
           </>}
           {step === 1 && <>
             <div className="dance-form-grid"><Input label="Fecha inicial" type="date" value={draft.start} onValue={v => change("start", v)} /><Input label="Fecha final" type="date" min={draft.start} value={draft.end} onValue={v => change("end", v)} /><Input label="Ciudad" value={draft.city} onValue={v => change("city", v)} maxLength={100} /><Input label="Sede y dirección" value={draft.venue} onValue={v => change("venue", v)} maxLength={200} /></div>
-            <label className="dance-field"><span>Portada ilustrativa</span><select value={draft.image} onChange={e => change("image", e.target.value)}>{EVENT_COVERS.map(c => <option key={c.src} value={c.src}>{c.label}</option>)}</select></label>
-            <label className="dance-field"><span>O subir la portada del evento (JPG o PNG, máximo 5 MB)</span><input type="file" accept="image/jpeg,image/png" onChange={e => { const file = e.target.files?.[0] || null; if (file && (file.size > 5 * 1024 ** 2 || !["image/jpeg", "image/png"].includes(file.type))) { setError("Usa una imagen JPG o PNG de máximo 5 MB."); e.target.value = ""; return; } setCover(file); setError(""); }} /></label>
-            {cover && <p>{cover.name} <button type="button" className="dance-text-link" onClick={() => setCover(null)}>Usar portada ilustrativa</button></p>}
-            <img className="event-builder-cover" src={preview || draft.image} alt={draft.imageAlt} />
+            <label className="dance-field"><span>Fotografía o afiche del evento (JPG o PNG, máximo 5 MB)</span><input ref={coverInput} type="file" accept="image/jpeg,image/png" required={!cover} onChange={e => { const file = e.target.files?.[0] || null; setConfirm(false); if (file && (file.size > 5 * 1024 ** 2 || !["image/jpeg", "image/png"].includes(file.type))) { setCover(null); setError("Usa una imagen JPG o PNG de máximo 5 MB."); e.target.value = ""; return; } setCover(file); setError(""); }} /></label>
+            {cover && <p>{cover.name} <button type="button" className="dance-text-link" onClick={() => { setCover(null); setConfirm(false); if (coverInput.current) coverInput.current.value = ""; }}>Quitar fotografía</button></p>}
+            {preview && <img className="event-builder-cover" src={preview} alt={draft.imageAlt} />}
             <Input label="Descripción de la imagen" value={draft.imageAlt} onValue={v => change("imageAlt", v)} maxLength={200} />
             <p className="dance-muted">La portada y su descripción serán públicas. No subas documentos ni comprobantes personales.</p>
           </>}
@@ -111,7 +113,7 @@ export function CreateEvent({ run, events = [], demoEnabled }: { run: Run; event
             <p className="dance-muted">Contraseñas de al menos 10 caracteres. No se envían por correo ni se publican. Compártelas de forma privada con cada integrante.</p>
           </>}
           {step === 6 && <>
-            <img className="event-builder-cover" src={preview || draft.image} alt={draft.imageAlt} />
+            {preview && <img className="event-builder-cover" src={preview} alt={draft.imageAlt} />}
             <h3>{draft.name}</h3><p>{draft.description}</p><div className="event-builder-summary"><p><b>Tipo</b>{draft.category} / {draft.genre}</p><p><b>Fechas</b>{draft.start} al {draft.end}</p><p><b>Ubicación</b>{draft.city}: {draft.venue}</p><p><b>Modo</b>{draft.demo ? "Ejemplo de prueba, sin pagos reales" : "Evento real"}</p><p><b>Equipo inicial</b>{draft.contractor ? "1 contratista" : "Sin contratista"} · {draft.judges.length} jurados</p><p><b>Calificación</b>{draft.scoring === "sunfest-v1" ? "Promedio ponderado The Sun Fest" : draft.scoring === "sum" ? "Suma de criterios" : "Promedio de criterios"}</p></div>
             <h3>Pases</h3>{draft.passes.map((p, i) => <div className="dance-list-row" key={i}><span>{p.name} · {p.canCompete ? "Puede competir" : "Acompañante"}</span><strong>{money(Number(p.fee))}</strong></div>)}
             <h3>Categorías</h3>{draft.categories.map((c, i) => <div className="dance-list-row" key={i}><span>{c.name} · {c.modality} · {c.division}</span><strong>{money(Number(c.fee))}</strong></div>)}

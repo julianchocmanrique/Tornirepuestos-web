@@ -45,7 +45,6 @@ function DanceAppBody({ view, enrollmentId }: { view: View; enrollmentId?: strin
     <header className="dance-header"><Link className="dance-brand" href={base} onClick={() => setSwitching(false)}><RankiaBrand /></Link><nav aria-label="Navegación del evento">
       <Link href={`${base}/resultados`} onClick={() => setSwitching(false)}>Resultados</Link>
       {s?.user ? <>
-        <Link href={base} onClick={() => setSwitching(false)}>El evento</Link>
         <Link href={`${base}/${rolePath[s.user.role]}`} onClick={() => setSwitching(false)}>Mi panel</Link>
         <button onClick={() => { if (s.settings.demo) { setError(""); setMessage(""); setAccess(undefined); setSwitching(true); } else { run("logout", new FormData()); } }}>{s.settings.demo ? "Cambiar usuario" : "Salir"}</button>
       </> : <>

@@ -35,7 +35,7 @@ assert.ok(['localhost','127.0.0.1'].includes(new URL(root).hostname));
         await page.reload();
         await nav.getByRole('link',{name:'Mi panel',exact:true}).waitFor();
         assert.equal(await nav.getByRole('link',{name:'Mi panel',exact:true}).getAttribute('href'),base+'/'+path);
-        assert.equal(await nav.getByRole('link',{name:'El evento',exact:true}).getAttribute('href'),base);
+        assert.equal(await nav.getByRole('link',{name:'El evento',exact:true}).count(),0);
         assert.equal(await nav.getByRole('link',{name:'Ingresar',exact:true}).count(),0);
       }
       const logout = page.waitForResponse(r => r.url().endsWith(api+'/logout'));

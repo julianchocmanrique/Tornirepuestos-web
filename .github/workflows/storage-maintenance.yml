@@ -12,6 +12,7 @@ on:
           - inspect
           - clean-old-build-cache
           - clean-unused-build-cache
+          - clean-all-unused-build-cache
 
 permissions:
   contents: read
@@ -39,7 +40,7 @@ jobs:
           script: |
             set -euo pipefail
             case "$MAINTENANCE_ACTION" in
-              inspect|clean-old-build-cache|clean-unused-build-cache) ;;
+              inspect|clean-old-build-cache|clean-unused-build-cache|clean-all-unused-build-cache) ;;
               *) echo "Unsupported maintenance action"; exit 1 ;;
             esac
             CONTAINER_NAME=tornirepuestos-web
@@ -54,6 +55,9 @@ jobs:
               docker builder prune --all --force --filter 'until=24h' --keep-storage 2GB
             elif [ "$MAINTENANCE_ACTION" = "clean-unused-build-cache" ]; then
               docker builder prune --all --force --keep-storage 2GB
+            elif [ "$MAINTENANCE_ACTION" = "clean-all-unused-build-cache" ]; then
+              # Emergency full disk: remove all unused compilation cache, not images or data.
+              docker builder prune --all --force
             fi
             echo "=== Filesystem usage after ==="
             df -h /

@@ -1,29 +1,35 @@
 "use client";
+import { ReceiptViewer } from "./ReceiptViewer";
+import { registrationRhythm } from "@/lib/baile/registration-report";
 import { StatusEditor } from "./StatusEditor";
 import { useState } from "react";
 import { type Snapshot, money, dateTime, statusLabels } from "@/lib/baile/types";
-import { ageAt, matchesPerson, passFor, paymentFor, whatsapp, readyEntry } from "@/lib/baile/reporting";
+import { ageAt, matchesPerson, normalize, passFor, paymentFor, whatsapp, readyEntry } from "@/lib/baile/reporting";
 import { Badge, Stat, Empty, Form, Field, Receipt, Music, exportCsv, today, type Run } from "./ui";
 import { ParticipantResults } from "./Competition";
 import { SearchBar, CategoryFilter, usePage, ModuleHeading } from "./AdminShared";
 
-export function Registers({ s, run, selectedId, onSelect }: { s: Snapshot; run: Run; selectedId: string | null; onSelect: (id: string | null) => void }) {
+export function Registers({ s, run, selectedId, onSelect }: { s: Snapshot; run: Run; selectedId?: string | null; onSelect?: (id: string | null) => void }) {
   const [query, setQuery] = useState(""), [category, setCategory] = useState(""), [status, setStatus] = useState(""), [order, setOrder] = useState("recent");
+  const canManage = s.user?.role === "superadmin";
   const [creating, setCreating] = useState(false);
-  const rows = s.participants.filter(p => matchesPerson(p, query) && (!category || s.enrollments.some(e => e.participantId === p.id && e.categoryId === category)) && (!status || (passFor(s, p.id)?.status || "missing") === status)).sort((a, b) => order === "name" ? a.name.localeCompare(b.name, "es") : b.createdAt.localeCompare(a.createdAt));
+  const rows = s.participants.filter(p => (matchesPerson(p, query) || normalize(p.email).includes(normalize(query))) && (!category || s.enrollments.some(e => e.participantId === p.id && e.categoryId === category)) && (!status || (status === "missing" ? !passFor(s, p.id) : (passFor(s, p.id)?.status || "pending") === status))).sort((a, b) => order === "name" ? a.name.localeCompare(b.name, "es") : b.createdAt.localeCompare(a.createdAt));
   const page = usePage(rows, `${query}|${category}|${status}|${order}`);
   const selected = s.participants.find(p => p.id === selectedId);
-  if (creating) return <NewParticipant s={s} run={run} onCancel={() => setCreating(false)} onCreated={id => { setCreating(false); onSelect(id); }} />;
-  if (selected) return <ParticipantDetail s={s} run={run} id={selected.id} onBack={() => onSelect(null)} />;
+  if (creating && canManage) return <NewParticipant s={s} run={run} onCancel={() => setCreating(false)} onCreated={id => { setCreating(false); onSelect?.(id); }} />;
+  if (selected && canManage) return <ParticipantDetail s={s} run={run} id={selected.id} onBack={() => onSelect?.(null)} />;
   function download() {
-    exportCsv("registros.csv", [["Código", "Nombre", "Documento", "Ciudad", "Academia", "WhatsApp", "Correo", "Edad", "Full Pass", "Tarifa", "Inscripciones", "Registro"], ...rows.map(p => [p.code, p.name, p.document, p.city, p.academy, p.phone, p.email, ageAt(p.birthDate), passFor(s, p.id) ? statusLabels[passFor(s, p.id)!.status] : "Por enviar", p.fullPassFee ?? s.settings.fullPassFee, s.enrollments.filter(e => e.participantId === p.id).length, dateTime(p.createdAt)])]);
+    exportCsv("registros.csv", [["Nombre", "Documento", "Inscripciones", "WhatsApp", "Edad", "Rango", "Salsa", "Bachata", "Comprobante", "Estado", "Fecha"], ...rows.map(p => { const pass = passFor(s, p.id); return [p.name, p.document, s.enrollments.filter(e => e.participantId === p.id).length, p.phone, ageAt(p.birthDate), "Sin definir", registrationRhythm(s, p.id, "Salsa"), registrationRhythm(s, p.id, "Bachata"), pass ? "Recibido" : "Por enviar", pass ? statusLabels[pass.status] : "Pendiente", dateTime(p.createdAt)]; })]);
   }
   return <>
-    <div className="dance-stats"><Stat label="Registrados" value={s.participants.length} /><Stat label="Full Pass aprobados" value={s.participants.filter(p => passFor(s, p.id)?.status === "approved").length} /><Stat label="Comprobantes por enviar" value={s.participants.filter(p => !passFor(s, p.id)).length} /><Stat label="Por revisar" value={s.payments.filter(p => p.kind === "fullpass" && ["pending", "review"].includes(p.status)).length} /></div>
+    <div className="dance-stats"><Stat label="Registrados" value={s.participants.length} />{Object.entries(statusLabels).map(([value, label]) => <Stat key={value} label={label} value={s.participants.filter(p => (passFor(s, p.id)?.status || "pending") === value).length} />)}</div>
     <div className="dance-panel">
-      <ModuleHeading title="Registro general" detail="Un perfil por persona. El Full Pass se valida por separado de sus categorías."><div className="dance-actions"><button className="dance-btn small" onClick={() => setCreating(true)}>Nuevo participante</button><button className="dance-btn secondary small" onClick={download}>Exportar registros</button></div></ModuleHeading>
+      <ModuleHeading title="Registro general" detail="Un perfil por persona. El Full Pass se valida por separado de sus categorías."><div className="dance-actions">{canManage && <button className="dance-btn small" onClick={() => setCreating(true)}>Nuevo participante</button>}<button className="dance-btn secondary small" onClick={download}>Exportar registros</button></div></ModuleHeading>
       <SearchBar query={query} onQuery={setQuery}><CategoryFilter s={s} value={category} onChange={setCategory} /><select aria-label="Estado de registro" value={status} onChange={e => setStatus(e.target.value)}><option value="">Todos los estados</option><option value="missing">Sin comprobante</option>{Object.entries(statusLabels).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select><select aria-label="Orden de registros" value={order} onChange={e => setOrder(e.target.value)}><option value="recent">Más recientes</option><option value="name">Nombre A–Z</option></select></SearchBar>
-      <div className="dance-table-wrap"><table><thead><tr><th>Participante</th><th>Documento / edad</th><th>Ciudad / academia</th><th>Inscripciones</th><th>Full Pass</th><th>Contacto</th><th>Ficha</th></tr></thead><tbody>{page.rows.map(p => { const wa = whatsapp(p.phone); return <tr key={p.id}><td><strong>{p.name}</strong><small>{p.code} · {dateTime(p.createdAt)}</small></td><td>{p.document}<small>{ageAt(p.birthDate)} años</small></td><td>{p.city}<small>{p.academy || "Independiente"}</small></td><td>{s.enrollments.filter(e => e.participantId === p.id).length}</td><td><StatusEditor payment={passFor(s, p.id)} label={`${p.name} · Full Pass`} run={run} /></td><td>{wa ? <a className="dance-link" href={wa} target="_blank" rel="noreferrer">WhatsApp ↗</a> : p.phone}</td><td><button className="dance-btn secondary small" onClick={() => onSelect(p.id)} aria-label={`Ver ficha de ${p.name}`}>Ver ficha</button></td></tr>; })}</tbody></table></div>
+      <p className="dance-muted">El estado corresponde al Full Pass. Salsa y Bachata muestran las divisiones de sus categorías inscritas. El rango de edad no está definido en los registros actuales.</p>
+      <div className="dance-table-wrap" tabIndex={0} role="region" aria-label="Tabla de registro"><table><thead><tr>{["Nombre", "Documento", "Inscripciones", "WhatsApp", "Edad", "Rango", "Salsa", "Bachata", "Comprobante", "Estado", "Fecha"].map(label => <th key={label}>{label}</th>)}</tr></thead><tbody>{page.rows.map(p => { const wa = whatsapp(p.phone), pass = passFor(s, p.id); return <tr key={p.id}>
+        <td><strong>{p.name}</strong></td><td>{p.document}</td><td>{s.enrollments.filter(e => e.participantId === p.id).length}</td><td>{wa ? <a className="dance-link" href={wa} target="_blank" rel="noreferrer" aria-label={`WhatsApp de ${p.name}`}>WhatsApp ↗</a> : <span title={p.phone}>No disponible</span>}</td><td>{ageAt(p.birthDate)} años</td><td>Sin definir</td><td>{registrationRhythm(s, p.id, "Salsa")}</td><td>{registrationRhythm(s, p.id, "Bachata")}</td><td>{pass ? <ReceiptViewer receiptId={pass.receiptId} description={`Full Pass · ${p.name}`} /> : "Por enviar"}</td><td><StatusEditor payment={pass} label={`${p.name} · Full Pass`} run={run} /></td><td>{dateTime(p.createdAt)}</td>
+      </tr>; })}</tbody></table></div>
       {!rows.length && <Empty>No hay registros con estos filtros.</Empty>}{page.pager}
     </div>
   </>;

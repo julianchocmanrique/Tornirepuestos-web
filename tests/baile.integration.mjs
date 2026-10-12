@@ -37,6 +37,8 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
         return data;
       },
       async snapshot() { return (await fetch(`${root}/api/baile/snapshot`, { headers: { cookie } })).json(); },
+      sessionCookie() { return cookie; },
+      profiles() { return fetch(`${root}/api/baile/profiles`, { headers: { cookie } }); },
       file(id, extra = {}) { return fetch(`${root}/api/baile/files/${id}`, { headers: { cookie, ...extra } }); },
       zip(category = '') { return fetch(`${root}/api/baile/music-export?category=${encodeURIComponent(category)}`, { headers: { cookie } }); },
     };
@@ -255,6 +257,50 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     await admin.post('admin-register', { ...info, document: 'AD90003', email: 'cerrado@example.test' }, 201);
     assert.equal((await admin.snapshot()).user.role, 'admin');
     await admin.post('settings', { ...settings, registrationOpen: 'on', categoryRegistrationOpen: 'on' });
+  });
+  await t.test('selector de pruebas exige clave, cambia permisos y revoca la sesión anterior', async () => {
+    assert.equal((await outsider.profiles()).status, 401);
+    await outsider.post('switch-profile', { profileId: 'inventado', password: info.password }, 401);
+    const switcher = client(); await switcher.post('login', credentials);
+    const original = await switcher.snapshot();
+    const response = await switcher.profiles(); assert.equal(response.status, 200); assert.equal(response.headers.get('cache-control'), 'no-store');
+    const { profiles } = await response.json(); assert.ok(profiles.length >= 4);
+    for (const profile of profiles) assert.deepEqual(Object.keys(profile).sort(), ['id', 'name', 'role']);
+    const participant = (await p.snapshot()).user;
+    const judge = (await judge1.snapshot()).user;
+    await switcher.post('switch-profile', { profileId: participant.id, password: 'incorrecta' }, 401);
+    await switcher.post('switch-profile', { profileId: 'inexistente', password: info.password }, 401);
+    await switcher.post('switch-profile', { profileId: participant.id, password: info.password }, 403, 'https://otro.example');
+    assert.equal((await switcher.snapshot()).user.id, original.user.id);
+    const oldCookie = switcher.sessionCookie();
+    const changed = await switcher.post('switch-profile', { profileId: participant.id, password: info.password, role: 'admin' });
+    assert.equal(changed.role, 'participant');
+    let own = await switcher.snapshot(); assert.equal(own.user.id, participant.id); assert.equal(own.participants.length, 1);
+    assert.equal((await (await fetch(`${root}/api/baile/snapshot`, { headers: { cookie: oldCookie } })).json()).user, null);
+    await switcher.post('settings', {}, 403);
+    assert.equal((await switcher.profiles()).status, 200);
+    await switcher.post('switch-profile', { profileId: judge.id, password: info.password });
+    own = await switcher.snapshot(); assert.equal(own.user.role, 'judge'); assert.equal(own.participants.length, 0);
+    await switcher.post('switch-profile', { profileId: original.user.id, password: credentials.password });
+    assert.equal((await switcher.snapshot()).user.role, 'admin');
+    assert.ok((await admin.snapshot()).audit.some(x => x.action === 'Cambio de perfil de prueba' && x.target === participant.id));
+    const connection = new DatabaseSync(path.join(dir, 'event.sqlite'));
+    const setDemo = value => { const state = JSON.parse(connection.prepare('SELECT data FROM state WHERE id=1').get().data); state.settings.demo = value; connection.prepare('UPDATE state SET data=? WHERE id=1').run(JSON.stringify(state)); };
+    try {
+      setDemo(false);
+      assert.equal((await switcher.profiles()).status, 403);
+      await switcher.post('switch-profile', { profileId: participant.id, password: info.password }, 403);
+      assert.equal((await switcher.snapshot()).user.role, 'admin');
+    } finally { setDemo(true); connection.close(); }
+    await switcher.post('logout'); assert.equal((await switcher.profiles()).status, 401);
+  });
+  await t.test('el selector comparte el límite de contraseñas con el acceso normal', async () => {
+    const account = { ...info, document: 'LIMITE01', email: 'limite@example.test' };
+    const created = await admin.post('admin-register', account, 201);
+    for (let i = 0; i < 15; i++) await admin.post('switch-profile', { profileId: created.participantId, password: 'incorrecta' }, 401);
+    await admin.post('switch-profile', { profileId: created.participantId, password: info.password }, 429);
+    await outsider.post('login', { email: account.email, password: info.password }, 429);
+    assert.equal((await admin.snapshot()).user.role, 'admin');
   });
   await t.test('persistencia después de reiniciar y cierre de sesión', async () => {
     const before = await admin.snapshot(); const stopped = new Promise(r => server.once('exit', r)); server.kill('SIGTERM'); await stopped;

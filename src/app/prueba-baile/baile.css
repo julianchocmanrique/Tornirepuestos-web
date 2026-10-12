@@ -1,3 +1,32 @@
+.dance-profiles { padding-block: 70px; text-align: center; }
+.dance-profiles h1 { margin: 18px 0; overflow-wrap: anywhere; }
+.dance-profiles h1:focus { outline: none; }
+.dance-profiles > .dance-eyebrow { justify-content: center; }
+.dance-profile-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 28px 24px; margin: 46px auto; max-width: 1120px; }
+.dance-profile-card { flex: 0 1 160px; border: 0; background: transparent; color: var(--dance-ink); padding: 10px; display: flex; align-items: center; flex-direction: column; font: inherit; gap: 5px; border-radius: 16px; }
+.dance-profile-card strong { font-size: 18px; line-height: 1.35; overflow-wrap: anywhere; max-width: 100%; }
+.dance-profile-card small { color: var(--dance-muted); }
+.dance-profile-avatar { width: 138px; height: 138px; display: grid; place-items: center; flex-shrink: 0; position: relative; overflow: hidden; border: 3px solid transparent; border-radius: 24px; background: #e2e7d8; color: #2e4122; font-size: 44px; font-weight: 800; letter-spacing: -.04em; margin-bottom: 12px; transition: transform .18s ease, box-shadow .18s ease; }
+.dance-profile-avatar.admin { background: #20231e; color: #f7f5ef; }
+.dance-profile-avatar.judge { background: #fa5832; color: #251f1a; }
+.dance-profile-avatar::before { content: ""; position: absolute; width: 150px; height: 150px; border: 1px solid currentColor; opacity: .15; border-radius: 50%; left: 35px; top: -80px; }
+.dance-profile-lock { position: absolute; bottom: 8px; right: 14px; font-size: 22px; font-weight: 400; }
+.dance-profile-card:hover .dance-profile-avatar, .dance-profile-card:focus-visible .dance-profile-avatar { transform: translateY(-5px); box-shadow: 0 0 0 4px var(--dance-paper), 0 0 0 6px var(--dance-ink); }
+.dance-profile-login { max-width: 470px; margin: 36px auto !important; text-align: left; }
+.dance-profile-login > .dance-profile-avatar { margin: 0 auto 16px; }
+.dance-profile-login > .dance-eyebrow { text-align: center; }
+.dance-profile-login .dance-btn { width: 100%; justify-content: center; }
+.dance-profile-login > button { margin-top: 16px; }
+.dance-profile-search { max-width: 400px; text-align: left; margin: 30px auto; }
+.dance-profile-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 30px; }
+.dance-profile-hint { font-size: 13px; color: var(--dance-muted); margin-top: 24px !important; }
+@media (max-width: 600px) {
+  .dance-profiles { padding-block: 38px; }
+  .dance-profile-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 8px; }
+  .dance-profile-avatar { width: 110px; height: 110px; font-size: 36px; }
+  .dance-profile-card { padding: 5px; }
+}
+@media (prefers-reduced-motion: reduce) { .dance-profile-avatar { transition: none; } }
 .dance-app {
   --dance-paper: #f7f5ef;
   --dance-ink: #20231e;

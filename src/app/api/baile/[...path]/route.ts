@@ -56,6 +56,12 @@ export async function GET(req: NextRequest, ctx: Context) {
   try {
     const parts = (await ctx.params).path;
     if (parts[0] === "snapshot" || parts[0] === "public") return json(scope(readState(), sessionUser(req.cookies.get(COOKIE)?.value)));
+    if (parts[0] === "profiles") {
+      actor(req);
+      const state = readState();
+      ensure(state.settings.demo, "El selector solo está disponible durante las pruebas.", 403);
+      return json({ profiles: state.users.map(({ id, name, role }) => ({ id, name, role })).sort((a, b) => a.name.localeCompare(b.name, "es")) });
+    }
     if (parts[0] === "music-export") {
       admin(actor(req));
       const state = readState(); const categoryId = req.nextUrl.searchParams.get("category") || "";
@@ -102,6 +108,26 @@ export async function POST(req: NextRequest, ctx: Context) {
     const action = (await ctx.params).path[0];
     const f = await req.formData();
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+    if (action === "switch-profile") {
+      const previous = actor(req); const state = readState();
+      ensure(state.settings.demo, "El selector solo está disponible durante las pruebas.", 403);
+      const profileId = text(f, "profileId", 80);
+      const target = state.users.find(u => u.id === profileId);
+      rateLimit(`login-ip:${ip}`, 80); rateLimit(`login:${target?.email || profileId}`);
+      const fallback = "00000000000000000000000000000000:" + "0".repeat(128);
+      const valid = await verifyPassword(text(f, "password", 160), target?.passwordHash || fallback);
+      ensure(target && valid, "La contraseña no es correcta para este perfil.", 401);
+      const token = transaction(s => {
+        ensure(s.settings.demo, "El selector solo está disponible durante las pruebas.", 403);
+        const current = actor(req); const selected = s.users.find(u => u.id === target.id);
+        ensure(current.id === previous.id && selected?.passwordHash === target.passwordHash, "La cuenta cambió. Vuelve a intentarlo.", 401);
+        const token = createSession(target.id);
+        db().prepare("DELETE FROM sessions WHERE token=?").run(tokenHash(req.cookies.get(COOKIE)!.value));
+        audit(s, previous.id, "Cambio de perfil de prueba", target.id);
+        return token;
+      });
+      const res = json({ role: target.role }); res.cookies.set(COOKIE, token, cookieOptions); return res;
+    }
     if (action === "login") {
       const address = email(f);
       rateLimit(`login-ip:${ip}`, 80); rateLimit(`login:${address}`);

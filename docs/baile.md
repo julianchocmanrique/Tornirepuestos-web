@@ -51,6 +51,8 @@ La migración de versión 1 a 2 completa los campos nuevos al leer, conservando 
 
 ## Verificación
 
+Durante el modo de ejemplo, el botón del encabezado **Cambiar usuario** abre un selector visual de perfiles. Solo usuarios con sesión pueden consultar nombres y roles; no se listan correos, documentos ni claves. Elegir un perfil pide su contraseña actual, aplica los mismos límites de intentos del ingreso normal y reemplaza la sesión anterior únicamente al validar la clave. Una contraseña incorrecta conserva la sesión actual. El panel también permite cerrar sesión por completo; después se usa el acceso normal por correo y contraseña. Al desactivar `settings.demo`, tanto el selector como su API quedan bloqueados. No usar esta lista de perfiles como directorio de un evento real.
+
 `npm run build` y `node --test tests/baile.integration.mjs`.
 
 Las pruebas usan una base temporal independiente y un servidor en el puerto 33219; comprueban todo el flujo, archivos privados, independencia de jurados, bloqueos, cálculo, empates, migración, tarifas históricas, cierres independientes, acreditación, notas privadas, ZIP, programación y persistencia tras reinicio.

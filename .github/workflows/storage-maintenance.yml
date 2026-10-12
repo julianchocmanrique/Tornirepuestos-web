@@ -10,6 +10,7 @@ on:
         default: inspect
         options:
           - inspect
+          - inspect-detailed
           - clean-old-build-cache
           - clean-unused-build-cache
           - clean-all-unused-build-cache
@@ -40,7 +41,7 @@ jobs:
           script: |
             set -euo pipefail
             case "$MAINTENANCE_ACTION" in
-              inspect|clean-old-build-cache|clean-unused-build-cache|clean-all-unused-build-cache) ;;
+              inspect|inspect-detailed|clean-old-build-cache|clean-unused-build-cache|clean-all-unused-build-cache) ;;
               *) echo "Unsupported maintenance action"; exit 1 ;;
             esac
             CONTAINER_NAME=tornirepuestos-web
@@ -50,6 +51,22 @@ jobs:
             df -i /
             echo "=== Docker usage before ==="
             docker system df
+            if [ "$MAINTENANCE_ACTION" = "inspect-detailed" ]; then
+              echo "=== Directory sizes (metadata only) ==="
+              for directory in / /var /var/lib /var/log /root /tmp; do
+                du -xhd1 "$directory" 2>/dev/null | sort -h || true
+              done
+              echo "=== System journal size ==="
+              journalctl --disk-usage
+              echo "=== Docker image and cache sizes ==="
+              docker system df -v
+              echo "=== Container log sizes (not contents) ==="
+              for container in $(docker ps -aq); do
+                docker inspect --format '{{.Name}} {{.State.Status}}' "$container"
+                log="$(docker inspect --format '{{.LogPath}}' "$container")"
+                if [ -n "$log" ] && [ -f "$log" ]; then du -h "$log"; fi
+              done
+            fi
             if [ "$MAINTENANCE_ACTION" = "clean-old-build-cache" ]; then
               # Never prune volumes, images or containers; never restart services.
               docker builder prune --all --force --filter 'until=24h' --keep-storage 2GB

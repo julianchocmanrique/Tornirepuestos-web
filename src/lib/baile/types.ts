@@ -3,6 +3,19 @@ import type { Registration } from "./registration";
 export type Role = "participant" | "superadmin" | "contractor" | "judge";
 export type Status = "pending" | "review" | "approved" | "rejected";
 export const CRITERIA = ["Técnica", "Musicalidad", "Interpretación", "Conexión / trabajo en equipo", "Creatividad", "Presentación escénica"];
+export const SUNFEST_CRITERIA = [
+  { name: "Técnica", weight: 25 },
+  { name: "Musicalidad", weight: 15 },
+  { name: "Coreografía y dificultad", weight: 20 },
+  { name: "Tiempo", weight: 30 },
+  { name: "Presencia escénica y proyección", weight: 10 },
+];
+export function scoringCriteria(settings: Pick<Settings, "scoringScheme">) {
+  return settings.scoringScheme === "sunfest-v1" ? SUNFEST_CRITERIA : CRITERIA.map(name => ({ name, weight: 100 / CRITERIA.length }));
+}
+export function weightedScore(values: number[], criteria = SUNFEST_CRITERIA) {
+  return values.reduce((total, value, i) => total + value * criteria[i].weight, 0) / 100;
+}
 export type User = { id: string; name: string; username?: string; demoOnly?: boolean; disabledAt?: string; email: string; passwordHash: string; role: Role; categories: string[] };
 export type PublicUser = Omit<User, "passwordHash">;
 export type Participant = { id: string; code: string; name: string; document: string; birthDate: string; city: string; phone: string; email: string; academy: string; extra: string; createdAt: string; fullPassFee?: number; pass?: PurchasedPass; registration?: Registration };
@@ -16,7 +29,7 @@ export type ParticipantNote = { participantId: string; text: string; at: string;
 export type StageStatus = "planned" | "backstage" | "live" | "finished" | "cancelled";
 export const stageLabels: Record<StageStatus, string> = { planned: "Programado", backstage: "En camerino", live: "En tarima", finished: "Finalizado", cancelled: "Cancelado" };
 export type ScheduleSlot = { id: string; categoryId: string; startAt: string; duration: number; stage: string; status: StageStatus; note: string };
-export type Settings = { passPlans?: PassPlan[]; pricingNote?: string; eventStart?: string; eventEnd?: string; eventLocation?: string; name: string; tagline: string; fullPassFee: number; paymentInstructions: string; formula: "average" | "sum"; registrationOpen: boolean; categoryRegistrationOpen: boolean; demo: boolean };
+export type Settings = { scoringScheme?: "sunfest-v1"; passPlans?: PassPlan[]; pricingNote?: string; eventStart?: string; eventEnd?: string; eventLocation?: string; name: string; tagline: string; fullPassFee: number; paymentInstructions: string; formula: "average" | "sum"; registrationOpen: boolean; categoryRegistrationOpen: boolean; demo: boolean };
 export type State = { version: number; settings: Settings; users: User[]; participants: Participant[]; payments: Payment[]; categories: Category[]; enrollments: Enrollment[]; scores: Score[]; audit: Audit[]; accreditations: Accreditation[]; notes: ParticipantNote[]; schedule: ScheduleSlot[] };
 export type Snapshot = { settings: Settings; user: PublicUser | null; participants: Participant[]; payments: Payment[]; categories: Category[]; enrollments: Enrollment[]; scores: Score[]; judges: PublicUser[]; audit: Audit[]; accreditations: Accreditation[]; notes: ParticipantNote[]; schedule: ScheduleSlot[]; exampleCreated: boolean };
 export const statusLabels: Record<Status, string> = { pending: "Pendiente", review: "En revisión", approved: "Aprobado", rejected: "Rechazado" };

@@ -42,7 +42,10 @@ export function db() {
   return connection;
 }
 export function readState(): State {
-  return migrateState(JSON.parse(db().prepare("SELECT data FROM state WHERE id=1").get()!.data as string));
+  const state = migrateState(JSON.parse(db().prepare("SELECT data FROM state WHERE id=1").get()!.data as string));
+  // Adopt the new rubric only before scoring starts; never reinterpret historical notes.
+  if (currentEventId() === "thesunfest" && !state.scores.length) state.settings.scoringScheme ??= "sunfest-v1";
+  return state;
 }
 // La transacción incluye las validaciones para evitar números o inscripciones duplicados.
 export function transaction<T>(fn: (state: State) => T): T {

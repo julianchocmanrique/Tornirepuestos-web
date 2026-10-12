@@ -129,3 +129,10 @@
   .dance-app .event-intro { animation: rankia-arrive .6s ease-out both; }
   @keyframes rankia-arrive { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 }
+
+.dance-app .dance-score-grid .dance-score-weight {
+  display: block;
+  margin-top: 8px;
+  font-size: 22px;
+  color: var(--dance-gold);
+}

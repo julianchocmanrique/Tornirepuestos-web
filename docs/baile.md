@@ -21,7 +21,7 @@ En administración, **Crear recorrido de ejemplo** crea dos participantes fictic
 3. Full Pass aprobado habilita una inscripción independiente por categoría; parejas y grupos indican nombre e integrantes.
 4. Cada categoría tiene pago propio. Su aprobación asigna un número consecutivo, estable dentro de esa categoría.
 5. La pista se carga después de aprobar los pagos. Puede reemplazarse hasta el límite configurado en hora de Colombia; se bloquea cuando hay calificaciones o la categoría entra en tarima.
-6. Cada jurado recibe solo números, categorías asignadas y notas propias. Sus seis criterios se califican de 1 a 10.
+6. Cada jurado recibe solo números, categorías asignadas y notas propias. Sus criterios se califican de 1 a 10; The Sun Fest usa cinco áreas ponderadas y los eventos anteriores conservan seis criterios iguales.
 7. Enviar bloquea la calificación. La organización puede reabrirla dejando un motivo en el historial.
 8. Se configura promedio de todos los criterios/jurados (1–10) o suma. Criterios con igual peso. Empates comparten posición; filas incompletas no tienen posición. Las posiciones completas siguen siendo provisionales hasta finalizar la categoría desde Minuto a minuto.
 9. Listados, registros, inscripciones, pagos, acreditaciones, programación y resultados se exportan como CSV compatible con Excel. Las pistas se reproducen y descargan individualmente o en ZIP por categoría/evento (máximo 100 MB por descarga). Reproducir audio nunca cambia el estado de tarima.
@@ -71,7 +71,7 @@ Las pruebas usan una base temporal independiente y un servidor en el puerto 3321
 
 ## Alcance de esta versión
 
-Los ejemplos y tarifas son editables. No incluye cobros automáticos, correo transaccional, recuperación de contraseña por correo, generación de facturas, gastos/devoluciones, bootcamps, tallas, pases por días ni rondas eliminatorias. La programación agrupa categorías, no turnos individuales. Los nombres de integrantes de parejas/grupos los declara el titular de la inscripción; no se cruzan todavía sus Full Pass individuales. La cantidad de criterios y sus pesos están fijados en seis criterios iguales. Para operar un evento real hay que definir las reglas de la organización, datos del evento y medios de pago reales antes de retirar el aviso de demostración.
+Los ejemplos y tarifas son editables. No incluye cobros automáticos, correo transaccional, recuperación de contraseña por correo, generación de facturas, gastos/devoluciones, bootcamps, tallas, pases por días ni rondas eliminatorias. La programación agrupa categorías, no turnos individuales. Los nombres de integrantes de parejas/grupos los declara el titular de la inscripción; no se cruzan todavía sus Full Pass individuales. Los eventos originales conservan seis criterios iguales; The Sun Fest usa el esquema ponderado descrito a continuación. Para operar un evento real hay que definir las reglas de la organización, datos del evento y medios de pago reales antes de retirar el aviso de demostración.
 
 ## Portada editorial de eventos
 
@@ -183,3 +183,13 @@ mínima de las contraseñas del registro normal ni se guardan claves en texto pl
 `GET /api/baile/users` lista identificador, nombre, usuario, correo, rol y condición
 de prueba, exclusivamente para superadministradores. Nunca devuelve hashes.
 Las rutas de eventos mantienen su propio inventario y sus controles de acceso.
+
+### Calificación The Sun Fest
+
+El evento `thesunfest`, si aún no tiene notas guardadas, adopta `scoringScheme: sunfest-v1`: Técnica 25%, Musicalidad 15%, Coreografía y dificultad 20%, Tiempo 30%, Presencia escénica y proyección 10%. Cada nota va de 1 a 10 y el formulario acepta dos decimales. El servidor exige exactamente cinco valores válidos; los porcentajes se definen en el código, no en el formulario enviado.
+
+Cada jurado obtiene un total ponderado sobre 10; el resultado final es el promedio de esos totales, sin redondear antes de terminar el cálculo. Se mantienen las reglas de notas bloqueadas, asignaciones, empates y cierre de categoría. Resultados incluye un desglose por jurado y criterio. Los CSV y resultados públicos usan el mismo cálculo. No se ofrece la fórmula de suma para este esquema.
+
+El esquema se guarda con la primera transacción del evento. Si un evento antiguo ya tiene notas de seis criterios, no se convierte ni se recalculan sus resultados. La base original y los otros eventos no se modifican.
+
+En modo de prueba, `jurado1` muestra un ejercicio interactivo de The Sun Fest con las cinco áreas, aunque no tenga competidores asignados. Es una simulación local explícita: no envía notas, no crea usuarios y no afecta pagos, inscripciones ni resultados. Desaparece al desactivar el modo de prueba.

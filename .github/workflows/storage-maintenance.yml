@@ -12,6 +12,7 @@ on:
           - inspect
           - inspect-detailed
           - inspect-docker-age
+          - inspect-kaptura
           - clean-old-build-cache
           - clean-unused-build-cache
           - clean-all-unused-build-cache
@@ -42,7 +43,7 @@ jobs:
           script: |
             set -euo pipefail
             case "$MAINTENANCE_ACTION" in
-              inspect|inspect-detailed|inspect-docker-age|clean-old-build-cache|clean-unused-build-cache|clean-all-unused-build-cache) ;;
+              inspect|inspect-detailed|inspect-docker-age|inspect-kaptura|clean-old-build-cache|clean-unused-build-cache|clean-all-unused-build-cache) ;;
               *) echo "Unsupported maintenance action"; exit 1 ;;
             esac
             CONTAINER_NAME=tornirepuestos-web
@@ -52,6 +53,35 @@ jobs:
             df -i /
             echo "=== Docker usage before ==="
             docker system df
+            if [ "$MAINTENANCE_ACTION" = "inspect-kaptura" ]; then
+              echo "=== Kaptura service memory (bytes) ==="
+              for unit in $(systemctl list-units --all --type=service --no-legend --plain | awk 'tolower($1) ~ /kaptura/ {print $1}'); do
+                systemctl show "$unit" --property=Id,ActiveState,MainPID,MemoryCurrent,MemoryPeak,WorkingDirectory,ControlGroup
+              done
+              echo "=== Kaptura process RSS (KiB; metadata only) ==="
+              for path in /proc/[0-9]*/cwd; do
+                cwd="$(readlink "$path" 2>/dev/null || true)"
+                case "$cwd" in
+                  *[Kk][Aa][Pp][Tt][Uu][Rr][Aa]*)
+                    pid="${path#/proc/}"; pid="${pid%/cwd}"
+                    ps -p "$pid" -o pid=,comm=,rss= || true
+                    printf 'cwd=%s\n' "$cwd"
+                    ;;
+                esac
+              done
+              echo "=== Kaptura disk usage (allocated bytes; nested totals overlap) ==="
+              find /var/www /srv /opt /root /root/.openclaw/workspace /var/backups /tmp -maxdepth 3 -iname '*kaptura*' -prune -print 2>/dev/null | sort -u | while IFS= read -r path; do
+                if [ -L "$path" ]; then
+                  printf 'SYMLINK %s -> %s\n' "$path" "$(readlink "$path")"
+                elif [ -d "$path" ]; then
+                  du -x -B1 -d1 "$path" 2>/dev/null | sort -n || true
+                elif [ -f "$path" ]; then
+                  du -B1 "$path"
+                fi
+              done
+              echo "=== Host RAM ==="
+              free -b
+            fi
             if [ "$MAINTENANCE_ACTION" = "inspect-docker-age" ]; then
               # Creation dates and current references are not proof of last use.
               echo "=== Image metadata ==="

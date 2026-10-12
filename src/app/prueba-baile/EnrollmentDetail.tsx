@@ -1,5 +1,7 @@
 "use client";
+import { MobileModuleSelect } from "./MobileModuleSelect";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { dateTime, statusLabels, type Payment, type Snapshot } from "@/lib/baile/types";
 import { passFor, paymentFor, readyEntry } from "@/lib/baile/reporting";
@@ -16,6 +18,7 @@ function ReviewEntry({ payment, run }: { payment: Payment; run: Run }) {
 }
 
 export function EnrollmentDetail({ s, enrollmentId, run }: { s: Snapshot; enrollmentId: string; run: Run }) {
+  const router = useRouter();
   const [editing, setEditing] = useState(false), [changing, setChanging] = useState(false);
   const e = s.enrollments.find(e => e.id === enrollmentId), p = s.participants.find(p => p.id === e?.participantId);
   const isAdmin = s.user?.role === "superadmin", panel = `${base}/${rolePath[s.user?.role || ""] || "acceso"}`;
@@ -27,7 +30,7 @@ export function EnrollmentDetail({ s, enrollmentId, run }: { s: Snapshot; enroll
   const others = s.enrollments.filter(x => x.participantId === p?.id && x.id !== e?.id);
   const entryInput = <input type="hidden" name="enrollmentId" value={enrollmentId} />;
   return <section className="dance-admin-shell">
-    <aside className="dance-admin-nav"><div className="dance-admin-nav-title"><span className="dance-eyebrow">{isAdmin ? "SUPERADMINISTRACIÓN" : "CONTRATISTA DEL EVENTO"}</span><strong>Centro de control</strong><small>{s.settings.name}</small></div><nav aria-label="Módulos del evento">{modules.map((m, i) => <Link key={m.id} className={m.id === "inscripciones" ? "active" : ""} aria-current={m.id === "inscripciones" ? "page" : undefined} href={`${panel}#${m.id}`}><span className="dance-nav-number">{String(i + 1).padStart(2, "0")}</span>{m.name}</Link>)}</nav></aside>
+    <aside className="dance-admin-nav"><MobileModuleSelect modules={modules} value="inscripciones" onChange={id => router.push(`${panel}#${id}`)} /><div className="dance-admin-nav-title"><span className="dance-eyebrow">{isAdmin ? "SUPERADMINISTRACIÓN" : "CONTRATISTA DEL EVENTO"}</span><strong>Centro de control</strong><small>{s.settings.name}</small></div><nav aria-label="Módulos del evento">{modules.map((m, i) => <Link key={m.id} className={m.id === "inscripciones" ? "active" : ""} aria-current={m.id === "inscripciones" ? "page" : undefined} href={`${panel}#${m.id}`}><span className="dance-nav-number">{String(i + 1).padStart(2, "0")}</span>{m.name}</Link>)}</nav></aside>
     <div className="dance-admin-workspace dance-entry-page">
       <Link className="dance-text-link" href={back}>← Volver a inscripciones</Link>
       {!e || !p || !c ? <Empty>Esta inscripción no está disponible para tu perfil.</Empty> : <>

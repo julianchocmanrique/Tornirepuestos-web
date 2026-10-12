@@ -220,3 +220,72 @@
 .dance-app .dance-status-options input[type="radio"] { width: 16px; height: 16px; margin: 0; padding: 0; accent-color: #41523b; }
 @media (max-width: 800px) { .dance-entry-columns { grid-template-columns: 1fr; gap: 0; }.dance-entry-heading { align-items: start; flex-direction: column; } }
 @media (max-width: 600px) { .dance-entry-facts > div { grid-template-columns: 1fr; gap: 5px; }.dance-entry-facts dd { text-align: left; }.dance-entry-receipt { flex-direction: column; }.dance-receipt-preview { flex-basis: auto; width: 100%; }.dance-entry-person { padding: 14px; }.dance-entry-person > div:last-child { margin-left: 0; } }
+
+/* One table and one set of controls: desktop rows become labeled mobile cards. */
+.dance-mobile-module { display: none; }
+@media (max-width: 1050px) {
+  .dance-mobile-module { display: grid; gap: 8px; font-size: 12px; font-weight: 700; }
+  .dance-admin-nav nav { display: none; }
+  .dance-admin-nav { padding-bottom: 18px; }
+  .dance-admin-workspace .dance-panel-title { flex-wrap: wrap; }
+}
+@media (max-width: 750px) {
+  .dance-app { overflow-wrap: anywhere; }
+  .dance-header nav { flex-wrap: wrap; gap: 8px 16px; }
+  .dance-header nav > a, .dance-header nav > button { min-height: 44px; display: inline-flex; align-items: center; }
+  .dance-app .dance-btn, .dance-app .dance-status-trigger, .dance-app .dance-receipt-trigger { min-height: 44px; white-space: normal; }
+  .dance-app input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  .dance-app select, .dance-app textarea { font-size: 16px; }
+  .dance-filters { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .dance-filters input, .dance-filters select { min-width: 0 !important; }
+  .dance-admin-title, .dance-panel-title { align-items: flex-start; flex-wrap: wrap; }
+  .dance-admin-workspace .dance-panel-title > .dance-actions { flex-shrink: 1; width: 100%; }
+  .dance-panel-title .dance-actions > .dance-btn { flex: 1 1 180px; }
+  .dance-form-grid { grid-template-columns: minmax(0, 1fr); }
+  .dance-card-table-wrap { overflow: visible; margin-top: 20px; }
+  .dance-app .dance-card-table { display: block; min-width: 0; width: 100%; }
+  /* Keep column headers available to assistive technology when cards are shown. */
+  .dance-card-table thead { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .dance-card-table tbody { display: grid; gap: 18px; }
+  .dance-card-table tbody > tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--dance-line); border-radius: 10px; background: #fffefa; padding: 0 14px 8px; }
+  .dance-app .dance-card-table td { display: block; position: static; right: auto; min-width: 0; max-width: none; padding: 12px 6px; white-space: normal; overflow-wrap: anywhere; box-shadow: none; background: transparent; font-size: 14px; }
+  .dance-card-table td::before { content: attr(data-label); display: block; margin-bottom: 5px; font-size: 11px; font-weight: 700; color: var(--dance-muted); }
+  .dance-card-table td.dance-card-wide,
+  .dance-card-table td[data-label="Fecha"],
+  .dance-enrollments-table td[data-label="División / modalidad"],
+  .dance-enrollments-table td[data-label="Comprobante"] { grid-column: 1 / -1; }
+  .dance-app .dance-card-table td:first-child { padding-top: 18px; padding-bottom: 14px; }
+  .dance-card-table td:first-child strong { font-size: 18px; line-height: 1.35; }
+  .dance-card-table td:last-child { border-bottom: 0; }
+  .dance-card-table td[data-label="Acción"] .dance-btn { width: 100%; }
+  .dance-card-table td[data-label="WhatsApp"] a { display: inline-flex; align-items: center; min-height: 44px; }
+  .dance-pagination { justify-content: flex-start; }
+  .dance-pagination > span { flex-basis: 100%; }
+  .dance-pagination > div { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; width: 100%; font-size: 11px; }
+  .dance-pagination .dance-btn.small { padding: 10px 8px; }
+  .dance-entry-heading-actions { width: 100%; }
+  .dance-entry-person > div { min-width: 0; }
+  .dance-entry-other { flex-wrap: wrap; gap: 8px; }
+  .dance-form fieldset.dance-status-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .dance-status-options label { min-width: 0; padding: 10px 8px; }
+  .dance-music { width: 100%; }
+  .dance-music audio { width: 100%; }
+  .dance-receipt-close { width: 44px; height: 44px; }
+  .dance-receipt-modal { width: calc(100vw - 16px); max-width: none; height: calc(100dvh - 16px); max-height: calc(100dvh - 16px); }
+  .dance-receipt-header { gap: 12px; padding: 12px 16px; }
+  .dance-receipt-header > div { min-width: 0; }
+  .dance-receipt-header h2 { font-size: 18px; max-height: 5em; overflow: auto; }
+  .dance-receipt-footer { flex-direction: column; align-items: stretch; gap: 10px; padding: 12px 16px max(12px, env(safe-area-inset-bottom)); }
+  .dance-status-dialog { padding: 20px; overscroll-behavior: contain; }
+  .dance-status-dialog h2 { font-size: 23px; }
+  .dance-status-dialog header > button { flex-shrink: 0; }
+  .dance-status-dialog .dance-actions { gap: 10px; margin: 20px 0 0; }
+  .dance-status-dialog .dance-actions .dance-btn { width: 100%; }
+}
+@media (max-width: 400px) {
+  .dance-admin-shell { padding: 20px 12px; }
+  .dance-admin-workspace .dance-panel { padding: 16px 12px; }
+  .dance-pagination > div { grid-template-columns: 1fr 1fr; }
+  .dance-pagination > div > span { grid-column: 1 / -1; grid-row: 1; text-align: center; }
+  .dance-form fieldset.dance-status-options { grid-template-columns: minmax(0, 1fr); }
+}

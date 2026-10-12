@@ -64,6 +64,10 @@ async function handleGET(req: NextRequest, ctx: Context) {
     const parts = (await ctx.params).path;
     if (parts[0] === "snapshot" || parts[0] === "public") return json(scope(readState(), sessionUser(req.cookies.get(sessionCookieName())?.value)));
     if (parts[0] === "results") return json(publicResults(readState()));
+    if (parts[0] === "users") {
+      admin(actor(req));
+      return json({ users: readState().users.map(({ id, name, username, email, role, demoOnly }) => ({ id, name, username, email, role, demoOnly: !!demoOnly })) });
+    }
     if (parts[0] === "profiles") {
       actor(req);
       const state = readState();

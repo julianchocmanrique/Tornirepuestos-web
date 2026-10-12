@@ -11,6 +11,7 @@ on:
         options:
           - inspect
           - inspect-detailed
+          - inspect-docker-age
           - clean-old-build-cache
           - clean-unused-build-cache
           - clean-all-unused-build-cache
@@ -41,7 +42,7 @@ jobs:
           script: |
             set -euo pipefail
             case "$MAINTENANCE_ACTION" in
-              inspect|inspect-detailed|clean-old-build-cache|clean-unused-build-cache|clean-all-unused-build-cache) ;;
+              inspect|inspect-detailed|inspect-docker-age|clean-old-build-cache|clean-unused-build-cache|clean-all-unused-build-cache) ;;
               *) echo "Unsupported maintenance action"; exit 1 ;;
             esac
             CONTAINER_NAME=tornirepuestos-web
@@ -51,6 +52,23 @@ jobs:
             df -i /
             echo "=== Docker usage before ==="
             docker system df
+            if [ "$MAINTENANCE_ACTION" = "inspect-docker-age" ]; then
+              # Creation dates and current references are not proof of last use.
+              echo "=== Image metadata ==="
+              for id in $(docker image ls -aq --no-trunc | sort -u); do
+                docker image inspect --format '{"id":{{json .Id}},"tags":{{json .RepoTags}},"created":{{json .Created}},"size":{{json .Size}}}' "$id"
+              done
+              echo "=== Container metadata ==="
+              for id in $(docker ps -aq); do
+                docker inspect --format '{"name":{{json .Name}},"image":{{json .Image}},"created":{{json .Created}},"status":{{json .State.Status}},"started":{{json .State.StartedAt}},"finished":{{json .State.FinishedAt}},"mounts":{{json .Mounts}}}' "$id"
+              done
+              echo "=== Volume metadata ==="
+              for id in $(docker volume ls -q); do
+                docker volume inspect --format '{"name":{{json .Name}},"created":{{json .CreatedAt}}}' "$id"
+              done
+              echo "=== Image disk accounting ==="
+              docker system df -v
+            fi
             if [ "$MAINTENANCE_ACTION" = "inspect-detailed" ]; then
               echo "=== Directory sizes (metadata only) ==="
               for directory in / /var /var/lib /var/log /root /tmp; do

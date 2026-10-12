@@ -154,6 +154,19 @@ Pruebas específicas: `tests/baile-multievent.integration.mjs` y
 `tests/baile-pricing.browser.cjs`; usar almacenamiento temporal y comprobantes
 ficticios, nunca crear registros de prueba en producción para verificar cambios.
 
+## Reproducción del carrusel
+
+El carrusel avanza cada 6,5 segundos. Las flechas, los puntos y los gestos
+táctiles reinician el intervalo, sin activar una pausa permanente. Pausar es
+una decisión explícita y se conserva hasta pulsar Reproducir. El ratón sobre
+las imágenes o su descripción, el foco de teclado y una pestaña oculta pausan
+temporalmente el avance. Al abandonar esa interacción se reanuda.
+
+Se respeta `prefers-reduced-motion`: no se inicia automáticamente en ese caso,
+pero Reproducir sigue disponible para activarlo voluntariamente. La prueba
+`tests/baile-autoplay.browser.cjs` verifica el temporizador, los controles,
+los gestos, el foco, la visibilidad y las preferencias en celular y escritorio.
+
 ## Publicación
 
 Por indicación del responsable, los cambios de este proyecto se publican en la página oficial (`https://tornirepuestos.com/prueba-baile`) después de integrar y verificar la versión completa. No dar por entregado un cambio solamente por estar guardado localmente. Conservar el volumen de datos, no reinicializar cuentas y comprobar el despliegue y los registros existentes antes de confirmar la publicación.

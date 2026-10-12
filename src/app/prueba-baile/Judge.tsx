@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { dateTime, scoringCriteria, SUNFEST_CRITERIA, weightedScore, type Snapshot, type Enrollment } from "@/lib/baile/types";
+import { dateTime, usesWeightedScoring, scoringCriteria, SUNFEST_CRITERIA, weightedScore, type Snapshot, type Enrollment } from "@/lib/baile/types";
 import { Heading, Empty, Stat, Form, type Run } from "./ui";
 
 type Criteria = ReturnType<typeof scoringCriteria>;
@@ -19,14 +19,14 @@ function SunFestPractice() {
 }
 export function Judge({ s, run }: { s: Snapshot; run: Run }) {
   const [cat, setCat] = useState(s.categories[0]?.id || ""); const entries = s.enrollments.filter(e => e.categoryId === cat); const ownScores = s.scores.filter(x => x.locked);
-  const weighted = s.settings.scoringScheme === "sunfest-v1";
+  const weighted = usesWeightedScoring(s.settings);
   return <section className="dance-container dance-section"><Heading eyebrow={`MESA DE JURADOS / ${s.user?.name}`} title="Tu criterio hace la diferencia." detail="Evalúa cada presentación de forma independiente. Cada criterio se califica de 1 a 10, con dos decimales." />
-    {weighted && <div className="dance-callout"><strong>Áreas de calificación · The Sun Fest</strong><ul>{SUNFEST_CRITERIA.map(c => <li key={c.name}>{c.name}: {c.weight}%</li>)}</ul><p>El total de cada jurado es ponderado sobre 10. El resultado final es el promedio de los totales de los jurados asignados.</p></div>}
+    {weighted && <div className="dance-callout"><strong>Áreas de calificación del evento</strong><ul>{scoringCriteria(s.settings).map(c => <li key={c.name}>{c.name}: {c.weight}%</li>)}</ul><p>El total de cada jurado es ponderado sobre 10. El resultado final es el promedio de los totales de los jurados asignados.</p></div>}
     {s.settings.demo && s.user?.username === "jurado1" && <SunFestPractice />}
-    <div className="dance-stats"><Stat label="Mis categorías" value={s.categories.length} /><Stat label="Notas enviadas" value={ownScores.length} /><Stat label="Por calificar" value={s.enrollments.filter(e => !ownScores.some(x => x.enrollmentId === e.id)).length} /></div><div className="dance-tabs" role="tablist" aria-label="Categorías asignadas">{s.categories.map(c => <button key={c.id} role="tab" aria-selected={c.id === cat} className={c.id === cat ? "active" : ""} onClick={() => setCat(c.id)}>{c.name}</button>)}</div>{!entries.length && <Empty>No hay competidores habilitados en esta categoría todavía.</Empty>}{entries.map(e => <ScoreForm key={e.id + (s.scores.find(x => x.enrollmentId === e.id)?.submittedAt || "")} e={e} s={s} run={run} />)}</section>;
+    <div className="dance-stats"><Stat label="Mis categorías" value={s.categories.length} /><Stat label="Notas enviadas" value={ownScores.length} /><Stat label="Por calificar" value={s.enrollments.filter(e => !ownScores.some(x => x.enrollmentId === e.id)).length} /></div><div className="dance-tabs" role="tablist" aria-label="Categorías del evento">{s.categories.map(c => <button key={c.id} role="tab" aria-selected={c.id === cat} className={c.id === cat ? "active" : ""} onClick={() => setCat(c.id)}>{c.name}</button>)}</div>{!entries.length && <Empty>No hay competidores habilitados en esta categoría todavía.</Empty>}{entries.map(e => <ScoreForm key={e.id + (s.scores.find(x => x.enrollmentId === e.id)?.submittedAt || "")} e={e} s={s} run={run} />)}</section>;
 }
 function ScoreForm({ e, s, run }: { e: Enrollment; s: Snapshot; run: Run }) {
-  const criteria = scoringCriteria(s.settings), weighted = s.settings.scoringScheme === "sunfest-v1";
+  const criteria = scoringCriteria(s.settings), weighted = usesWeightedScoring(s.settings);
   const existing = s.scores.find(x => x.enrollmentId === e.id); const [values, setValues] = useState<Values>(existing?.values || criteria.map(() => ""));
   const locked = existing?.locked;
   return <div className="dance-panel"><div className="dance-panel-title"><div><p className="dance-eyebrow">{s.categories.find(c => c.id === e.categoryId)?.name}</p><h2>Competidor {String(e.competitionNumber).padStart(3, "0")}</h2></div><span className={`dance-badge ${locked ? "approved" : "pending"}`}>{locked ? "Enviada y bloqueada" : "Por calificar"}</span></div>{locked ? <><div className="dance-score-grid">{criteria.map((c, i) => <div key={c.name}><span>{c.name}{weighted && ` · ${c.weight}%`}</span><strong>{Number(values[i]).toFixed(2)}</strong></div>)}</div><ScoreTotal values={values} criteria={criteria} weighted={weighted} /><p className="dance-muted">Enviada {dateTime(existing!.submittedAt)}. Para corregirla, solicita autorización a la organización.</p></> : <Form action="score" run={run} label="Enviar y bloquear calificación"><input type="hidden" name="enrollmentId" value={e.id} /><input type="hidden" name="values" value={JSON.stringify(values)} /><ScoreInputs criteria={criteria} values={values} setValues={setValues} weighted={weighted} /><ScoreTotal values={values} criteria={criteria} weighted={weighted} /><label className="dance-check"><input type="checkbox" required /> Confirmo que estas notas corresponden a este número de competencia.</label></Form>}</div>;

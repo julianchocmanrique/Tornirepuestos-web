@@ -70,7 +70,8 @@ test('desactivar cuentas conserva historial y revoca todos sus accesos', { timeo
   assert.deepEqual(db.prepare('SELECT * FROM files ORDER BY id').all(), filesBefore);
   for (const user of before.users) {
     const current = after.users.find(u => u.id === user.id);
-    assert.deepEqual(current, targets.includes(user.id) ? { ...user, disabledAt: current.disabledAt } : user);
+    const expected = targets.includes(user.id) ? { ...user, disabledAt: current.disabledAt, categories: user.role === "judge" ? user.categories.filter(id => id === entry.categoryId) : user.categories } : user;
+    assert.deepEqual(current, expected);
     if (targets.includes(user.id)) assert.ok(current.disabledAt);
   }
   const profiles = (await admin.get('profiles')).data.profiles;

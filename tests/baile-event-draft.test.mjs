@@ -44,3 +44,10 @@ test('malformed browser records fail safely', () => {
     { version: 1, draft: { ...newEventDraft(), judges: [{ name: '', email: '', categories: [999] }] } },
   ]) assert.throws(() => restoreDraft(row));
 });
+
+test('custom criteria survive reload; old drafts keep preset behavior', () => {
+  const draft = newEventDraft(); draft.scoring = 'custom-v1'; draft.criteria = [{name:'Técnica',weight:75},{name:'Proyección',weight:25}];
+  assert.deepEqual(restoreDraft({version:1, draft:withoutPasswords(draft), step:4}).draft.criteria, draft.criteria);
+  delete draft.criteria; draft.scoring = 'average';
+  assert.equal(restoreDraft({version:1, draft, step:4}).draft.criteria, null);
+});

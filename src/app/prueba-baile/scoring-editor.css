@@ -1,0 +1,10 @@
+.dance-scoring-editor { display: grid; gap: 20px; min-width: 0; }
+.dance-criterion-row { display: grid; grid-template-columns: minmax(0, 1fr) 140px auto; gap: 16px; align-items: end; padding-bottom: 18px; border-bottom: 1px solid var(--dance-line); }
+.dance-criterion-row .dance-field { margin: 0; }
+.dance-criterion-row input { min-width: 0; width: 100%; }
+.dance-criterion-row .dance-btn { margin-bottom: 2px; }
+@media (max-width: 700px) {
+  .dance-criterion-row { grid-template-columns: minmax(0, 1fr) 95px; gap: 12px; }
+  .dance-criterion-row .dance-btn { grid-column: 1 / -1; }
+}
+@media (max-width: 380px) { .dance-criterion-row { grid-template-columns: minmax(0, 1fr); } }

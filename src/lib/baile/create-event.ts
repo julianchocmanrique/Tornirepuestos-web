@@ -2,6 +2,8 @@ import { audit, ensure, validDate } from "./domain";
 import { EVENT_CATEGORIES, colombiaDay, type EventListing } from "./event-catalog";
 import { initialState } from "./types";
 import type { User } from "./types";
+import { scoringConfiguration } from "./scoring-config";
+import { categoryIdentity } from "./category-identity";
 
 function record(value: unknown): Record<string, unknown> {
   ensure(value && typeof value === "object" && !Array.isArray(value), "Revisa los datos del evento.");
@@ -56,17 +58,15 @@ export function prepareEvent(input: unknown, actor: string, customCover: boolean
   });
   ensure(passes.some(p => p.canCompete), "Incluye al menos un pase con derecho de competidor.");
   ensure(new Set(passes.map(p => p.name.toLowerCase())).size === passes.length, "No repitas nombres de pases.");
-  ensure(new Set(state.categories.map(c => c.name.toLowerCase())).size === state.categories.length, "No repitas nombres de categorías.");
-  ensure(["average", "sum", "sunfest-v1"].includes(String(d.scoring)), "Selecciona una fórmula de calificación.");
-  state.settings = { name: listing.name, tagline: str(d.tagline, "la frase del evento", 200), demo, eventStart: start, eventEnd: end, eventLocation: str(d.venue, "la sede y dirección", 200), fullPassFee: passes[0].fee, passPlans: passes, paymentInstructions: str(d.paymentInstructions, "las instrucciones de pago", 3000), formula: d.scoring === "sum" ? "sum" : "average", ...(d.scoring === "sunfest-v1" ? { scoringScheme: "sunfest-v1" as const } : {}), registrationOpen: bool(d.registrationOpen), categoryRegistrationOpen: bool(d.categoryRegistrationOpen) };
+  ensure(new Set(state.categories.map(categoryIdentity)).size === state.categories.length, "No repitas categorías con el mismo nombre, modalidad, disciplina y división.");
+  const scoring = scoringConfiguration(d.scoring, d.criteria);
+  state.settings = { name: listing.name, tagline: str(d.tagline, "la frase del evento", 200), demo, eventStart: start, eventEnd: end, eventLocation: str(d.venue, "la sede y dirección", 200), fullPassFee: passes[0].fee, passPlans: passes, paymentInstructions: str(d.paymentInstructions, "las instrucciones de pago", 3000), ...scoring, registrationOpen: bool(d.registrationOpen), categoryRegistrationOpen: bool(d.categoryRegistrationOpen) };
   const accounts: { name: string; email: string; password: string; role: User["role"]; categories: string[] }[] = [];
   function account(value: unknown, role: "contractor" | "judge") {
     const a = record(value), email = str(a.email, "el correo del equipo").toLowerCase(), password = str(a.password, "la contraseña", 160);
     ensure(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), "Revisa el correo del equipo.");
     ensure(password.length >= 10, "Cada contraseña debe tener al menos 10 caracteres.");
-    const assigned = role === "judge" ? list(a.categories, "Categorías de cada jurado", 1, state.categories.length) : [];
-    ensure(assigned.every(n => Number.isInteger(n) && Number(n) >= 0 && Number(n) < state.categories.length), "Selecciona las categorías de cada jurado.");
-    accounts.push({ name: str(a.name, "el nombre del integrante"), email, password, role, categories: [...new Set(assigned.map(n => state.categories[Number(n)].id))] });
+    accounts.push({ name: str(a.name, "el nombre del integrante"), email, password, role, categories: role === "judge" ? state.categories.map(c => c.id) : [] });
   }
   if (d.contractor !== null) account(d.contractor, "contractor");
   list(d.judges, "Jurados iniciales", 0, 20).forEach(a => account(a, "judge"));

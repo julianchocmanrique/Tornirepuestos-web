@@ -3,7 +3,7 @@ import { useDanceScope } from "./DanceScope";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Empty, Heading } from "./ui";
-type Data = { scoringScheme?: "sunfest-v1"; formula: "average" | "sum"; categories: { id: string; name: string; rows: { position: number; number: number; name: string; value: number }[] }[] };
+type Data = { scoringScheme?: "sunfest-v1" | "custom-v1"; formula: "average" | "sum"; categories: { id: string; name: string; rows: { position: number; number: number; name: string; value: number }[] }[] };
 
 export function PublicResults() {
   const { base, apiBase } = useDanceScope();
@@ -17,7 +17,7 @@ export function PublicResults() {
     <Link className="dance-btn secondary small" href={base}>Información del evento</Link>
     {error ? <div role="alert"><p>{error}</p><button className="dance-btn" onClick={() => setRetry(n => n + 1)}>Reintentar</button></div> : !data ? <p role="status">Consultando resultados…</p> : <>
       {!data.categories.length && <Empty>Todavía no hay resultados definitivos. Podrás verlos aquí al finalizar las categorías.</Empty>}
-      {data.categories.map(c => <article className="dance-panel" key={c.id}><h2>{c.name}</h2><p>Resultado definitivo · {data.scoringScheme === "sunfest-v1" ? "Promedio ponderado de 1 a 10" : data.formula === "average" ? "Promedio de 1 a 10" : "Suma de puntos"} · Los empates comparten posición.</p><div className="dance-table-wrap"><table><thead><tr><th>Posición</th><th>Número</th><th>Participante / equipo</th><th>Puntuación</th></tr></thead><tbody>{c.rows.map(r => <tr key={r.number} className={r.position === 1 ? "winner" : ""}><td>#{r.position}</td><td>{r.number}</td><td>{r.name}</td><td>{r.value.toFixed(2)}</td></tr>)}</tbody></table></div></article>)}
+      {data.categories.map(c => <article className="dance-panel" key={c.id}><h2>{c.name}</h2><p>Resultado definitivo · {data.scoringScheme ? "Promedio ponderado de 1 a 10" : data.formula === "average" ? "Promedio de 1 a 10" : "Suma de puntos"} · Los empates comparten posición.</p><div className="dance-table-wrap"><table><thead><tr><th>Posición</th><th>Número</th><th>Participante / equipo</th><th>Puntuación</th></tr></thead><tbody>{c.rows.map(r => <tr key={r.number} className={r.position === 1 ? "winner" : ""}><td>#{r.position}</td><td>{r.number}</td><td>{r.name}</td><td>{r.value.toFixed(2)}</td></tr>)}</tbody></table></div></article>)}
     </>}
   </section>;
 }

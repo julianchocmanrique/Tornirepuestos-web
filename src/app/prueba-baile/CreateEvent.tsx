@@ -5,7 +5,10 @@ import { EVENT_CATEGORIES, eventHref, type EventListing } from "@/lib/baile/even
 import { emptyCategory, emptyPass, type EventDraft } from "@/lib/baile/event-draft";
 import { useSavedEventDraft } from "./useSavedEventDraft";
 import { useDanceScope } from "./DanceScope";
-import { scoringCriteria, money } from "@/lib/baile/types";
+import { money } from "@/lib/baile/types";
+import { categoryIdentity } from "@/lib/baile/category-identity";
+import { CategoryExcel } from "./CategoryExcel";
+import { ScoringEditor } from "./ScoringEditor";
 import type { Run } from "./ui";
 import "./create-event.css";
 
@@ -32,7 +35,18 @@ export function CreateEvent({ run, events = [], demoEnabled, userId }: { run: Ru
     const url = URL.createObjectURL(cover); setPreview(url); return () => URL.revokeObjectURL(url);
   }, [cover]);
   function change<K extends keyof EventDraft>(key: K, value: EventDraft[K]) { setDraft(d => ({ ...d, [key]: value })); setConfirm(false); }
-  const criteria = scoringCriteria({ scoringScheme: draft.scoring === "sunfest-v1" ? "sunfest-v1" : undefined });
+  async function importCategories(rows: EventDraft["categories"]) {
+    const existing = draft.categories.filter(c => c.name.trim());
+    const keys = new Map(existing.map(c => [categoryIdentity(c), c]));
+    for (const c of rows) {
+      const old = keys.get(categoryIdentity(c));
+      if (old && Number(old.fee) !== Number(c.fee)) throw Error(`La categoría ${c.name} ya está en el borrador con otro precio. Revísala antes de importar.`);
+    }
+    const added = rows.filter(c => !keys.has(categoryIdentity(c)));
+    if (existing.length + added.length > 60) throw Error("El evento admite hasta 60 categorías.");
+    change("categories", [...existing, ...added]);
+    return `${added.length} categorías añadidas al borrador. Revisa los datos antes de publicar.`;
+  }
   function next() {
     setError("");
     if (!form.current?.reportValidity()) return;
@@ -40,7 +54,7 @@ export function CreateEvent({ run, events = [], demoEnabled, userId }: { run: Ru
     if (step === 0 && events.some(e => e.id === draft.id)) { setError("Ese enlace ya pertenece a otro evento. Elige otro identificador."); return; }
     if (step === 1 && draft.end < draft.start) { setError("La fecha final no puede ser anterior al inicio."); return; }
     if (step === 2 && !draft.passes.some(p => p.canCompete)) { setError("Incluye un pase con derecho de competidor."); return; }
-    if (step === 5 && draft.judges.some(j => !j.categories.length)) { setError("Selecciona al menos una categoría para cada jurado."); return; }
+    if (step === 4 && draft.scoring === "custom-v1" && Math.abs((draft.criteria || []).reduce((sum, c) => sum + c.weight, 0) - 100) > 0.000001) { setError("Los porcentajes deben sumar 100%."); return; }
     setStep(i => Math.min(i + 1, steps.length - 1));
   }
   async function publish() {
@@ -98,6 +112,7 @@ export function CreateEvent({ run, events = [], demoEnabled, userId }: { run: Ru
             <Input label="Instrucciones y medios de pago" multiline maxLength={3000} value={draft.paymentInstructions} onValue={v => change("paymentInstructions", v)} />
           </>}
           {step === 3 && <>
+            <CategoryExcel onApply={importCategories} />
             <p>Define las modalidades y tarifas de inscripción. Los plazos de pistas usan la hora de Colombia (UTC−5).</p>
             {draft.categories.map((c, i) => {
               const update = (key: keyof typeof c, value: string) => change("categories", draft.categories.map((x, n) => n === i ? { ...x, [key]: value } : x));
@@ -108,8 +123,7 @@ export function CreateEvent({ run, events = [], demoEnabled, userId }: { run: Ru
             <button type="button" className="dance-btn secondary small" disabled={draft.categories.length >= 60} onClick={() => change("categories", [...draft.categories, emptyCategory()])}>Añadir categoría</button>
           </>}
           {step === 4 && <>
-            <label className="dance-field"><span>Sistema de calificación</span><select value={draft.scoring} onChange={e => change("scoring", e.target.value as EventDraft["scoring"])}><option value="average">Promedio de seis criterios (1 a 10)</option><option value="sum">Suma de seis criterios y todos los jurados</option><option value="sunfest-v1">Modelo The Sun Fest: cinco criterios ponderados (1 a 10)</option></select></label>
-            <div className="event-builder-item"><h3>Parámetros de calificación</h3>{criteria.map(c => <div className="dance-list-row" key={c.name}><span>{c.name}</span><strong>{draft.scoring === "sum" ? "1 a 10 puntos" : `${Number(c.weight.toFixed(2))}%`}</strong></div>)}</div>
+            <ScoringEditor model={draft.scoring} criteria={draft.criteria} onChange={(model, criteria) => { setDraft(d => ({ ...d, scoring: model, criteria })); setConfirm(false); }} />
             <p>Las notas se bloquean cuando el jurado las envía. Las posiciones finales requieren todas las calificaciones y el cierre de la categoría por la organización.</p>
             <p className="dance-muted">El modelo elegido no cambia las notas ni la configuración de los eventos existentes. El envío automático por WhatsApp todavía no está activado.</p>
           </>}
@@ -117,18 +131,18 @@ export function CreateEvent({ run, events = [], demoEnabled, userId }: { run: Ru
             <p>Tu cuenta global de superadministración podrá gestionar el nuevo evento. Estos accesos son opcionales y exclusivos del evento; también puedes crearlos después desde Ajustes y Jurados.</p>
             <Check label="Crear acceso para el contratista" value={!!draft.contractor} onValue={v => change("contractor", v ? { name: "", email: "", password: "" } : null)} />
             {draft.contractor && <section className="event-builder-item"><h3>Contratista del evento</h3><p>Visualiza registros e inscripciones y valida los comprobantes de pago.</p><div className="dance-form-grid">{(["name", "email", "password"] as const).map(key => <Input key={key} label={{ name: "Nombre del contratista", email: "Correo del contratista", password: "Contraseña del contratista" }[key]} value={draft.contractor![key]} type={key === "name" ? "text" : key} minLength={key === "password" ? 10 : undefined} maxLength={key === "password" ? 160 : 200} autoComplete={key === "password" ? "new-password" : "off"} onValue={v => change("contractor", { ...draft.contractor!, [key]: v })} />)}</div></section>}
-            {draft.judges.map((j, i) => <section className="event-builder-item" key={i}><div className="dance-panel-title"><h3>Jurado {i + 1}</h3><button type="button" className="dance-text-link" onClick={() => change("judges", draft.judges.filter((_, n) => n !== i))}>Quitar jurado {i + 1}</button></div><div className="dance-form-grid">{(["name", "email", "password"] as const).map(key => <Input key={key} label={`${{ name: "Nombre", email: "Correo", password: "Contraseña" }[key]} del jurado ${i + 1}`} type={key === "name" ? "text" : key} value={j[key]} minLength={key === "password" ? 10 : undefined} maxLength={key === "password" ? 160 : 200} autoComplete={key === "password" ? "new-password" : "off"} onValue={v => change("judges", draft.judges.map((x, n) => n === i ? { ...x, [key]: v } : x))} />)}</div><p>Categorías que calificará:</p>{draft.categories.map((c, n) => <Check key={n} label={`Jurado ${i + 1}: ${c.name}`} value={j.categories.includes(n)} onValue={v => change("judges", draft.judges.map((x, index) => index === i ? { ...x, categories: v ? [...x.categories, n] : x.categories.filter(k => k !== n) } : x))} />)}</section>)}
+            {draft.judges.map((j, i) => <section className="event-builder-item" key={i}><div className="dance-panel-title"><h3>Jurado {i + 1}</h3><button type="button" className="dance-text-link" onClick={() => change("judges", draft.judges.filter((_, n) => n !== i))}>Quitar jurado {i + 1}</button></div><div className="dance-form-grid">{(["name", "email", "password"] as const).map(key => <Input key={key} label={`${{ name: "Nombre", email: "Correo", password: "Contraseña" }[key]} del jurado ${i + 1}`} type={key === "name" ? "text" : key} value={j[key]} minLength={key === "password" ? 10 : undefined} maxLength={key === "password" ? 160 : 200} autoComplete={key === "password" ? "new-password" : "off"} onValue={v => change("judges", draft.judges.map((x, n) => n === i ? { ...x, [key]: v } : x))} />)}</div><p>Calificará todas las categorías de este evento, incluidas las que añadas después.</p></section>)}
             <button type="button" className="dance-btn secondary small" disabled={draft.judges.length >= 20} onClick={() => change("judges", [...draft.judges, { name: "", email: "", password: "", categories: [] }])}>Añadir jurado</button>
             <p className="dance-muted">Contraseñas de al menos 10 caracteres. No se envían por correo ni se publican. Compártelas de forma privada con cada integrante.</p>
           </>}
           {step === 6 && <>
             {preview && <img className="event-builder-cover" src={preview} alt={draft.imageAlt} />}
-            <h3>{draft.name}</h3><p>{draft.description}</p><div className="event-builder-summary"><p><b>Tipo</b>{draft.category} / {draft.genre}</p><p><b>Fechas</b>{draft.start} al {draft.end}</p><p><b>Ubicación</b>{draft.city}: {draft.venue}</p><p><b>Modo</b>{draft.demo ? "Ejemplo de prueba, sin pagos reales" : "Evento real"}</p><p><b>Equipo inicial</b>{draft.contractor ? "1 contratista" : "Sin contratista"} · {draft.judges.length} jurados</p><p><b>Calificación</b>{draft.scoring === "sunfest-v1" ? "Promedio ponderado The Sun Fest" : draft.scoring === "sum" ? "Suma de criterios" : "Promedio de criterios"}</p></div>
+            <h3>{draft.name}</h3><p>{draft.description}</p><div className="event-builder-summary"><p><b>Tipo</b>{draft.category} / {draft.genre}</p><p><b>Fechas</b>{draft.start} al {draft.end}</p><p><b>Ubicación</b>{draft.city}: {draft.venue}</p><p><b>Modo</b>{draft.demo ? "Ejemplo de prueba, sin pagos reales" : "Evento real"}</p><p><b>Equipo inicial</b>{draft.contractor ? "1 contratista" : "Sin contratista"} · {draft.judges.length} jurados</p><p><b>Calificación</b>{draft.scoring === "custom-v1" ? "Criterios y porcentajes personalizados" : draft.scoring === "sunfest-v1" ? "Promedio ponderado The Sun Fest" : draft.scoring === "sum" ? "Suma de criterios" : "Promedio de criterios"}</p></div>
             <h3>Pases</h3>{draft.passes.map((p, i) => <div className="dance-list-row" key={i}><span>{p.name} · {p.canCompete ? "Puede competir" : "Acompañante"}</span><strong>{money(Number(p.fee))}</strong></div>)}
             <h3>Categorías</h3>{draft.categories.map((c, i) => <div className="dance-list-row" key={i}><span>{c.name} · {c.modality} · {c.division}</span><strong>{money(Number(c.fee))}</strong></div>)}
             <h3>Instrucciones de pago</h3><p className="event-builder-payment">{draft.paymentInstructions}</p>
             <Check label="Abrir registros generales al publicar" value={draft.registrationOpen} onValue={v => change("registrationOpen", v)} /><Check label="Abrir inscripciones a categorías al publicar" value={draft.categoryRegistrationOpen} onValue={v => change("categoryRegistrationOpen", v)} />
-            <p>La página aparecerá en el inicio de RANKIA. Puedes mantener los registros cerrados mientras completas los horarios y asignaciones de jurados.</p>
+            <p>La página aparecerá en el inicio de RANKIA. Puedes mantener los registros cerrados mientras completas los horarios y el equipo de jurados.</p>
             <label className="dance-check"><input type="checkbox" checked={confirm} required onChange={e => setConfirm(e.target.checked)} />He revisado los datos y quiero crear y publicar este evento.</label>
           </>}
           <div className="event-builder-actions">{step > 0 && <button type="button" className="dance-btn secondary" onClick={() => { setStep(n => n - 1); setError(""); }}>Anterior</button>}<button className="dance-btn" type="submit" disabled={busy || (step === 6 && !confirm)}>{busy ? "Creando evento…" : step === 6 ? "Crear y publicar evento" : "Continuar"}</button></div>

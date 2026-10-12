@@ -1,4 +1,7 @@
 import { passPlans, passAvailable, type PassPlan } from "@/lib/baile/pricing";
+import { scoringConfiguration } from "@/lib/baile/scoring-config";
+import { parseCategoryWorkbook, categoryIdentity } from "@/lib/baile/category-excel";
+import { protectedJudgeCategories } from "@/lib/baile/types";
 import { withEvent, sessionCookieName } from "@/lib/baile/event-scope";
 import { findRegisteredEvent as findEvent, listEvents, insertEvent, eventCover } from "@/lib/baile/event-registry";
 import { prepareEvent } from "@/lib/baile/create-event";
@@ -365,7 +368,7 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       ensure(!eventEnd || validDate(eventEnd), "Revisa la fecha final del evento.");
       ensure(!eventStart || !eventEnd || eventEnd >= eventStart, "La fecha final no puede ser anterior al inicio.");
       const formula = text(f, "formula"); ensure(formula === "average" || formula === "sum", "Fórmula inválida.");
-      transaction(s => { ensure(!s.settings.scoringScheme || formula === "average", "The Sun Fest usa promedio ponderado sobre 10."); ensure(formula === s.settings.formula || !s.schedule.some(x => x.status === "finished"), "No cambies la fórmula cuando hay resultados definitivos.", 409); s.settings = { ...s.settings, ...(eventStart !== undefined ? { eventStart } : {}), ...(eventEnd !== undefined ? { eventEnd } : {}), ...(eventLocation !== undefined ? { eventLocation } : {}), name, tagline, fullPassFee, paymentInstructions, formula, registrationOpen: f.get("registrationOpen") === "on", categoryRegistrationOpen: f.get("categoryRegistrationOpen") === "on" }; audit(s, user.id, "Configuración actualizada", "evento"); }); return json({ ok: true });
+      transaction(s => { ensure(!s.settings.scoringScheme || formula === "average", "Este evento usa promedio ponderado sobre 10."); ensure(formula === s.settings.formula || (!s.scores.length && !s.schedule.some(x => ["live", "finished"].includes(x.status))), "No cambies la fórmula cuando hay calificaciones o competencias iniciadas.", 409); s.settings = { ...s.settings, ...(eventStart !== undefined ? { eventStart } : {}), ...(eventEnd !== undefined ? { eventEnd } : {}), ...(eventLocation !== undefined ? { eventLocation } : {}), name, tagline, fullPassFee, paymentInstructions, formula, registrationOpen: f.get("registrationOpen") === "on", categoryRegistrationOpen: f.get("categoryRegistrationOpen") === "on" }; audit(s, user.id, "Configuración actualizada", "evento"); }); return json({ ok: true });
     }
     if (action === "contractor") {
       const address = email(f), name = text(f, "name");
@@ -381,6 +384,33 @@ async function handlePOST(req: NextRequest, ctx: Context) {
         audit(s, user.id, "Acceso de contratista actualizado", address);
       });
       return json({ ok: true });
+    }
+    if (action === "categories-preview" || action === "categories-import") {
+      const file = f.get("file");
+      ensure(file instanceof File && /\.xlsx?$/i.test(file.name) && file.size <= 5 * 1024 ** 2, "Selecciona un archivo .xlsx o .xls de máximo 5 MB.");
+      const categories = parseCategoryWorkbook(new Uint8Array(await file.arrayBuffer()));
+      if (action === "categories-preview") return json({ categories });
+      ensure(f.get("confirm") === "import", "Confirma las categorías de la vista previa.");
+      const counts = transaction(s => {
+        let added = 0, skipped = 0;
+        for (const c of categories) {
+          const old = s.categories.find(x => categoryIdentity(x) === categoryIdentity(c));
+          if (old) { ensure(old.fee === Number(c.fee), `La categoría ${c.name} ya existe con otra tarifa. Edítala desde su ficha antes de importar.`, 409); skipped++; continue; }
+          ensure(s.categories.length < 300, "El evento admite hasta 300 categorías.");
+          s.categories.push({ ...c, id: randomUUID(), fee: Number(c.fee), active: true }); added++;
+        }
+        if (added) audit(s, user.id, `Categorías importadas desde Excel: ${added}`, "categorias");
+        return { added, skipped };
+      });
+      return json({ ok: true, ...counts });
+    }
+    if (action === "scoring-settings") {
+      let criteria: unknown; try { criteria = JSON.parse(text(f, "criteria", 12000)); } catch { throw new DanceError("Revisa los parámetros de calificación."); }
+      const config = scoringConfiguration(text(f, "model", 30), criteria);
+      transaction(s => {
+        ensure(!s.scores.length && !s.schedule.some(x => ["live", "finished"].includes(x.status)), "No se pueden cambiar los criterios cuando ya hay notas o competencias iniciadas. Crea otro evento para usar una fórmula diferente.", 409);
+        Object.assign(s.settings, config); audit(s, user.id, "Parámetros de calificación actualizados", "evento");
+      }); return json({ ok: true });
     }
     if (action === "category") {
       const id = text(f, "id", 100, false) || randomUUID(); const deadline = text(f, "deadline", 100, false);
@@ -428,13 +458,13 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       return json({ ok: true });
     }
     if (action === "judge") {
-      const id = text(f, "id", 100, false); const categories = f.getAll("categories").map(String);
+      const id = text(f, "id", 100, false);
       const name = text(f, "name", 120); const address = email(f); const password = text(f, "password", 160, false);
       const passwordHash = password ? await hashPassword(password) : null;
       transaction(s => {
-        ensure(categories.length > 0 && categories.every(c => s.categories.some(x => x.id === c)), "Asigna al menos una categoría válida.");
         const old = s.users.find(x => x.id === id && x.role === "judge");
-        ensure(!s.schedule.some(x => ["live", "finished"].includes(x.status) && categories.includes(x.categoryId) !== Boolean(old?.categories.includes(x.categoryId))), "No cambies los jurados de una competencia iniciada o finalizada.", 409);
+        const protectedIds = protectedJudgeCategories(s);
+        const categories = s.categories.filter(c => !protectedIds.has(c.id) || old?.categories.includes(c.id)).map(c => c.id);
         ensure(!globalAdminFor(address) && !s.users.some(x => x.email === address && x.id !== old?.id), "Ese correo ya está en uso.", 409);
         if (old) {
           ensure(!s.scores.some(x => x.judgeId === old.id && !categories.includes(s.enrollments.find(e => e.id === x.enrollmentId)!.categoryId)), "Este jurado ya calificó una categoría que intentas quitar.");

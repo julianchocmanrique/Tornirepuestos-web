@@ -3,7 +3,7 @@ import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { createHash, randomBytes, scrypt as scryptCallback, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
-import { initialState, migrateState } from "./types";
+import { initialState, migrateState, synchronizeJudges } from "./types";
 import type { State, User } from "./types";
 import { ensure } from "./domain";
 import { currentEventId, withEvent } from "./event-scope";
@@ -45,7 +45,8 @@ export function db() {
 export function readState(): State {
   const state = migrateState(JSON.parse(db().prepare("SELECT data FROM state WHERE id=1").get()!.data as string));
   // Adopt the new rubric only before scoring starts; never reinterpret historical notes.
-  if (currentEventId() === "thesunfest" && !state.scores.length) state.settings.scoringScheme ??= "sunfest-v1";
+  if (currentEventId() === "thesunfest" && !state.scores.length && !state.settings.scoringConfigured) state.settings.scoringScheme ??= "sunfest-v1";
+  synchronizeJudges(state);
   return state;
 }
 // La transacción incluye las validaciones para evitar números o inscripciones duplicados.
@@ -53,7 +54,7 @@ export function transaction<T>(fn: (state: State) => T): T {
   const conn = db();
   conn.exec("BEGIN IMMEDIATE");
   try {
-    const state = readState(); const result = fn(state);
+    const state = readState(); const result = fn(state); synchronizeJudges(state);
     conn.prepare("UPDATE state SET data=? WHERE id=1").run(JSON.stringify(state));
     conn.exec("COMMIT"); return result;
   } catch (error) { conn.exec("ROLLBACK"); throw error; }

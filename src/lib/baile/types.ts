@@ -11,8 +11,23 @@ export const SUNFEST_CRITERIA = [
   { name: "Tiempo", weight: 30 },
   { name: "Presencia escénica y proyección", weight: 10 },
 ];
-export function scoringCriteria(settings: Pick<Settings, "scoringScheme">) {
+export type ScoringCriterion = { name: string; weight: number };
+export function scoringCriteria(settings: Pick<Settings, "scoringScheme" | "criteria">) {
+  if (settings.criteria?.length) return settings.criteria;
   return settings.scoringScheme === "sunfest-v1" ? SUNFEST_CRITERIA : CRITERIA.map(name => ({ name, weight: 100 / CRITERIA.length }));
+}
+export function usesWeightedScoring(settings: Pick<Settings, "scoringScheme" | "criteria">) {
+  return !!settings.scoringScheme || !!settings.criteria?.length;
+}
+export function protectedJudgeCategories(s: Pick<State, "scores" | "enrollments" | "schedule">) {
+  const entries = new Set(s.scores.map(score => score.enrollmentId));
+  return new Set([...s.enrollments.filter(e => entries.has(e.id)).map(e => e.categoryId), ...s.schedule.filter(x => ["live", "finished"].includes(x.status)).map(x => x.categoryId)]);
+}
+export function synchronizeJudges(s: State) {
+  const protectedIds = protectedJudgeCategories(s);
+  for (const judge of s.users.filter(u => u.role === "judge")) {
+    judge.categories = s.categories.filter(c => protectedIds.has(c.id) ? judge.categories.includes(c.id) : !judge.disabledAt).map(c => c.id);
+  }
 }
 export function weightedScore(values: number[], criteria = SUNFEST_CRITERIA) {
   return values.reduce((total, value, i) => total + value * criteria[i].weight, 0) / 100;
@@ -30,7 +45,7 @@ export type ParticipantNote = { participantId: string; text: string; at: string;
 export type StageStatus = "planned" | "backstage" | "live" | "finished" | "cancelled";
 export const stageLabels: Record<StageStatus, string> = { planned: "Programado", backstage: "En camerino", live: "En tarima", finished: "Finalizado", cancelled: "Cancelado" };
 export type ScheduleSlot = { id: string; categoryId: string; startAt: string; duration: number; stage: string; status: StageStatus; note: string };
-export type Settings = { scoringScheme?: "sunfest-v1"; passPlans?: PassPlan[]; pricingNote?: string; eventStart?: string; eventEnd?: string; eventLocation?: string; name: string; tagline: string; fullPassFee: number; paymentInstructions: string; formula: "average" | "sum"; registrationOpen: boolean; categoryRegistrationOpen: boolean; demo: boolean };
+export type Settings = { scoringConfigured?: boolean; scoringScheme?: "sunfest-v1" | "custom-v1"; criteria?: ScoringCriterion[]; passPlans?: PassPlan[]; pricingNote?: string; eventStart?: string; eventEnd?: string; eventLocation?: string; name: string; tagline: string; fullPassFee: number; paymentInstructions: string; formula: "average" | "sum"; registrationOpen: boolean; categoryRegistrationOpen: boolean; demo: boolean };
 export type State = { version: number; settings: Settings; users: User[]; participants: Participant[]; payments: Payment[]; categories: Category[]; enrollments: Enrollment[]; scores: Score[]; audit: Audit[]; accreditations: Accreditation[]; notes: ParticipantNote[]; schedule: ScheduleSlot[] };
 export type Snapshot = { events?: EventListing[]; settings: Settings; user: PublicUser | null; participants: Participant[]; payments: Payment[]; categories: Category[]; enrollments: Enrollment[]; scores: Score[]; judges: PublicUser[]; audit: Audit[]; accreditations: Accreditation[]; notes: ParticipantNote[]; schedule: ScheduleSlot[]; exampleCreated: boolean };
 export const statusLabels: Record<Status, string> = { pending: "Pendiente", review: "En revisión", approved: "Aprobado", rejected: "Rechazado" };

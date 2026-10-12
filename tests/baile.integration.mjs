@@ -204,8 +204,8 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     await admin.post('judge', { id: '', name: 'Jurado Dos', email: 'jurado2@example.test', password: info.password, categories: ['salsa-solista'] });
     await judge1.post('login', { email: 'jurado1@example.test', password: info.password });
     await judge2.post('login', { email: 'jurado2@example.test', password: info.password });
-    const s = await judge1.snapshot(); assert.equal(s.participants.length, 0); assert.equal(s.payments.length, 0); assert.equal(s.judges.length, 0); assert.equal(s.enrollments[0].participantId, ''); assert.equal(s.categories.length, 1);
-    await judge1.post('score', { enrollmentId: entry2.id, values: JSON.stringify([8,8,8,8,8,8]) }, 403);
+    const s = await judge1.snapshot(); assert.equal(s.participants.length, 0); assert.equal(s.payments.length, 0); assert.equal(s.judges.length, 0); assert.equal(s.enrollments[0].participantId, ''); assert.equal(s.categories.length, (await admin.snapshot()).categories.length);
+    await judge1.post('score', { enrollmentId: entry2.id, values: JSON.stringify([8,8,8,8,8,8]) }, 400);
     await judge1.post('score', { enrollmentId: entry.id, values: JSON.stringify([0,11,8,8,8,8]) }, 400);
     await judge1.post('score', { enrollmentId: entry.id, values: JSON.stringify([8,8,8,8,8,8]) });
     await judge1.post('score', { enrollmentId: entry.id, values: JSON.stringify([9,9,9,9,9,9]) }, 409);
@@ -312,7 +312,8 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     await admin.post('schedule', { ...slot, status: 'live' });
     await p.post('music', { enrollmentId: entry.id, file: music() }, 409);
     await admin.post('review', { paymentId: categoryPayment.id, status: 'approved', note: 'Prueba' }, 409);
-    await admin.post('judge', { id: '', name: 'Tercero', email: 'tercero@example.test', password: info.password, categories: ['salsa-solista'] }, 409);
+    await admin.post('judge', { id: '', name: 'Tercero', email: 'tercero@example.test', password: info.password, categories: ['salsa-solista'] });
+    assert.ok(!(await admin.snapshot()).judges.find(j => j.email === 'tercero@example.test').categories.includes('salsa-solista'));
     await admin.post('schedule', { ...slot, status: 'finished' }, 409);
     await admin.post('schedule', { ...slot, status: 'planned' }, 409);
     await admin.post('schedule', { ...slot, status: 'live', duration: '20' }, 409);
@@ -417,7 +418,7 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     assert.deepEqual(after.users.filter(u => u.id !== judge.id), before.users);
     for (const key of ['participants','payments','enrollments','scores']) assert.deepEqual(after[key], before[key]);
     const freshJudge = client(); await freshJudge.post('login', { email: 'jurado1', password: 'jurado1' });
-    const own = await freshJudge.snapshot(); assert.equal(own.user.role, 'judge'); assert.deepEqual(own.participants, []); assert.deepEqual(own.categories, []);
+    const own = await freshJudge.snapshot(); assert.equal(own.user.role, 'judge'); assert.deepEqual(own.participants, []); assert.deepEqual(own.categories.map(c => c.id), (await admin.snapshot()).categories.filter(c => c.id !== 'salsa-solista').map(c => c.id));
     for (const [account,status] of [[outsider,401],[freshJudge,403],[p,403],[admin,200]]) {
       const r = await fetch(root + '/api/baile/users', { headers: { cookie: account.sessionCookie() } });
       assert.equal(r.status, status);

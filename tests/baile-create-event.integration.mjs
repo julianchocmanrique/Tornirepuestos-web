@@ -50,7 +50,7 @@ test('Crear eventos: publicación, aislamiento, accesos, tarifas y persistencia'
     await admin.post('create-event', { event: JSON.stringify(draft) }, 400);
     await admin.post('create-event', { event: 'bad json', confirm: 'publish' }, 400);
     await admin.post('create-event', { event: JSON.stringify(draft), confirm: 'publish' }, 400);
-    for (const delta of [{ id: '../escape' }, { id: 'ab' }, { end: '2099-11-01' }, { passes: [] }, { categories: [] }, { scoring: 'inventado' }, { demo: 'false' }, { judges: [{ ...draft.judges[0], categories: [99] }] }, { contractor: { ...draft.contractor, password: '123' } }, { passes: [{ ...draft.passes[0], fee: '12.5' }] }, { passes: [{ ...draft.passes[0], canCompete: false }] }, { categories: [{ ...draft.categories[0], deadline: '2099-11-09T25:99' }] }]) {
+    for (const delta of [{ id: '../escape' }, { id: 'ab' }, { end: '2099-11-01' }, { passes: [] }, { categories: [] }, { scoring: 'inventado' }, { demo: 'false' }, { contractor: { ...draft.contractor, password: '123' } }, { passes: [{ ...draft.passes[0], fee: '12.5' }] }, { passes: [{ ...draft.passes[0], canCompete: false }] }, { categories: [{ ...draft.categories[0], deadline: '2099-11-09T25:99' }] }]) {
       await admin.post('create-event', fields({ ...draft, ...delta }), 400);
     }
     await admin.post('create-event', fields({ ...draft, id: 'thesunfest' }), 409);
@@ -114,5 +114,13 @@ test('Crear eventos: publicación, aislamiento, accesos, tarifas y persistencia'
     const contractor = client(draft.id); await contractor.post('login', draft.contractor);
     assert.ok((await guest.get()).events.some(e => e.id === draft.id));
     assert.equal((await fetch(root + '/api/baile/eventos/no-existe/public')).status, 404);
+  });
+  await t.test('evento nuevo admite parámetros propios y jurados sin selección de categorías', async () => {
+    const custom = {...draft, id:'evento-personalizado', scoring:'custom-v1', criteria:[{name:'Técnica',weight:60},{name:'Estilo',weight:40}], categories:[...draft.categories, {...draft.categories[0], modality:'Pareja'}], judges:[{...draft.judges[0],categories:[]}]};
+    await admin.post('create-event',fields({...custom, criteria:[{name:'Incorrecto',weight:70}]}),400);
+    await admin.post('create-event',fields(custom),201);
+    const owner=client(custom.id); await owner.post('login',credentials); const state=await owner.get();
+    assert.deepEqual(state.settings.criteria,custom.criteria); assert.equal(state.categories.length,2);
+    assert.deepEqual(state.judges[0].categories,state.categories.map(c=>c.id));
   });
 });

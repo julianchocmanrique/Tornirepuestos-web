@@ -43,7 +43,7 @@ export function review(s: State, admin: User, paymentId: string, status: Status,
   ensure(admin.role === "superadmin" || admin.role === "contractor", "Acceso reservado a organización.", 403);
   const p = s.payments.find(p => p.id === paymentId);
   ensure(p, "Pago no encontrado.", 404);
-  ensure(["approved", "rejected", "pending"].includes(status), "Estado inválido.");
+  ensure(["approved", "rejected", "pending", "review"].includes(status), "Estado inválido.");
   ensure(status !== "rejected" || note.trim(), "Indica el motivo del rechazo.");
   if (p.kind === "fullpass" && status !== "approved") ensure(!s.accreditations.some(a => a.participantId === p.participantId && !a.revokedAt), "Primero anula la acreditación de este participante.", 409);
   if (p.enrollmentId && status === "approved") {
@@ -59,7 +59,7 @@ export function review(s: State, admin: User, paymentId: string, status: Status,
     const e = s.enrollments.find(x => x.id === p.enrollmentId)!;
     if (e.competitionNumber === null) e.competitionNumber = Math.max(0, ...s.enrollments.filter(x => x.categoryId === e.categoryId).map(x => x.competitionNumber || 0)) + 1;
   }
-  const label = { approved: "aprobado", rejected: "rechazado", pending: "pendiente" }[status];
+  const label = { approved: "aprobado", rejected: "rechazado", pending: "pendiente", review: "en revisión" }[status];
   audit(s, admin.id, `Pago ${label}: ${note}`, p.id);
 }
 export function saveScore(s: State, judge: User, enrollmentId: string, values: number[]) {
@@ -81,9 +81,9 @@ export function scope(s: State, user: User | null): Snapshot {
   if (!user) return base;
   if (user.role === "superadmin") return { ...base, categories: s.categories, participants: s.participants, payments: s.payments, enrollments: s.enrollments, scores: s.scores, audit: s.audit.slice(-150).reverse(), accreditations: s.accreditations, notes: s.notes, schedule: s.schedule, judges: s.users.filter(u => u.role === "judge").map(({ passwordHash: _ignored, ...u }) => u) };
   if (user.role === "contractor") return { ...base, categories: s.categories, participants: s.participants.map(p => ({ ...p, extra: "" })), payments: s.payments, enrollments: s.enrollments };
-  if (user.role === "participant") return { ...base, categories: s.categories.filter(c => c.active || s.enrollments.some(e => e.categoryId === c.id && e.participantId === user.id)), participants: s.participants.filter(p => p.id === user.id), payments: s.payments.filter(p => p.participantId === user.id), enrollments: s.enrollments.filter(e => e.participantId === user.id), accreditations: s.accreditations.filter(a => a.participantId === user.id && !a.revokedAt), schedule: s.schedule.filter(x => x.status !== "cancelled" && s.enrollments.some(e => e.categoryId === x.categoryId && e.participantId === user.id)).map(x => ({ ...x, note: "" })) };
+  if (user.role === "participant") return { ...base, categories: s.categories.filter(c => c.active || s.enrollments.some(e => e.categoryId === c.id && e.participantId === user.id)), participants: s.participants.filter(p => p.id === user.id), payments: s.payments.filter(p => p.participantId === user.id), enrollments: s.enrollments.filter(e => e.participantId === user.id).map(e => ({ ...e, note: undefined })), accreditations: s.accreditations.filter(a => a.participantId === user.id && !a.revokedAt), schedule: s.schedule.filter(x => x.status !== "cancelled" && s.enrollments.some(e => e.categoryId === x.categoryId && e.participantId === user.id)).map(x => ({ ...x, note: "" })) };
   // Jurados reciben solo identificadores de competencia y sus propias notas.
-  return { ...base, categories: s.categories.filter(c => user.categories.includes(c.id)), enrollments: s.enrollments.filter(e => user.categories.includes(e.categoryId) && eligible(s, e)).map(e => ({ ...e, participantId: "", team: "", members: "", musicId: null, musicName: "", fee: 0 })), scores: s.scores.filter(x => x.judgeId === user.id) };
+  return { ...base, categories: s.categories.filter(c => user.categories.includes(c.id)), enrollments: s.enrollments.filter(e => user.categories.includes(e.categoryId) && eligible(s, e)).map(e => ({ ...e, participantId: "", team: "", members: "", school: undefined, contactEmail: undefined, note: undefined, musicId: null, musicName: "", fee: 0 })), scores: s.scores.filter(x => x.judgeId === user.id) };
 }
 export function recordPayment(s: State, user: User, enrollmentId: string | null, amount: number, date: string, receiptId: string): Payment {
   ensure(user.role === "participant", "Acceso reservado a participantes.", 403);

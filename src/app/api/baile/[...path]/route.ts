@@ -3,6 +3,7 @@ import { randomUUID, randomBytes } from "node:crypto";
 import { db, readState, transaction, hashPassword, verifyPassword, createSession, sessionUser, tokenHash, rateLimit } from "@/lib/baile/store";
 import { DanceError, ensure, scope, enroll, review, recordPayment, saveScore, audit, eligible, validDate } from "@/lib/baile/domain";
 import { publicResults } from "@/lib/baile/results";
+import { editableEnrollment, editEnrollment, moveEnrollment } from "@/lib/baile/enrollment-admin";
 import type { User, State, Status, Category, StageStatus } from "@/lib/baile/types";
 import { accredit, revokeAccreditation, saveSchedule } from "@/lib/baile/operations";
 
@@ -201,6 +202,37 @@ export async function POST(req: NextRequest, ctx: Context) {
       transaction(s => review(s, user, text(f, "paymentId"), text(f, "status") as Status, text(f, "note", 1000, false))); return json({ ok: true });
     }
     admin(user);
+    if (action === "enrollment-edit") {
+      const data = { team: text(f, "team", 120, false), members: text(f, "members", 2000, false), school: text(f, "school", 200, false), contactEmail: text(f, "contactEmail", 200, false).toLowerCase() };
+      transaction(s => editEnrollment(s, user, text(f, "enrollmentId"), data)); return json({ ok: true });
+    }
+    if (action === "enrollment-category") {
+      transaction(s => moveEnrollment(s, user, text(f, "enrollmentId"), text(f, "categoryId"), text(f, "reason", 500))); return json({ ok: true });
+    }
+    if (action === "enrollment-note") {
+      const id = text(f, "enrollmentId"), note = text(f, "note", 1500, false);
+      transaction(s => { const e = s.enrollments.find(e => e.id === id); ensure(e, "Inscripción no encontrada.", 404); e.note = note; audit(s, user.id, "Observación interna de inscripción actualizada", id); }); return json({ ok: true });
+    }
+    if (action === "enrollment-music") {
+      const id = text(f, "enrollmentId"), file = await upload(f, "music");
+      transaction(s => {
+        const e = editableEnrollment(s, user, id), c = s.categories.find(c => c.id === e.categoryId)!;
+        ensure(eligible(s, e), "Primero deben aprobarse el Full Pass y el pago de categoría.", 409);
+        ensure(!c.deadline || Date.now() <= Date.parse(c.deadline), "El plazo de música terminó. Revisa la fecha límite en Categorías.", 409);
+        putFile(file, e.participantId); e.musicId = file.id; e.musicName = file.name; e.musicUpdatedAt = new Date().toISOString();
+        audit(s, user.id, "Pista reemplazada por organización", id);
+      }); return json({ ok: true });
+    }
+    if (action === "enrollment-receipt") {
+      const id = text(f, "enrollmentId"), reason = text(f, "reason", 500), file = await upload(f, "receipt");
+      transaction(s => {
+        const e = editableEnrollment(s, user, id), payment = s.payments.find(p => p.enrollmentId === id);
+        ensure(payment, "El participante todavía no ha enviado un pago de esta categoría.", 409);
+        review(s, user, payment.id, "review", `Comprobante reemplazado: ${reason}`);
+        putFile(file, e.participantId); payment.receiptId = file.id;
+        audit(s, user.id, "Comprobante reemplazado; requiere nueva revisión", id);
+      }); return json({ ok: true });
+    }
     if (action === "accredit") {
       transaction(s => accredit(s, user, text(f, "participantId"), text(f, "code", 32))); return json({ ok: true });
     }

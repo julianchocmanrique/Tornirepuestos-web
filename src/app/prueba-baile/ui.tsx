@@ -1,8 +1,9 @@
 "use client";
 import { useState, type ReactNode, type FormEvent } from "react";
 import { statusLabels, money, type Status, type Payment, type Enrollment } from "@/lib/baile/types";
+import { ReceiptViewer } from "./ReceiptViewer";
 export type Result = { access?: { name: string; email: string; password: string }[]; role?: string; error?: string; participantId?: string; code?: string };
-export type Run = (action: string, data: FormData) => Promise<Result | null>;
+export type Run = (action: string, data: FormData, onError?: (message: string) => void) => Promise<Result | null>;
 export const base = "/prueba-baile";
 export const rolePath: Record<string, string> = { participant: "participante", superadmin: "admin", contractor: "contratista", judge: "jurado" };
 export const fileUrl = (id: string) => `/api/baile/files/${id}`;
@@ -19,7 +20,7 @@ export function Form({ action, run, children, label = "Guardar", className = "",
 export function Heading({ eyebrow, title, detail }: { eyebrow: string; title: string; detail?: string }) { return <div className="dance-heading"><p className="dance-eyebrow">{eyebrow}</p><h1>{title}</h1>{detail && <p>{detail}</p>}</div>; }
 export function Empty({ children }: { children: ReactNode }) { return <div className="dance-empty">{children}</div>; }
 export function Stat({ label, value }: { label: string; value: string | number }) { return <div className="dance-stat"><span>{label}</span><strong>{value}</strong></div>; }
-export function Receipt({ payment }: { payment?: Payment }) { return payment ? <div className="dance-payment-meta"><Badge status={payment.status} /><span>{money(payment.amount)} · {payment.date}</span><a href={fileUrl(payment.receiptId)} target="_blank" rel="noreferrer">Descargar comprobante ↗</a>{payment.note && <p>{payment.note}</p>}</div> : <Badge />; }
+export function Receipt({ payment }: { payment?: Payment }) { return payment ? <div className="dance-payment-meta"><Badge status={payment.status} /><span>{money(payment.amount)} · {payment.date}</span><ReceiptViewer receiptId={payment.receiptId} label="Visualizar comprobante" />{payment.note && <p>{payment.note}</p>}</div> : <Badge />; }
 export function Music({ e }: { e: Enrollment }) { return e.musicId ? <div className="dance-music"><span>{e.musicName}</span><audio controls preload="none" src={fileUrl(e.musicId)} aria-label={`Pista ${e.code}`} /><a href={`${fileUrl(e.musicId)}?download=1`}>Descargar pista</a></div> : <span className="dance-muted">Pista pendiente</span>; }
 export function exportCsv(filename: string, rows: (string | number | null)[][]) {
   const csv = "\uFEFF" + rows.map(row => row.map(value => { let str = String(value ?? ""); if (/^[=+@\-\t\r]/.test(str)) str = "'" + str; return `"${str.replace(/"/g, '""')}"`; }).join(";")).join("\r\n");

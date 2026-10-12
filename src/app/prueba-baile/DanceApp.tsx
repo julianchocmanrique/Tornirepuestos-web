@@ -9,14 +9,15 @@ import { Admin } from "./Admin";
 import { Contractor } from "./Contractor";
 import { PublicResults } from "./PublicResults";
 import { Judge } from "./Judge";
+import { EnrollmentDetail } from "./EnrollmentDetail";
 import { ProfileSwitcher } from "./ProfileSwitcher";
-export type View = "home" | "registro" | "acceso" | "participante" | "admin" | "contratista" | "resultados" | "jurado";
-export function DanceApp({ view }: { view: View }) {
+export type View = "home" | "registro" | "acceso" | "participante" | "admin" | "contratista" | "resultados" | "jurado" | "inscripcion";
+export function DanceApp({ view, enrollmentId }: { view: View; enrollmentId?: string }) {
   const [switching, setSwitching] = useState(false);
   const router = useRouter(); const [s, setS] = useState<Snapshot | null>(null); const [error, setError] = useState(""); const [message, setMessage] = useState(""); const [access, setAccess] = useState<Result["access"]>();
   const refresh = useCallback(async () => { const res = await fetch("/api/baile/snapshot", { cache: "no-store" }); const data = await res.json(); if (!res.ok) throw new Error(data.error); setS(data); }, []);
   useEffect(() => { refresh().catch(e => setError(e.message || "No se pudo conectar al evento.")); }, [refresh, view]);
-  const run: Run = async (action, data) => {
+  const run: Run = async (action, data, onError) => {
     setError(""); setMessage("");
     try {
       const res = await fetch(`/api/baile/${action}`, { method: "POST", body: data }); const out = await res.json();
@@ -29,9 +30,9 @@ export function DanceApp({ view }: { view: View }) {
       }
       await refresh(); setMessage(action === "score" ? "Calificación enviada y bloqueada." : action === "example" ? "Recorrido de ejemplo creado. Los accesos aparecen a continuación." : "Cambios guardados correctamente.");
       return out;
-    } catch (e) { setError(e instanceof Error ? e.message : "Error de conexión. Vuelve a intentarlo."); return null; }
+    } catch (e) { const message = e instanceof Error ? e.message : "Error de conexión. Vuelve a intentarlo."; setError(message); onError?.(message); return null; }
   };
-  const allowed = view === "participante" ? s?.user?.role === "participant" : view === "admin" ? s?.user?.role === "superadmin" : view === "contratista" ? s?.user?.role === "contractor" : view === "jurado" ? s?.user?.role === "judge" : true;
+  const allowed = view === "inscripcion" ? ["superadmin", "contractor"].includes(s?.user?.role || "") : view === "participante" ? s?.user?.role === "participant" : view === "admin" ? s?.user?.role === "superadmin" : view === "contratista" ? s?.user?.role === "contractor" : view === "jurado" ? s?.user?.role === "judge" : true;
   return <div className="dance-app">
     <header className="dance-header"><Link className="dance-brand" href={base} onClick={() => setSwitching(false)}><span className="dance-brand-symbol" aria-hidden="true">r.</span><span>{s?.settings.name || "Ritmo Caribe"}<small>PLATAFORMA DE COMPETENCIA</small></span></Link><nav aria-label="Navegación del evento"><Link href={`${base}/resultados`} onClick={() => setSwitching(false)}>Resultados</Link><Link href={base} onClick={() => setSwitching(false)}>El evento</Link>{s?.user ? <><Link href={`${base}/${rolePath[s.user.role]}`} onClick={() => setSwitching(false)}>Mi panel</Link><button onClick={() => { if (s.settings.demo) { setError(""); setMessage(""); setAccess(undefined); setSwitching(true); } else { run("logout", new FormData()); } }}>{s.settings.demo ? "Cambiar usuario" : "Salir"}</button></> : <><Link href={`${base}/acceso`}>Ingresar</Link><Link className="dance-btn small" href={`${base}/registro`}>Inscribirme <span aria-hidden="true">↗</span></Link></>}</nav></header>
     {s?.settings.demo && <div className="dance-demo"><span className="dance-dot" />EVENTO DE EJEMPLO <span>Tarifas y datos de muestra. No realices pagos reales.</span></div>}
@@ -45,6 +46,7 @@ export function DanceApp({ view }: { view: View }) {
         {view === "participante" && <Participant s={s} run={run} />}
         {view === "resultados" && <PublicResults />}
         {view === "contratista" && <Contractor s={s} run={run} />}
+        {view === "inscripcion" && <EnrollmentDetail key={enrollmentId} s={s} enrollmentId={enrollmentId || ""} run={run} />}
         {view === "admin" && <Admin s={s} run={run} refresh={refresh} />}
         {view === "jurado" && <Judge s={s} run={run} />}
       </>}

@@ -78,6 +78,22 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     await admin.post('review', { paymentId: passId, status: 'approved', note: 'Validado' });
     await p.post('payment', { enrollmentId: '', amount: '180000', date, file: receipt() }, 409);
   });
+  await t.test('cuatro estados editables del Full Pass, permisos y auditoría', async () => {
+    const before = (await p.snapshot()).payments.find(x => x.id === passId);
+    await p.post('review', { paymentId: passId, status: 'review', note: '' }, 403);
+    await admin.post('review', { paymentId: passId, status: 'unknown', note: '' }, 400);
+    for (const status of ['pending', 'review', 'rejected', 'approved']) {
+      await admin.post('review', { paymentId: passId, status, note: 'Prueba de estados' });
+      const snapshot = await admin.snapshot(), payment = snapshot.payments.find(x => x.id === passId);
+      assert.equal(payment.status, status);
+      assert.equal(payment.receiptId, before.receiptId);
+      assert.equal(payment.amount, before.amount);
+      assert.equal(payment.reviewedBy, snapshot.user.id);
+      assert.ok(payment.reviewedAt);
+      assert.ok(snapshot.audit.some(x => x.target === passId && x.action.includes('Pago')));
+      if (status !== 'approved') await p.post('enroll', { categoryId: 'salsa-solista', team: '', members: '' }, 403);
+    }
+  });
   await t.test('categorías independientes, pagos y números estables', async () => {
     entry = await p.post('enroll', { categoryId: 'salsa-solista', team: '', members: '' }, 201);
     entry2 = await p.post('enroll', { categoryId: 'bachata-parejas', team: 'Pareja Prueba', members: 'Persona A, Persona B' }, 201);
@@ -89,6 +105,19 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     await admin.post('review', { paymentId: categoryPayment.id, status: 'approved', note: 'OK' });
     await admin.post('review', { paymentId: categoryPayment.id, status: 'approved', note: 'OK' });
     const s = await p.snapshot(); assert.equal(s.enrollments.find(x => x.id === entry.id).competitionNumber, 1); assert.equal(s.enrollments.find(x => x.id === entry2.id).competitionNumber, null);
+  });
+  await t.test('estados de inscripción independientes del Full Pass y de otras categorías', async () => {
+    const before = await p.snapshot();
+    await admin.post('review', { paymentId: categoryPayment.id, status: 'rejected', note: '   ' }, 400);
+    for (const status of ['review', 'pending', 'rejected', 'approved']) {
+      await admin.post('review', { paymentId: categoryPayment.id, status, note: 'Validación de categoría' });
+      const s = await p.snapshot();
+      assert.equal(s.payments.find(x => x.id === categoryPayment.id).status, status);
+      assert.deepEqual(s.payments.find(x => x.id === passId), before.payments.find(x => x.id === passId));
+      assert.deepEqual(s.enrollments.find(x => x.id === entry2.id), before.enrollments.find(x => x.id === entry2.id));
+      assert.equal(s.enrollments.find(x => x.id === entry.id).competitionNumber, 1);
+      if (status !== 'approved') await p.post('music', { enrollmentId: entry.id, file: music() }, 400);
+    }
   });
   await t.test('pista por inscripción, reproducción y plazo obligatorio', async () => {
     await p.post('music', { enrollmentId: entry.id, file: music() });
@@ -102,6 +131,29 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     await admin.post('category', { ...c, active: 'on', fee: String(c.fee), deadline: '' });
     await p.post('music', { enrollmentId: entry.id, file: music() });
     s = await p.snapshot(); assert.notEqual(s.enrollments.find(x => x.id === entry.id).musicId, track);
+  });
+  await t.test('ficha editable: datos, categoría y archivos sin alterar pagos ajenos', async () => {
+    const before = await admin.snapshot();
+    await p.post('enrollment-edit', {}, 403);
+    await admin.post('enrollment-edit', { enrollmentId: entry.id, team: 'Nombre de prueba', members: 'Integrante de prueba', school: 'Escuela de prueba', contactEmail: 'contacto@example.test' });
+    await admin.post('enrollment-note', { enrollmentId: entry.id, note: 'Nota interna de prueba' });
+    let s = await admin.snapshot();
+    assert.equal(s.enrollments.find(x => x.id === entry.id).school, 'Escuela de prueba');
+    assert.equal((await p.snapshot()).enrollments.find(x => x.id === entry.id).note, undefined);
+    await admin.post('enrollment-category', { enrollmentId: entry.id, categoryId: 'bachata-parejas', reason: 'Duplicado' }, 409);
+    await admin.post('enrollment-category', { enrollmentId: entry.id, categoryId: 'salsa-parejas', reason: 'Tarifa diferente' }, 409);
+    await admin.post('enrollment-category', { enrollmentId: entry2.id, categoryId: 'salsa-parejas', reason: 'Cambio de prueba' });
+    assert.equal((await admin.snapshot()).enrollments.find(x => x.id === entry2.id).categoryId, 'salsa-parejas');
+    await admin.post('enrollment-category', { enrollmentId: entry2.id, categoryId: 'bachata-parejas', reason: 'Restaurar categoría' });
+    await admin.post('enrollment-music', { enrollmentId: entry.id, file: music() });
+    await admin.post('enrollment-receipt', { enrollmentId: entry.id, reason: 'Archivo de prueba', file: receipt() });
+    s = await admin.snapshot();
+    const payment = s.payments.find(x => x.id === categoryPayment.id);
+    assert.equal(payment.status, 'review'); assert.equal(payment.amount, categoryPayment.amount);
+    assert.notEqual(payment.receiptId, categoryPayment.receiptId);
+    assert.notEqual(s.enrollments.find(x => x.id === entry.id).musicId, before.enrollments.find(x => x.id === entry.id).musicId);
+    assert.deepEqual(s.payments.find(x => x.id === passId), before.payments.find(x => x.id === passId));
+    await admin.post('review', { paymentId: payment.id, status: 'approved', note: 'Prueba validada' });
   });
   await t.test('jurados independientes, sin datos personales y notas bloqueadas', async () => {
     await admin.post('judge', { id: '', name: 'Jurado Uno', email: 'jurado1@example.test', password: info.password, categories: ['salsa-solista'] });
@@ -295,6 +347,10 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     const payment = (await participant.snapshot()).payments[0];
     assert.equal((await contractor.file(payment.receiptId)).status, 200);
     await participant.post('review', { paymentId: payment.id, status: 'approved', note: '' }, 403);
+    for (const status of ['review', 'pending']) {
+      await contractor.post('review', { paymentId: payment.id, status, note: 'Por revisar' });
+      assert.equal((await participant.snapshot()).payments[0].status, status);
+    }
     await contractor.post('review', { paymentId: payment.id, status: 'rejected', note: 'Ejemplo incompleto' });
     assert.equal((await participant.snapshot()).payments[0].status, 'rejected');
     await contractor.post('review', { paymentId: payment.id, status: 'approved', note: 'Ejemplo validado' });

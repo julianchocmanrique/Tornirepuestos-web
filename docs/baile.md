@@ -132,3 +132,16 @@ identidades ficticias y trazos sintéticos; no crean participantes en producció
 ## Publicación
 
 Por indicación del responsable, los cambios de este proyecto se publican en la página oficial (`https://tornirepuestos.com/prueba-baile`) después de integrar y verificar la versión completa. No dar por entregado un cambio solamente por estar guardado localmente. Conservar el volumen de datos, no reinicializar cuentas y comprobar el despliegue y los registros existentes antes de confirmar la publicación.
+
+### Perfil de jurado de prueba e inventario de cuentas
+
+`baile-test-profiles.cjs` acepta los hashes de uno o varios perfiles conocidos.
+Solo crea/actualiza los perfiles indicados, conserva las categorías ya asignadas
+y no restablece las claves ni las sesiones de otras cuentas. El perfil opcional
+`jurado1` se crea como jurado, sin categorías asignadas y con `demoOnly: true`.
+No puede ingresar al desactivar el modo de pruebas. No se reduce la longitud
+mínima de las contraseñas del registro normal ni se guardan claves en texto plano.
+
+`GET /api/baile/users` lista identificador, nombre, usuario, correo, rol y condición
+de prueba, exclusivamente para superadministradores. Nunca devuelve hashes.
+Las rutas de eventos mantienen su propio inventario y sus controles de acceso.

@@ -402,6 +402,38 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     await participant.post('music', { enrollmentId: entry.id, file: music() }, 404);
     await owner.post('admin-register', { ...info, document: 'OWNER001', email: 'owner-test@example.test' }, 201);
   });
+  await t.test('jurado1 de prueba: creación aislada, acceso y listado privado', async () => {
+    const connection = new DatabaseSync(path.join(dir, 'event.sqlite'));
+    const read = () => JSON.parse(connection.prepare('SELECT data FROM state WHERE id=1').get().data);
+    const before = read();
+    const salt = randomBytes(16).toString('hex');
+    const hash = salt + ':' + scryptSync('jurado1', salt, 64).toString('hex');
+    const seedEnv = { ...env, BAILE_TEST_PROFILE_HASHES: JSON.stringify({ jurado1: hash }) };
+    execFileSync(process.execPath, ['scripts/baile-test-profiles.cjs'], { env: seedEnv });
+    execFileSync(process.execPath, ['scripts/baile-test-profiles.cjs'], { env: seedEnv });
+    const after = read(), judge = after.users.find(u => u.username === 'jurado1');
+    assert.equal(after.users.length, before.users.length + 1);
+    assert.equal(judge.role, 'judge'); assert.equal(judge.demoOnly, true); assert.deepEqual(judge.categories, []);
+    assert.deepEqual(after.users.filter(u => u.id !== judge.id), before.users);
+    for (const key of ['participants','payments','enrollments','scores']) assert.deepEqual(after[key], before[key]);
+    const freshJudge = client(); await freshJudge.post('login', { email: 'jurado1', password: 'jurado1' });
+    const own = await freshJudge.snapshot(); assert.equal(own.user.role, 'judge'); assert.deepEqual(own.participants, []); assert.deepEqual(own.categories, []);
+    for (const [account,status] of [[outsider,401],[freshJudge,403],[p,403],[admin,200]]) {
+      const r = await fetch(root + '/api/baile/users', { headers: { cookie: account.sessionCookie() } });
+      assert.equal(r.status, status);
+      if (r.ok) { const list = await r.json(); assert.equal(list.users.length, after.users.length); assert.ok(list.users.every(u => !('passwordHash' in u))); }
+    }
+    after.users.find(u => u.id === judge.id).categories = ['salsa-solista'];
+    connection.prepare('UPDATE state SET data=? WHERE id=1').run(JSON.stringify(after));
+    execFileSync(process.execPath, ['scripts/baile-test-profiles.cjs'], { env: seedEnv });
+    assert.deepEqual(read().users.find(u => u.id === judge.id).categories, ['salsa-solista']);
+    assert.equal((await freshJudge.snapshot()).user, null);
+    const disabled = read(); disabled.users.find(u => u.id === judge.id).categories = []; disabled.settings.demo = false;
+    connection.prepare('UPDATE state SET data=? WHERE id=1').run(JSON.stringify(disabled));
+    await freshJudge.post('login', { email: 'jurado1', password: 'jurado1' }, 401);
+    disabled.settings.demo = true; connection.prepare('UPDATE state SET data=? WHERE id=1').run(JSON.stringify(disabled));
+    connection.close();
+  });
   await t.test('resultados públicos muestran solo posiciones definitivas y datos mínimos', async () => {
     const response = await fetch(root + '/api/baile/results'); assert.equal(response.status, 200);
     const data = await response.json(); assert.ok(data.categories.length > 0);

@@ -444,9 +444,10 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     }
     assert.equal((await outsider.snapshot()).participants.length, 0);
   });
-  await t.test('selector de pruebas exige clave, cambia permisos y revoca la sesión anterior', async () => {
+  await t.test('selector de pruebas entra sin clave desde una sesión, cambia permisos y revoca la anterior', async () => {
     assert.equal((await outsider.profiles()).status, 401);
-    await outsider.post('switch-profile', { profileId: 'inventado', password: info.password }, 401);
+    await outsider.post('switch-profile', { profileId: 'test-profile-superadmin' }, 401);
+    await outsider.post('login', { email: credentials.email, password: '' }, 400);
     const switcher = client(); await switcher.post('login', credentials);
     const original = await switcher.snapshot();
     const response = await switcher.profiles(); assert.equal(response.status, 200); assert.equal(response.headers.get('cache-control'), 'no-store');
@@ -454,20 +455,19 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     for (const profile of profiles) assert.deepEqual(Object.keys(profile).sort(), ['id', 'name', 'role']);
     const participant = (await p.snapshot()).user;
     const judge = (await judge1.snapshot()).user;
-    await switcher.post('switch-profile', { profileId: participant.id, password: 'incorrecta' }, 401);
-    await switcher.post('switch-profile', { profileId: 'inexistente', password: info.password }, 401);
-    await switcher.post('switch-profile', { profileId: participant.id, password: info.password }, 403, 'https://otro.example');
+    await switcher.post('switch-profile', { profileId: 'inexistente' }, 401);
+    await switcher.post('switch-profile', { profileId: participant.id }, 403, 'https://otro.example');
     assert.equal((await switcher.snapshot()).user.id, original.user.id);
     const oldCookie = switcher.sessionCookie();
-    const changed = await switcher.post('switch-profile', { profileId: participant.id, password: info.password, role: 'admin' });
+    const changed = await switcher.post('switch-profile', { profileId: participant.id, role: 'admin' });
     assert.equal(changed.role, 'participant');
     let own = await switcher.snapshot(); assert.equal(own.user.id, participant.id); assert.equal(own.participants.length, 1);
     assert.equal((await (await fetch(`${root}/api/baile/snapshot`, { headers: { cookie: oldCookie } })).json()).user, null);
     await switcher.post('settings', {}, 403);
     assert.equal((await switcher.profiles()).status, 200);
-    await switcher.post('switch-profile', { profileId: judge.id, password: info.password });
+    await switcher.post('switch-profile', { profileId: judge.id });
     own = await switcher.snapshot(); assert.equal(own.user.role, 'judge'); assert.equal(own.participants.length, 0);
-    await switcher.post('switch-profile', { profileId: original.user.id, password: credentials.password });
+    await switcher.post('switch-profile', { profileId: original.user.id });
     assert.equal((await switcher.snapshot()).user.role, 'superadmin');
     assert.ok((await admin.snapshot()).audit.some(x => x.action === 'Cambio de perfil de prueba' && x.target === participant.id));
     const demoAccount = client(); await demoAccount.post('login', { email: 'superadmin', password: info.password });
@@ -478,7 +478,7 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
       assert.equal((await demoAccount.snapshot()).user, null);
       await demoAccount.post('login', { email: 'superadmin', password: info.password }, 401);
       assert.equal((await switcher.profiles()).status, 403);
-      await switcher.post('switch-profile', { profileId: participant.id, password: info.password }, 403);
+      await switcher.post('switch-profile', { profileId: participant.id }, 403);
       assert.equal((await switcher.snapshot()).user.role, 'superadmin');
     } finally { setDemo(true); connection.close(); }
     await switcher.post('logout'); assert.equal((await switcher.profiles()).status, 401);
@@ -564,12 +564,16 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     const connection = new DatabaseSync(path.join(dir, 'event.sqlite'));
     assert.equal(connection.prepare('SELECT count(*) AS n FROM sessions WHERE userId=?').get(id).n, 0); connection.close();
   });
-  await t.test('el selector comparte el límite de contraseñas con el acceso normal', async () => {
+  await t.test('el selector limita cambios sin bloquear la contraseña del acceso normal', async () => {
     const account = { ...info, document: 'LIMITE01', email: 'limite@example.test' };
     const created = await admin.post('admin-register', account, 201);
-    for (let i = 0; i < 15; i++) await admin.post('switch-profile', { profileId: created.participantId, password: 'incorrecta' }, 401);
-    await admin.post('switch-profile', { profileId: created.participantId, password: info.password }, 429);
-    await outsider.post('login', { email: account.email, password: info.password }, 429);
+    const limited = client(); await limited.post('login', { email: account.email, password: info.password });
+    for (let i = 0; i < 240; i++) await limited.post('switch-profile', { profileId: 'inexistente' }, 401);
+    await limited.post('switch-profile', { profileId: created.participantId }, 429);
+    assert.equal((await limited.snapshot()).user.id, created.participantId);
+    await limited.post('logout');
+    await limited.post('login', { email: account.email, password: info.password });
+    await limited.post('logout');
     assert.equal((await admin.snapshot()).user.role, 'superadmin');
   });
   await t.test('persistencia después de reiniciar y cierre de sesión', async () => {

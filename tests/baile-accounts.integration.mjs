@@ -81,7 +81,7 @@ test('desactivar cuentas conserva historial y revoca todos sus accesos', { timeo
   await globalAdmin.post('login', original, 401);
   await participant.post('login', { email: access[0].email, password: access[0].password }, 401);
   await participant.post('login', { email: 'DEMO1', password: access[0].password }, 401);
-  await admin.post('switch-profile', { profileId: targets.find(id => before.users.find(u => u.id === id)?.email === access[2].email), password: access[2].password }, 401);
+  await admin.post('switch-profile', { profileId: targets.find(id => before.users.find(u => u.id === id)?.email === access[2].email) }, 401);
   assert.equal((await admin.get('snapshot')).data.user.username, 'superadmin');
   assert.equal((await contractor.get('snapshot')).data.user.username, 'admin');
   await admin.post('disable-accounts', fields);

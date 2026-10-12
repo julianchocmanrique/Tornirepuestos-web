@@ -126,10 +126,8 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       ensure(state.settings.demo, "El selector solo está disponible durante las pruebas.", 403);
       const profileId = text(f, "profileId", 80);
       const target = state.users.find(u => !u.disabledAt && u.id === profileId);
-      rateLimit(`login-ip:${ip}`, 80); rateLimit(`login:${target?.email || profileId}`);
-      const fallback = "00000000000000000000000000000000:" + "0".repeat(128);
-      const valid = await verifyPassword(text(f, "password", 160), target?.passwordHash || fallback);
-      ensure(target && valid, "La contraseña no es correcta para este perfil.", 401);
+      rateLimit(`switch-profile:${previous.id}`, 240); rateLimit(`switch-profile-ip:${ip}`, 480);
+      ensure(target, "Este perfil ya no está disponible.", 401);
       const token = transaction(s => {
         ensure(s.settings.demo, "El selector solo está disponible durante las pruebas.", 403);
         const current = actor(req); const selected = s.users.find(u => !u.disabledAt && u.id === target.id);

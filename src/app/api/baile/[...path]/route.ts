@@ -86,7 +86,8 @@ export async function GET(req: NextRequest, ctx: Context) {
       const user = actor(req);
       const file = db().prepare("SELECT * FROM files WHERE id=?").get(parts[1]);
       ensure(file, "Archivo no encontrado.", 404);
-      ensure(user.role === "superadmin" || (user.role === "contractor" && file.kind === "receipt") || (user.role === "participant" && file.owner === user.id), "No tienes acceso a este archivo.", 403);
+      const contractorFile = user.role === "contractor" && (file.kind === "receipt" || (file.kind === "music" && readState().enrollments.some(e => e.musicId === file.id && e.participantId === file.owner)));
+      ensure(user.role === "superadmin" || contractorFile || (user.role === "participant" && file.owner === user.id), "No tienes acceso a este archivo.", 403);
       const data = Buffer.from(file.content as Uint8Array);
       const headers: Record<string, string> = { "Content-Type": file.mime as string, "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "sandbox", "Accept-Ranges": "bytes", "Content-Disposition": `${req.nextUrl.searchParams.has("download") || file.kind === "receipt" ? "attachment" : "inline"}; filename*=UTF-8''${encodeURIComponent(file.name as string)}` };
       const range = req.headers.get("range");

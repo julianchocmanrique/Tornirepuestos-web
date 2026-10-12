@@ -159,6 +159,21 @@
 
 .dance-profile-avatar.contractor { background: #dbe6ef; color: #223d50; }
 
+.dance-enrollments-table { min-width: 1500px; }
+.dance-enrollment-stats { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+@media (max-width: 750px) { .dance-enrollment-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.dance-enrollments-table td { white-space: normal; min-width: 120px; max-width: 250px; overflow-wrap: anywhere; }
+.dance-enrollments-table th:last-child, .dance-enrollments-table td:last-child { position: sticky; right: 0; background: var(--dance-paper); box-shadow: -5px 0 10px #20231c0a; min-width: 100px; }
+.dance-enrollments-table th:last-child { background: #ecefe3; }
+.dance-enrollment-summary { position: fixed; inset: 0; margin: auto; padding: 0; width: min(960px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); border: 1px solid var(--dance-line); border-radius: 16px; background: var(--dance-paper); color: var(--dance-ink); box-shadow: 0 24px 80px #0003; overflow: auto; }
+.dance-enrollment-summary::backdrop { background: #171d17a6; }
+.dance-summary-header { position: sticky; top: 0; z-index: 1; display: flex; align-items: start; justify-content: space-between; gap: 20px; padding: 24px 30px; background: var(--dance-paper); border-bottom: 1px solid var(--dance-line); }
+.dance-summary-header h2 { margin: 5px 0; font-size: 30px; }.dance-summary-header p { margin: 0; }.dance-summary-header button { flex-shrink: 0; }
+.dance-summary-body { padding: 24px 30px; }.dance-summary-body h3 { margin: 0 0 20px; }.dance-summary-body section + section { margin-top: 30px; }
+.dance-summary-data { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin: 0; }.dance-summary-data dt { color: var(--dance-muted); font-size: 12px; }.dance-summary-data dd { margin: 5px 0 0; overflow-wrap: anywhere; }
+.dance-summary-entry { padding: 22px; margin-top: 16px; border: 1px solid var(--dance-line); border-radius: 8px; }.dance-summary-entry.selected { border-left: 4px solid #a73b1e; }.dance-summary-entry h4 { margin: 5px 0; font-size: 21px; }.dance-summary-entry p { overflow-wrap: anywhere; }.dance-summary-music { display: grid; gap: 10px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--dance-line); }.dance-summary-music audio { max-width: 100%; }
+@media (max-width: 600px) { .dance-summary-header, .dance-summary-body { padding: 18px; }.dance-summary-header { flex-wrap: wrap; gap: 12px; }.dance-summary-header h2 { font-size: 24px; }.dance-summary-data { grid-template-columns: 1fr; }.dance-summary-entry { padding: 16px; } }
+
 .dance-admin-nav .dance-contractor-tab { display: flex; align-items: center; gap: 14px; width: 100%; padding: 12px 14px; border: 0; border-radius: 7px; background: transparent; color: var(--dance-ink); font: inherit; text-align: left; }
 .dance-admin-nav .dance-contractor-tab.active { background: var(--dance-ink); color: var(--dance-paper); }
 @media (max-width: 900px) { .dance-admin-nav .dance-contractor-tab { width: auto; white-space: nowrap; } }

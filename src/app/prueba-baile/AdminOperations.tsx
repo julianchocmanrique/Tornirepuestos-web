@@ -1,23 +1,9 @@
 "use client";
 import { useState } from "react";
 import { dateTime, money, statusLabels, type Snapshot } from "@/lib/baile/types";
-import { charges, matchesPerson, normalize, passFor, paymentFor, readyEntry } from "@/lib/baile/reporting";
+import { charges, matchesPerson, normalize, passFor, readyEntry } from "@/lib/baile/reporting";
 import { Badge, Empty, Stat, Form, Field, Music, exportCsv, type Run } from "./ui";
 import { CategoryFilter, ModuleHeading, SearchBar, usePage } from "./AdminShared";
-
-export function EnrollmentsDesk({ s, onPerson }: { s: Snapshot; onPerson: (id: string) => void }) {
-  const [query, setQuery] = useState(""), [cat, setCat] = useState(""), [status, setStatus] = useState("");
-  const rows = s.enrollments.filter(e => {
-    const p = s.participants.find(p => p.id === e.participantId)!;
-    return (!cat || e.categoryId === cat) && (!status || (paymentFor(s, e.id)?.status || "missing") === status) && (matchesPerson(p, query) || normalize(`${e.code} ${e.team} ${e.members}`).includes(normalize(query)));
-  }).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  const page = usePage(rows, `${query}|${cat}|${status}`);
-  return <><div className="dance-stats"><Stat label="Inscripciones" value={s.enrollments.length} /><Stat label="Habilitadas" value={s.enrollments.filter(e => readyEntry(s, e)).length} /><Stat label="Sin comprobante" value={s.enrollments.filter(e => !paymentFor(s, e.id)).length} /><Stat label="Pagos en revisión" value={s.payments.filter(p => p.kind === "category" && p.status === "pending").length} /></div><div className="dance-panel">
-    <ModuleHeading title="Inscripciones a categorías" detail="Cada fila corresponde a una categoría, con pago, número y pista independientes."><button className="dance-btn secondary small" onClick={() => exportCsv("inscripciones.csv", [["Inscripción", "Participante", "Equipo", "Categoría", "División", "Tarifa", "Pago", "Habilitada", "Número", "Pista"], ...rows.map(e => [e.code, s.participants.find(p => p.id === e.participantId)!.name, e.team, s.categories.find(c => c.id === e.categoryId)!.name, s.categories.find(c => c.id === e.categoryId)!.division, e.fee, paymentFor(s, e.id) ? statusLabels[paymentFor(s, e.id)!.status] : "Por enviar", readyEntry(s, e) ? "Sí" : "No", readyEntry(s, e) ? e.competitionNumber : null, e.musicName || "Pendiente"])])}>Exportar inscripciones</button></ModuleHeading>
-    <SearchBar query={query} onQuery={setQuery}><CategoryFilter s={s} value={cat} onChange={setCat} /><select aria-label="Estado del pago de categoría" value={status} onChange={e => setStatus(e.target.value)}><option value="">Todos los pagos</option><option value="missing">Sin comprobante</option>{Object.entries(statusLabels).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></SearchBar>
-    <div className="dance-table-wrap"><table><thead><tr><th>Inscripción / titular</th><th>Categoría</th><th>Valor</th><th>Pago categoría</th><th>Competencia</th><th>Pista</th><th>Ficha</th></tr></thead><tbody>{page.rows.map(e => { const p = s.participants.find(p => p.id === e.participantId)!, c = s.categories.find(c => c.id === e.categoryId)!; return <tr key={e.id}><td><strong>{e.team || p.name}</strong><small>{e.code} · {p.name}</small></td><td>{c.name}<small>{c.modality} · {c.division}</small></td><td>{money(e.fee)}</td><td><Badge status={paymentFor(s, e.id)?.status} /></td><td>{readyEntry(s, e) ? `N.º ${String(e.competitionNumber).padStart(3, "0")}` : passFor(s, p.id)?.status !== "approved" ? "Falta Full Pass" : "Pago pendiente"}</td><td>{e.musicId ? "Cargada" : "Pendiente"}</td><td><button className="dance-btn secondary small" onClick={() => onPerson(p.id)}>Ver ficha</button></td></tr>; })}</tbody></table></div>{!rows.length && <Empty>No hay inscripciones con estos filtros.</Empty>}{page.pager}
-  </div></>;
-}
 
 export function MusicDesk({ s }: { s: Snapshot }) {
   const [query, setQuery] = useState(""), [cat, setCat] = useState(""), [status, setStatus] = useState(""), [busy, setBusy] = useState(false), [error, setError] = useState("");

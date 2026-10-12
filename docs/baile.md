@@ -54,7 +54,9 @@ La migración de versión 1 a 2 completa los campos nuevos al leer, conservando 
 ### Perfiles y acceso público
 
 - `superadmin`: control completo del evento actual: configuración, categorías, registros, pagos, jurados, programación y resultados. Las cuentas antiguas con rol `admin` migran a `superadmin` conservando IDs y claves.
-- `contractor`: consulta participantes e inscripciones por categoría y revisa comprobantes (aprobar/rechazar). Puede descargar recibos; no puede modificar configuración, accesos, categorías, notas, acreditaciones ni calificaciones, ni descargar las pistas.
+- `contractor`: consulta participantes e inscripciones por categoría y revisa comprobantes (aprobar/rechazar). Puede descargar recibos y reproducir/descargar las pistas actualmente asociadas a una inscripción. No puede modificar configuración, accesos, categorías, notas, acreditaciones ni calificaciones, ni exportar el ZIP de música o acceder a pistas antiguas sin inscripción.
+
+La tabla de Inscripciones no muestra importes y su exportación tampoco los incluye. La acción Ver abre un resumen de solo lectura con datos del titular, todas sus categorías y la pista de cada inscripción. La referencia del pago es un ID interno, no una referencia bancaria. Los integrantes se muestran tal como fueron registrados; no se infiere una cantidad a partir de texto libre.
 - `participant`: conserva registro, inscripciones, comprobantes y pistas propios, con los requisitos de pago y plazos existentes.
 - `judge`: conserva categorías asignadas y calificaciones propias.
 - Visitantes: información general y `/prueba-baile/resultados`, sin sesión. La API `/api/baile/results` solo proyecta nombre de participante/equipo, número, posición y puntuación de categorías finalizadas con todas las notas. No publica documentos, contactos, pagos, recibos ni notas internas.

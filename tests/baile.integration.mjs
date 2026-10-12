@@ -282,7 +282,14 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     for (const action of ['settings', 'category', 'judge', 'unlock', 'reset-password', 'admin-register', 'participant-note', 'schedule', 'accredit', 'example']) await contractor.post(action, {}, 403);
     assert.equal((await contractor.zip()).status, 403);
     const musicId = after.enrollments.find(e => e.musicId)?.musicId; assert.ok(musicId);
-    assert.equal((await contractor.file(musicId)).status, 403);
+    assert.equal((await contractor.file(musicId)).status, 200);
+    assert.equal((await contractor.file(musicId, { Range: 'bytes=0-15' })).status, 206);
+    assert.equal((await participant.file(musicId)).status, 403);
+    assert.equal((await outsider.file(musicId)).status, 401);
+    const fileDb = new DatabaseSync(path.join(dir, 'event.sqlite'));
+    try { fileDb.prepare('INSERT INTO files VALUES (?,?,?,?,?,?)').run('orphan-music', 'no-participant', 'music', 'old.wav', 'audio/wav', wave); }
+    finally { fileDb.close(); }
+    assert.equal((await contractor.file('orphan-music')).status, 403);
     const own = await participant.snapshot(); assert.equal(own.participants.length, 1); assert.equal(own.user.username, 'participante1');
     await participant.post('payment', { enrollmentId: '', amount: String(own.participants[0].fullPassFee), date, file: receipt() });
     const payment = (await participant.snapshot()).payments[0];

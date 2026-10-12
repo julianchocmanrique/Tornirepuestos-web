@@ -20,6 +20,13 @@ const output = '/tmp/baile-events-screenshots'; mkdirSync(output, { recursive: t
       await page.goto(root + '/prueba-baile');
       await page.locator('.event-cover-card[data-position="active"]').waitFor();
       await fits(`home ${width}`);
+      const filters = page.getByRole('group', { name: 'Filtrar eventos por categoría' });
+      await filters.getByRole('button', { name: 'Belleza', exact: true }).click();
+      assert.equal(await page.locator('.event-row').count(), 0);
+      assert.equal(await filters.getByRole('button', { name: 'Belleza', exact: true }).getAttribute('aria-pressed'), 'true');
+      await filters.getByRole('button', { name: 'Danza', exact: true }).click();
+      await filters.getByRole('button', { name: 'Todos', exact: true }).click();
+      await page.locator('.event-intro').scrollIntoViewIfNeeded();
       await page.screenshot({ path: `${output}/home-${width}.png`, fullPage: false });
       const initial = await page.locator('.event-cover-card[data-position="active"]').getAttribute('href');
       await page.getByRole('button', { name: 'Evento siguiente', exact: true }).click();

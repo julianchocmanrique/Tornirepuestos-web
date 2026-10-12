@@ -41,7 +41,17 @@ function DanceAppBody({ view, enrollmentId }: { view: View; enrollmentId?: strin
   };
   const allowed = view === "inscripcion" ? ["superadmin", "contractor"].includes(s?.user?.role || "") : view === "participante" ? s?.user?.role === "participant" : view === "admin" ? s?.user?.role === "superadmin" : view === "contratista" ? s?.user?.role === "contractor" : view === "jurado" ? s?.user?.role === "judge" : true;
   return <div className="dance-app">
-    <header className="dance-header"><Link className="dance-brand" href={base} onClick={() => setSwitching(false)}><span className="dance-brand-symbol" aria-hidden="true">r.</span><span>{s?.settings.name || "Ritmo Caribe"}<small>PLATAFORMA DE COMPETENCIA</small></span></Link><nav aria-label="Navegación del evento"><Link href={`${base}/resultados`} onClick={() => setSwitching(false)}>Resultados</Link><Link href={base} onClick={() => setSwitching(false)}>El evento</Link>{s?.user ? <><Link href={`${base}/${rolePath[s.user.role]}`} onClick={() => setSwitching(false)}>Mi panel</Link><button onClick={() => { if (s.settings.demo) { setError(""); setMessage(""); setAccess(undefined); setSwitching(true); } else { run("logout", new FormData()); } }}>{s.settings.demo ? "Cambiar usuario" : "Salir"}</button></> : <><Link href={`${base}/acceso`}>Ingresar</Link><Link className="dance-btn small" href={`${base}/registro`}>{eventId ? "Registrarse" : "Inscribirme"} <span aria-hidden="true">↗</span></Link></>}</nav></header>
+    <header className="dance-header"><Link className="dance-brand" href={base} onClick={() => setSwitching(false)}><span className="dance-brand-symbol" aria-hidden="true">r.</span><span>{s?.settings.name || "Ritmo Caribe"}<small>PLATAFORMA DE COMPETENCIA</small></span></Link><nav aria-label="Navegación del evento">
+      <Link href={`${base}/resultados`} onClick={() => setSwitching(false)}>Resultados</Link>
+      {s?.user ? <>
+        <Link href={base} onClick={() => setSwitching(false)}>El evento</Link>
+        <Link href={`${base}/${rolePath[s.user.role]}`} onClick={() => setSwitching(false)}>Mi panel</Link>
+        <button onClick={() => { if (s.settings.demo) { setError(""); setMessage(""); setAccess(undefined); setSwitching(true); } else { run("logout", new FormData()); } }}>{s.settings.demo ? "Cambiar usuario" : "Salir"}</button>
+      </> : <>
+        <Link href={`${base}/acceso`}>Ingresar</Link>
+        <Link className="dance-btn small" href={`${base}/registro`}>{eventId ? "Registrarse" : "Inscribirme"} <span aria-hidden="true">↗</span></Link>
+      </>}
+    </nav></header>
     <main>
       {(error || message) && <div className={`dance-notice ${error ? "error" : "success"}`} role={error ? "alert" : "status"}>{error || message}<button onClick={() => { setError(""); setMessage(""); }} aria-label="Cerrar aviso">×</button></div>}
       {access && <section className="dance-access-list dance-container"><h2>Accesos del recorrido de ejemplo</h2><p>Estas contraseñas se muestran una sola vez. Descárgalas para hacer las pruebas.</p><button className="dance-btn secondary" onClick={() => exportCsv("accesos-ejemplo.csv", [["Nombre", "Correo", "Contraseña"], ...access.map(a => [a.name, a.email, a.password])])}>Descargar accesos</button>{access.map(a => <p key={a.email}><strong>{a.name}</strong> · {a.email} · <code>{a.password}</code></p>)}<button onClick={() => setAccess(undefined)}>Cerrar</button></section>}

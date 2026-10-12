@@ -9,8 +9,11 @@ async function main() {
     { username: 'superadmin', name: 'Superadministrador', role: 'superadmin' },
     { username: 'admin', name: 'Contratista del evento', role: 'contractor' },
     { username: 'participante1', name: 'Participante 1 (prueba)', role: 'participant' },
+    { username: 'jurado1', name: 'Jurado 1 (prueba)', role: 'judge' },
   ];
-  for (const u of definitions) if (!/^[a-f0-9]{32}:[a-f0-9]{128}$/.test(hashes[u.username] || '')) throw new Error(`Falta hash válido para ${u.username}. No envíes contraseñas en texto plano.`);
+  const selected = definitions.filter(u => Object.hasOwn(hashes, u.username));
+  if (!selected.length || Object.keys(hashes).some(key => !definitions.some(u => u.username === key))) throw new Error('Selecciona al menos un perfil de prueba reconocido.');
+  for (const u of selected) if (!/^[a-f0-9]{32}:[a-f0-9]{128}$/.test(hashes[u.username] || '')) throw new Error(`Falta hash válido para ${u.username}. No envíes contraseñas en texto plano.`);
   const directory = process.env.BAILE_DATA_DIR || path.join(process.cwd(), 'data', 'baile');
   const db = new DatabaseSync(path.join(directory, 'event.sqlite'));
   try {
@@ -23,12 +26,12 @@ async function main() {
       const s = JSON.parse(db.prepare('SELECT data FROM state WHERE id=1').get().data);
       if (!s.settings.demo) throw new Error('El modo de ejemplo fue desactivado.');
       for (const user of s.users) if (user.role === 'admin') user.role = 'superadmin';
-      for (const item of definitions) {
+      for (const item of selected) {
         const id = `test-profile-${item.username}`, email = `${item.username}@ritmocaribe.test`;
         if (s.users.some(u => u.id !== id && (u.username?.toLowerCase() === item.username || u.email.toLowerCase() === email))) throw new Error(`El usuario ${item.username} ya pertenece a otra cuenta. No se reemplazó.`);
         const old = s.users.find(u => u.id === id);
         if (old && (old.role !== item.role || old.username !== item.username)) throw new Error('Conflicto con una cuenta existente.');
-        const user = { id, ...item, demoOnly: true, email, passwordHash: hashes[item.username], categories: [] };
+        const user = { id, ...item, demoOnly: true, email, passwordHash: hashes[item.username], categories: old?.categories || [] };
         if (old) Object.assign(old, user); else s.users.push(user);
         db.prepare('DELETE FROM sessions WHERE userId=?').run(id);
         if (item.role === 'participant' && !s.participants.some(p => p.id === id)) {

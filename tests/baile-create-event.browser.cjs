@@ -22,6 +22,16 @@ assert.ok(['localhost', '127.0.0.1'].includes(new URL(root).hostname));
       await page.goto(root + '/prueba-baile/admin#crear-evento');
       await page.getByRole('heading', { name: 'Evento', exact: true }).waitFor();
       async function fits() { assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)); }
+      async function saved() { await page.getByText('Borrador guardado en este navegador.', {exact:true}).waitFor(); }
+      async function records() { return page.evaluate(() => new Promise((resolve, reject) => {
+        const request = indexedDB.open('rankia-event-drafts', 1);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => {
+          const db = request.result, tx = db.transaction(['drafts','photos'], 'readonly');
+          const drafts = tx.objectStore('drafts').getAll(), photos = tx.objectStore('photos').getAll();
+          tx.oncomplete = () => { db.close(); resolve({drafts:drafts.result, photos:photos.result.map(p => ({name:p.name,size:p.size}))}); };
+        };
+      })); }
       async function next(title) { await fits(); await page.getByRole('button', { name: 'Continuar', exact: true }).click(); await page.getByRole('heading', { name: title, exact: true }).waitFor(); }
       await page.getByRole('button', { name: 'Continuar', exact: true }).click();
       assert.equal(await page.getByRole('heading', { name: 'Evento', exact: true }).count(), 1);
@@ -49,6 +59,22 @@ assert.ok(['localhost', '127.0.0.1'].includes(new URL(root).hostname));
       await next('Fecha y portada');
       assert.equal(await page.getByLabel('Sede y dirección',{exact:true}).inputValue(), 'Teatro de prueba');
       await page.getByText('mi-fotografia.png', {exact:false}).waitFor();
+      await saved(); await page.reload();
+      await page.getByRole('heading', {name:'Fecha y portada',exact:true}).waitFor();
+      assert.equal(await page.getByLabel('Sede y dirección',{exact:true}).inputValue(), 'Teatro de prueba');
+      await page.locator('.event-builder-cover').waitFor();
+      assert.equal((await records()).photos[0].name, 'mi-fotografia.png');
+      // Another account must not inherit this browser's draft.
+      data.user.id = 'another-admin'; await page.reload();
+      await page.getByRole('heading', {name:'Evento',exact:true}).waitFor();
+      assert.equal(await page.getByLabel('Nombre del evento',{exact:true}).inputValue(), '');
+      data.user.id = 'admin'; await page.reload();
+      await page.getByRole('heading', {name:'Fecha y portada',exact:true}).waitFor();
+      await page.goto(root + '/prueba-baile/eventos/thesunfest/admin#crear-evento');
+      await page.getByRole('heading', {name:'Evento',exact:true}).waitFor();
+      assert.equal(await page.getByLabel('Nombre del evento',{exact:true}).inputValue(), '');
+      await page.goto(root + '/prueba-baile/admin#crear-evento');
+      await page.getByRole('heading', {name:'Fecha y portada',exact:true}).waitFor();
       await next('Pases y pagos');
       await page.getByLabel('Precio del pase 1 (COP)', {exact:true}).fill('70000');
       await page.getByLabel('Instrucciones y medios de pago', {exact:true}).fill('Solo comprobantes ficticios. No pagar.');
@@ -70,6 +96,21 @@ assert.ok(['localhost', '127.0.0.1'].includes(new URL(root).hostname));
       await page.getByLabel('Contraseña del jurado 1', {exact:true}).fill('Jurado-seguro-123');
       await page.getByLabel('Jurado 1: Salsa solista', {exact:true}).check();
       await next('Revisar'); await fits();
+      await saved();
+      const stored = JSON.stringify(await records());
+      assert.ok(!stored.includes('Prueba-segura-123') && !stored.includes('Jurado-seguro-123'));
+      await page.reload();
+      await page.getByRole('heading', {name:'Revisar',exact:true}).waitFor();
+      assert.equal(payload, null);
+      await page.getByLabel('He revisado los datos y quiero crear y publicar este evento.', {exact:true}).check();
+      await page.getByRole('button', {name:'Crear y publicar evento',exact:true}).click();
+      await page.getByRole('heading', {name:'Equipo',exact:true}).waitFor();
+      assert.equal(payload, null);
+      assert.equal(await page.getByLabel('Contraseña del contratista',{exact:true}).inputValue(), '');
+      assert.equal(await page.getByLabel('Contraseña del jurado 1',{exact:true}).inputValue(), '');
+      await page.getByLabel('Contraseña del contratista',{exact:true}).fill('Prueba-segura-123');
+      await page.getByLabel('Contraseña del jurado 1',{exact:true}).fill('Jurado-seguro-123');
+      await next('Revisar');
       assert.equal(payload, null);
       assert.ok(await page.getByRole('button', {name:'Crear y publicar evento',exact:true}).isDisabled());
       await page.screenshot({ path: `/tmp/baile-create-event-${width}.png`, fullPage: true });
@@ -78,8 +119,25 @@ assert.ok(['localhost', '127.0.0.1'].includes(new URL(root).hostname));
       await page.getByRole('heading', {name:'Evento nuevo ya tiene su espacio',exact:true}).waitFor();
       assert.ok(payload.includes('sunfest-v1') && payload.includes('Prueba-segura-123'));
       assert.ok(payload.includes('mi-fotografia.png'));
+      assert.deepEqual(await records(), {drafts:[],photos:[]});
+      await page.reload();
+      await page.getByRole('heading', {name:'Evento',exact:true}).waitFor();
+      assert.equal(await page.getByLabel('Nombre del evento',{exact:true}).inputValue(), '');
+      await page.getByLabel('Nombre del evento',{exact:true}).fill('Descartar prueba');
+      await saved();
+      page.once('dialog', dialog => dialog.accept());
+      await page.getByRole('button',{name:'Descartar borrador',exact:true}).click();
+      await saved(); await page.reload();
+      await page.getByRole('heading', {name:'Evento',exact:true}).waitFor();
+      assert.equal(await page.getByLabel('Nombre del evento',{exact:true}).inputValue(), '');
       assert.deepEqual(errors, []); await fits();
-      console.log(`OK ${width}px: siete pasos, validaciones, volver sin perder datos, revisión y creación`);
+      console.log(`OK ${width}px: recarga con foto, aislamiento por usuario, sin contraseñas, publicación y descarte`);
+      await page.addInitScript(() => { IDBFactory.prototype.open = () => { throw new Error('Storage unavailable'); }; });
+      await page.reload();
+      await page.getByRole('alert').filter({hasText:'No se pudo acceder al borrador'}).waitFor();
+      await page.getByLabel('Nombre del evento',{exact:true}).fill('Sin almacenamiento');
+      await page.getByText('Borrador sin guardar.', {exact:true}).waitFor();
+      assert.equal(await page.getByText('Borrador guardado en este navegador.', {exact:true}).count(), 0);
       await page.close();
     }
   } finally { await browser.close(); }

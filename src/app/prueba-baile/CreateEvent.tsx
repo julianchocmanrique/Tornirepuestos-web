@@ -2,7 +2,9 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type InputHTMLAttributes } from "react";
 import { EVENT_CATEGORIES, eventHref, type EventListing } from "@/lib/baile/event-catalog";
-import { emptyCategory, emptyPass, newEventDraft, type EventDraft } from "@/lib/baile/event-draft";
+import { emptyCategory, emptyPass, type EventDraft } from "@/lib/baile/event-draft";
+import { useSavedEventDraft } from "./useSavedEventDraft";
+import { useDanceScope } from "./DanceScope";
 import { scoringCriteria, money } from "@/lib/baile/types";
 import type { Run } from "./ui";
 import "./create-event.css";
@@ -15,14 +17,16 @@ function Check({ label, value, onValue }: { label: string; value: boolean; onVal
   return <label className="dance-check"><input type="checkbox" checked={value} onChange={e => onValue(e.target.checked)} />{label}</label>;
 }
 
-export function CreateEvent({ run, events = [], demoEnabled }: { run: Run; events?: EventListing[]; demoEnabled: boolean }) {
-  const [draft, setDraft] = useState<EventDraft>(() => ({ ...newEventDraft(), demo: demoEnabled }));
-  const [step, setStep] = useState(0), [busy, setBusy] = useState(false), [error, setError] = useState("");
-  const [cover, setCover] = useState<File | null>(null), [preview, setPreview] = useState("");
+export function CreateEvent({ run, events = [], demoEnabled, userId }: { run: Run; events?: EventListing[]; demoEnabled: boolean; userId: string }) {
+  const { eventId } = useDanceScope();
+  const saved = useSavedEventDraft(JSON.stringify([userId, eventId || "root"]), demoEnabled);
+  const { draft, setDraft, step, setStep, cover, setCover, ready } = saved;
+  const [busy, setBusy] = useState(false), [error, setError] = useState("");
+  const [preview, setPreview] = useState("");
   const [confirm, setConfirm] = useState(false), [created, setCreated] = useState("");
   const form = useRef<HTMLFormElement>(null), title = useRef<HTMLHeadingElement>(null);
   const coverInput = useRef<HTMLInputElement>(null);
-  useEffect(() => { title.current?.focus(); }, [step, created]);
+  useEffect(() => { title.current?.focus(); }, [step, created, ready]);
   useEffect(() => {
     if (!cover) { setPreview(""); return; }
     const url = URL.createObjectURL(cover); setPreview(url); return () => URL.revokeObjectURL(url);
@@ -42,21 +46,26 @@ export function CreateEvent({ run, events = [], demoEnabled }: { run: Run; event
   async function publish() {
     if (busy || !confirm) return;
     if (!cover) { setError("Sube la fotografía o el afiche del evento."); setStep(1); return; }
+    if ((draft.contractor && draft.contractor.password.length < 10) || draft.judges.some(j => j.password.length < 10)) { setError("Por seguridad, las contraseñas no se guardan en el borrador. Escríbelas de nuevo antes de publicar."); setConfirm(false); setStep(5); return; }
     setBusy(true); setError("");
     try {
       const data = new FormData(); data.set("event", JSON.stringify(draft)); data.set("confirm", "publish"); if (cover) data.set("cover", cover);
       const result = await run("create-event", data, setError);
       if (result?.eventUrl) {
+        await saved.clear();
         setCreated(result.eventUrl);
         setDraft(d => ({ ...d, contractor: null, judges: [] }));
         setCover(null);
       }
     } finally { setBusy(false); }
   }
-  function reset() { setCreated(""); setDraft({ ...newEventDraft(), demo: demoEnabled }); setConfirm(false); setStep(0); setError(""); }
+  async function reset() { setBusy(true); try { if (await saved.reset()) { setCreated(""); setConfirm(false); setError(""); if (coverInput.current) coverInput.current.value = ""; } } finally { setBusy(false); } }
+  if (!ready) return <div className="dance-panel" role="status">Recuperando tu borrador…</div>;
   return <div className="event-builder">
+    {saved.status === "error" && <p className="dance-notice error" role="alert">No se pudo acceder al borrador en este navegador. No cierres ni recargues si tienes cambios pendientes; comprueba que el almacenamiento del navegador esté disponible.</p>}
     {created ? <section className="dance-panel"><p className="dance-eyebrow">EVENTO PUBLICADO</p><h2 ref={title} tabIndex={-1}>{draft.name} ya tiene su espacio</h2><p>La página pública, los pases y las categorías están listos. Los registros están {draft.registrationOpen ? "abiertos" : "cerrados"}.</p><p>Ingresa al nuevo panel con tu cuenta de superadministración. Los accesos del equipo solo funcionan en este evento.</p><div className="dance-actions"><Link className="dance-btn" href={created}>Ver página del evento</Link><Link className="dance-btn secondary" href={`${created}/acceso`}>Administrar evento</Link><button className="dance-btn secondary" onClick={reset}>Crear otro evento</button></div><p className="dance-muted">Desde el nuevo panel puedes completar el minuto a minuto, añadir jurados y ajustar las tarifas antes de recibir inscripciones.</p></section> : <>
       <div className="dance-callout">Cada evento tendrá su propia página, participantes, inscripciones, comprobantes, pistas y resultados. No se copiarán registros de otros eventos.</div>
+      <div className="event-draft-status"><div><p role="status" aria-live="polite">{saved.status === "saving" ? "Guardando borrador…" : saved.status === "saved" ? "Borrador guardado en este navegador." : saved.status === "error" ? "Borrador sin guardar." : "Guardado automático activado."}</p><small>{saved.restored ? "Recuperamos tus datos y fotografía. " : "Puedes recargar después de que termine el guardado. "}Las contraseñas no se guardan. El borrador no se publica ni se sincroniza con otros dispositivos.</small></div><button type="button" className="dance-btn secondary small" disabled={busy} onClick={() => { if (window.confirm("¿Descartar los datos y la fotografía de este borrador? Los eventos publicados no se modificarán.")) void reset(); }}>Descartar borrador</button></div>
       <ol className="event-builder-steps" aria-label="Pasos para crear el evento">{steps.map((label, i) => <li key={label} aria-current={step === i ? "step" : undefined}><span>{String(i + 1).padStart(2, "0")}</span>{label}</li>)}</ol>
       <form ref={form} className="dance-form dance-panel" onSubmit={e => { e.preventDefault(); if (step === steps.length - 1) void publish(); else next(); }}>
         <fieldset disabled={busy}><p className="dance-eyebrow">PASO {step + 1} DE {steps.length}</p><h2 ref={title} tabIndex={-1}>{steps[step]}</h2>

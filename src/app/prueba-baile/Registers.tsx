@@ -2,15 +2,17 @@
 import { useState } from "react";
 import { type Snapshot, money, dateTime, statusLabels } from "@/lib/baile/types";
 import { ageAt, matchesPerson, passFor, paymentFor, whatsapp, readyEntry } from "@/lib/baile/reporting";
-import { Badge, Stat, Empty, Form, Field, Receipt, Music, exportCsv, type Run } from "./ui";
+import { Badge, Stat, Empty, Form, Field, Receipt, Music, exportCsv, today, type Run } from "./ui";
 import { ParticipantResults } from "./Competition";
 import { SearchBar, CategoryFilter, usePage, ModuleHeading } from "./AdminShared";
 
 export function Registers({ s, run, selectedId, onSelect }: { s: Snapshot; run: Run; selectedId: string | null; onSelect: (id: string | null) => void }) {
   const [query, setQuery] = useState(""), [category, setCategory] = useState(""), [status, setStatus] = useState(""), [order, setOrder] = useState("recent");
+  const [creating, setCreating] = useState(false);
   const rows = s.participants.filter(p => matchesPerson(p, query) && (!category || s.enrollments.some(e => e.participantId === p.id && e.categoryId === category)) && (!status || (passFor(s, p.id)?.status || "missing") === status)).sort((a, b) => order === "name" ? a.name.localeCompare(b.name, "es") : b.createdAt.localeCompare(a.createdAt));
   const page = usePage(rows, `${query}|${category}|${status}|${order}`);
   const selected = s.participants.find(p => p.id === selectedId);
+  if (creating) return <NewParticipant s={s} run={run} onCancel={() => setCreating(false)} onCreated={id => { setCreating(false); onSelect(id); }} />;
   if (selected) return <ParticipantDetail s={s} run={run} id={selected.id} onBack={() => onSelect(null)} />;
   function download() {
     exportCsv("registros.csv", [["Código", "Nombre", "Documento", "Ciudad", "Academia", "WhatsApp", "Correo", "Edad", "Full Pass", "Tarifa", "Inscripciones", "Registro"], ...rows.map(p => [p.code, p.name, p.document, p.city, p.academy, p.phone, p.email, ageAt(p.birthDate), passFor(s, p.id) ? statusLabels[passFor(s, p.id)!.status] : "Por enviar", p.fullPassFee ?? s.settings.fullPassFee, s.enrollments.filter(e => e.participantId === p.id).length, dateTime(p.createdAt)])]);
@@ -18,10 +20,41 @@ export function Registers({ s, run, selectedId, onSelect }: { s: Snapshot; run: 
   return <>
     <div className="dance-stats"><Stat label="Registrados" value={s.participants.length} /><Stat label="Full Pass aprobados" value={s.participants.filter(p => passFor(s, p.id)?.status === "approved").length} /><Stat label="Comprobantes por enviar" value={s.participants.filter(p => !passFor(s, p.id)).length} /><Stat label="En revisión" value={s.payments.filter(p => p.kind === "fullpass" && p.status === "pending").length} /></div>
     <div className="dance-panel">
-      <ModuleHeading title="Registro general" detail="Un perfil por persona. El Full Pass se valida por separado de sus categorías."><button className="dance-btn secondary small" onClick={download}>Exportar registros</button></ModuleHeading>
+      <ModuleHeading title="Registro general" detail="Un perfil por persona. El Full Pass se valida por separado de sus categorías."><div className="dance-actions"><button className="dance-btn small" onClick={() => setCreating(true)}>Nuevo participante</button><button className="dance-btn secondary small" onClick={download}>Exportar registros</button></div></ModuleHeading>
       <SearchBar query={query} onQuery={setQuery}><CategoryFilter s={s} value={category} onChange={setCategory} /><select aria-label="Estado de registro" value={status} onChange={e => setStatus(e.target.value)}><option value="">Todos los estados</option><option value="missing">Sin comprobante</option>{Object.entries(statusLabels).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select><select aria-label="Orden de registros" value={order} onChange={e => setOrder(e.target.value)}><option value="recent">Más recientes</option><option value="name">Nombre A–Z</option></select></SearchBar>
       <div className="dance-table-wrap"><table><thead><tr><th>Participante</th><th>Documento / edad</th><th>Ciudad / academia</th><th>Inscripciones</th><th>Full Pass</th><th>Contacto</th><th>Ficha</th></tr></thead><tbody>{page.rows.map(p => { const wa = whatsapp(p.phone); return <tr key={p.id}><td><strong>{p.name}</strong><small>{p.code} · {dateTime(p.createdAt)}</small></td><td>{p.document}<small>{ageAt(p.birthDate)} años</small></td><td>{p.city}<small>{p.academy || "Independiente"}</small></td><td>{s.enrollments.filter(e => e.participantId === p.id).length}</td><td><Badge status={passFor(s, p.id)?.status} /></td><td>{wa ? <a className="dance-link" href={wa} target="_blank" rel="noreferrer">WhatsApp ↗</a> : p.phone}</td><td><button className="dance-btn secondary small" onClick={() => onSelect(p.id)} aria-label={`Ver ficha de ${p.name}`}>Ver ficha</button></td></tr>; })}</tbody></table></div>
       {!rows.length && <Empty>No hay registros con estos filtros.</Empty>}{page.pager}
+    </div>
+  </>;
+}
+
+function NewParticipant({ s, run, onCancel, onCreated }: { s: Snapshot; run: Run; onCancel: () => void; onCreated: (id: string) => void }) {
+  const create: Run = async (action, data) => {
+    const result = await run(action, data);
+    if (result?.participantId) onCreated(result.participantId);
+    return result;
+  };
+  return <>
+    <button className="dance-btn secondary small" onClick={onCancel}>← Volver a registros</button>
+    <div className="dance-panel dance-profile">
+      <ModuleHeading title="Nuevo participante" detail="Registra a una persona sin salir de tu cuenta de organización." />
+      <div className="dance-callout">Full Pass: {money(s.settings.fullPassFee)}. El nuevo registro quedará sin comprobante; sus pagos y categorías se gestionan por separado. No se envían correos automáticos.</div>
+      {!s.settings.registrationOpen && <p className="dance-muted">El registro público está cerrado. Como organización puedes realizar esta inscripción manual.</p>}
+      <Form action="admin-register" run={create} label="Crear participante">
+        <div className="dance-form-grid">
+          <Field name="name" label="Nombre completo" maxLength={200} autoComplete="off" />
+          <Field name="document" label="Número de documento" maxLength={30} />
+          <Field name="birthDate" label="Fecha de nacimiento" type="date" max={today()} />
+          <Field name="city" label="Ciudad / municipio" maxLength={200} />
+          <Field name="phone" label="Teléfono / WhatsApp" type="tel" maxLength={30} />
+          <Field name="email" label="Correo electrónico del participante" type="email" autoComplete="off" />
+          <Field name="academy" label="Academia o grupo" maxLength={200} required={false} />
+          <Field name="password" label="Contraseña inicial (mínimo 10 caracteres)" type="password" minLength={10} maxLength={160} autoComplete="new-password" />
+        </div>
+        <Field name="extra" label="Información adicional" required={false}><textarea name="extra" rows={3} maxLength={2000} /></Field>
+        <p className="dance-muted">Entrega el correo y la contraseña inicial al participante por un canal privado para que pueda ingresar a su cuenta.</p>
+        <label className="dance-check"><input type="checkbox" name="consent" required /> Confirmo que tengo autorización del participante para registrar sus datos y gestionar su participación en el evento.</label>
+      </Form>
     </div>
   </>;
 }

@@ -224,6 +224,38 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     await admin.post('category', { ...category, active: 'on' }, 409);
     await admin.post('settings', { ...s.settings, formula: 'sum', registrationOpen: 'on', categoryRegistrationOpen: 'on' }, 409);
   });
+  await t.test('registro administrativo conserva sesión, rol y validaciones', async () => {
+    const before = await admin.snapshot();
+    const fields = { ...info, name: 'Alta Manual', document: 'AD-90 001', email: 'MANUAL@example.test', role: 'admin' };
+    await outsider.post('admin-register', fields, 401);
+    await p.post('admin-register', fields, 403);
+    await judge1.post('admin-register', fields, 403);
+    await admin.post('admin-register', { ...fields, consent: '' }, 400);
+    await admin.post('admin-register', { ...fields, birthDate: '2000-02-30' }, 400);
+    await admin.post('admin-register', { ...fields, password: 'corta' }, 400);
+    const result = await admin.post('admin-register', fields, 201);
+    assert.ok(result.participantId); assert.match(result.code, /^PAR-/); assert.equal(result.role, undefined);
+    const after = await admin.snapshot();
+    assert.equal(after.user.id, before.user.id); assert.equal(after.user.role, 'admin');
+    assert.equal(after.participants.length, before.participants.length + 1);
+    assert.equal(after.payments.length, before.payments.length); assert.equal(after.enrollments.length, before.enrollments.length);
+    const created = after.participants.find(x => x.id === result.participantId);
+    assert.equal(created.document, 'AD90001'); assert.equal(created.email, 'manual@example.test'); assert.equal(created.fullPassFee, before.settings.fullPassFee);
+    assert.ok(after.audit.some(x => x.actor === before.user.id && x.target === created.id && x.action === 'Participante registrado por organización'));
+    await admin.post('admin-register', { ...fields, document: 'AD90002' }, 409);
+    await admin.post('admin-register', { ...fields, email: 'otromanual@example.test' }, 409);
+    const manual = client(); await manual.post('login', { email: created.email, password: fields.password });
+    const own = await manual.snapshot(); assert.equal(own.user.role, 'participant'); assert.equal(own.participants.length, 1); assert.equal(own.participants[0].id, created.id);
+    await manual.post('enroll', { categoryId: 'salsa-parejas', team: 'Pareja', members: 'Dos' }, 403);
+  });
+  await t.test('organización puede registrar con registro público cerrado', async () => {
+    const settings = (await admin.snapshot()).settings;
+    await admin.post('settings', { ...settings, registrationOpen: '', categoryRegistrationOpen: 'on' });
+    await outsider.post('register', { ...info, document: 'AD90003', email: 'cerrado@example.test' }, 400);
+    await admin.post('admin-register', { ...info, document: 'AD90003', email: 'cerrado@example.test' }, 201);
+    assert.equal((await admin.snapshot()).user.role, 'admin');
+    await admin.post('settings', { ...settings, registrationOpen: 'on', categoryRegistrationOpen: 'on' });
+  });
   await t.test('persistencia después de reiniciar y cierre de sesión', async () => {
     const before = await admin.snapshot(); const stopped = new Promise(r => server.once('exit', r)); server.kill('SIGTERM'); await stopped;
     server = start(); collect(server); await ready();

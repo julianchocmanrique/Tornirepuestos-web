@@ -28,6 +28,8 @@ En administración, **Crear recorrido de ejemplo** crea dos participantes fictic
 
 ## Módulos de organización
 
+Desde **Registros > Nuevo participante**, la organización puede crear una cuenta con los mismos datos y validaciones del registro público. Debe confirmar que cuenta con autorización de la persona e indicar una contraseña inicial para entregársela por un canal privado. El alta queda auditada a nombre del administrador y abre la ficha sin reemplazar su sesión. No aprueba pagos ni inscribe categorías automáticamente. Esta alta manual está disponible incluso con el registro público cerrado; no envía correos automáticos.
+
 - **Registros:** búsqueda por nombre, documento, código, ciudad o academia, filtros, orden y paginación. Ficha individual con comprobantes, categorías, notas, acreditación, observaciones internas y restablecimiento de acceso. Las observaciones internas nunca se entregan a participantes o jurados.
 - **Inscripciones:** vista separada por categoría, equipo y estado de pago. Full Pass y categorías conservan comprobantes independientes.
 - **Acreditación:** exige Full Pass aprobado. Un código de manilla identifica a un titular, no se reutiliza y solo puede anularse dejando motivo. No se puede rechazar el Full Pass mientras conserve acreditación activa. Los integrantes de parejas/grupos no se acreditan automáticamente.

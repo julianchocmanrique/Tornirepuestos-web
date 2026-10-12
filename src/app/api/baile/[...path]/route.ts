@@ -111,8 +111,10 @@ export async function POST(req: NextRequest, ctx: Context) {
       ensure(user && valid, "Correo o contraseña incorrectos.", 401);
       const res = json({ role: user.role }); res.cookies.set(COOKIE, createSession(user.id), cookieOptions); return res;
     }
-    if (action === "register") {
-      rateLimit(`register:${ip}`, 12);
+    if (action === "register" || action === "admin-register") {
+      const creator = action === "admin-register" ? actor(req) : null;
+      if (creator) { admin(creator); rateLimit(`mutation:${creator.id}`, 240); }
+      else rateLimit(`register:${ip}`, 12);
       const address = email(f); const name = text(f, "name"); const document = text(f, "document", 30).toUpperCase().replace(/[\s.-]/g, "");
       ensure(/^[A-Z0-9]{5,30}$/.test(document), "Revisa el número de documento.");
       const birthDate = text(f, "birthDate", 10);
@@ -122,11 +124,13 @@ export async function POST(req: NextRequest, ctx: Context) {
       ensure(f.get("consent") === "on", "Debes autorizar el uso de los datos para tu inscripción.");
       const passwordHash = await hashPassword(text(f, "password", 160)); const id = randomUUID();
       const participant = transaction(s => {
-        ensure(s.settings.registrationOpen, "Las inscripciones están cerradas.");
-        ensure(!s.users.some(u => u.email === address) && !s.participants.some(p => p.document === document), "Ya existe un registro con ese correo o documento. Ingresa con tu cuenta.", 409);
+        ensure(creator || s.settings.registrationOpen, "Las inscripciones están cerradas.");
+        ensure(!s.users.some(u => u.email === address) && !s.participants.some(p => p.document === document), creator ? "Ya existe un registro con ese correo o documento. Búscalo en Registros." : "Ya existe un registro con ese correo o documento. Ingresa con tu cuenta.", 409);
         const p = { id, code: `PAR-${String(s.participants.length + 1).padStart(4, "0")}`, name, document, birthDate, city, phone, email: address, academy, extra, createdAt: new Date().toISOString(), fullPassFee: s.settings.fullPassFee };
-        s.users.push({ id, name, email: address, passwordHash, role: "participant", categories: [] }); s.participants.push(p); audit(s, id, "Registro creado", id); return p;
+        s.users.push({ id, name, email: address, passwordHash, role: "participant", categories: [] }); s.participants.push(p); audit(s, creator?.id || id, creator ? "Participante registrado por organización" : "Registro creado", id); return p;
       });
+      // Crear desde administración no inicia sesión como el nuevo participante.
+      if (creator) return json({ participantId: participant.id, code: participant.code }, 201);
       const res = json({ role: "participant", code: participant.code }, 201); res.cookies.set(COOKIE, createSession(id), cookieOptions); return res;
     }
     const user = actor(req); rateLimit(`mutation:${user.id}`, 240);

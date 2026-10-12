@@ -1,7 +1,7 @@
 "use client";
 import { useState, type ReactNode, type FormEvent } from "react";
 import { statusLabels, money, type Status, type Payment, type Enrollment } from "@/lib/baile/types";
-export type Result = { access?: { name: string; email: string; password: string }[]; role?: string; error?: string };
+export type Result = { access?: { name: string; email: string; password: string }[]; role?: string; error?: string; participantId?: string; code?: string };
 export type Run = (action: string, data: FormData) => Promise<Result | null>;
 export const base = "/prueba-baile";
 export const rolePath: Record<string, string> = { participant: "participante", admin: "admin", judge: "jurado" };

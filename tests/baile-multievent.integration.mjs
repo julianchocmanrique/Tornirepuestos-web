@@ -1,7 +1,8 @@
+import ts from 'typescript';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, execFileSync } from 'node:child_process';
-import { mkdtempSync, existsSync } from 'node:fs';
+import { mkdtempSync, existsSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
@@ -23,12 +24,20 @@ test('Eventos independientes: permisos, registros, pagos, archivos y sesiones', 
   }
   await ready();
   const credentials = JSON.parse(execFileSync(process.execPath, ['scripts/baile-admin.cjs'], { env, encoding: 'utf8' }).trim());
+  const source = readFileSync('src/lib/baile/registration.ts','utf8');
+  const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
+  const { waiverText } = await import('data:text/javascript;base64,' + Buffer.from(js).toString('base64'));
   function client(eventId = '') {
     const api = root + '/api/baile' + (eventId ? '/eventos/' + eventId : '');
     let cookie = '';
     return {
       cookie: () => cookie,
       async post(action, fields = {}, expected = 200) {
+        if (action === 'register') {
+          const settings = (await (await fetch(api + '/public')).json()).settings;
+          const [firstName, ...last] = fields.name.split(' ');
+          fields = { ...fields, firstName, lastName: last.join(' '), sex: 'Otro', country: 'Colombia', callingCode: '+57', salsa: 'Amateur', bachata: 'No aplica', documentType: 'CC', documentConfirm: fields.document, passwordConfirm: fields.password, guardianName: '', guardianDocument: '', waiverAccepted: 'on', signature: JSON.stringify([[[10,20],[40,50],[80,20]]]), waiverText: waiverText(settings, fields.name, fields.document), fullPassFee: String(settings.fullPassFee), reference: 'TEST-REF', receipt: receipt(), photo: receipt() };
+        }
         const body = new FormData();
         for (const [k, v] of Object.entries(fields)) Array.isArray(v) ? v.forEach(x => body.append(k, x)) : body.append(k, v);
         const res = await fetch(api + '/' + action, { method: 'POST', body, headers: { origin: root, cookie } });
@@ -76,13 +85,18 @@ test('Eventos independientes: permisos, registros, pagos, archivos y sesiones', 
     assert.equal((await adminB.get('files/' + payment.receiptId)).status, 404);
     assert.equal((await participantB.get('files/' + payment.receiptId)).status, 404);
     assert.equal((await owner.get('files/' + payment.receiptId)).status, 404);
+    const person = (await participantA.snapshot()).participants[0];
+    assert.ok(person.registration.waiver.text.includes('Caribe Salsa Festival'));
+    assert.ok(!person.registration.waiver.text.includes('Bachata al Mar'));
+    for (const who of [adminB, participantB, owner]) assert.equal((await who.get('files/' + person.registration.photoId)).status, 404);
+    assert.equal((await participantA.get('files/' + person.registration.photoId)).status, 200);
   });
   await t.test('aprobar Full Pass y categoría en A no habilita B', async () => {
     await adminB.post('review', { paymentId: payment.id, status: 'approved', note: '' }, 404);
     await adminA.post('review', { paymentId: payment.id, status: 'approved', note: '' });
     entry = await participantA.post('enroll', { categoryId: 'salsa-solista', team: '', members: '' }, 201);
     await participantB.post('enroll', { categoryId: 'bachata-parejas', team: 'Equipo', members: 'Persona 1 y persona 2' }, 403);
-    assert.equal((await participantB.snapshot()).payments.length, 0);
+    assert.equal((await participantB.snapshot()).payments[0].status, 'pending');
     await participantA.post('payment', { enrollmentId: entry.id, amount: '60000', date, file: receipt() });
     const cp = (await participantA.snapshot()).payments.find(p => p.enrollmentId === entry.id);
     await adminA.post('review', { paymentId: cp.id, status: 'approved', note: '' });

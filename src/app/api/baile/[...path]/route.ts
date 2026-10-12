@@ -1,5 +1,6 @@
 import { withEvent, sessionCookieName } from "@/lib/baile/event-scope";
 import { findEvent } from "@/lib/baile/event-catalog";
+import { DOCUMENT_TYPES, LEVELS, WAIVER_VERSION, colombiaDate, isMinor, validSignature, waiverText, type Registration } from "@/lib/baile/registration";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID, randomBytes } from "node:crypto";
 import { db, readState, transaction, hashPassword, verifyPassword, createSession, sessionUser, tokenHash, rateLimit, globalAdminFor } from "@/lib/baile/store";
@@ -30,14 +31,14 @@ function errorResponse(error: unknown) {
   return json({ error: "No se pudo completar la operación. Intenta de nuevo." }, 500);
 }
 type Upload = { id: string; name: string; mime: string; buffer: Buffer; kind: string };
-async function upload(f: FormData, kind: "receipt" | "music"): Promise<Upload> {
-  const file = f.get("file");
+async function upload(f: FormData, kind: "receipt" | "music" | "photo", key = "file"): Promise<Upload> {
+  const file = f.get(key);
   ensure(file instanceof File && file.size > 0, "Selecciona un archivo.");
   ensure(file.size <= (kind === "music" ? 20 : 5) * 1024 * 1024, kind === "music" ? "La pista debe pesar máximo 20 MB." : "El comprobante debe pesar máximo 5 MB.");
   const buffer = Buffer.from(await file.arrayBuffer());
   const ascii = (start: number, end: number) => buffer.subarray(start, end).toString("ascii");
   let mime = "";
-  if (kind === "receipt") {
+  if (kind !== "music") {
     if (ascii(0, 5) === "%PDF-") mime = "application/pdf";
     else if (buffer.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10]))) mime = "image/png";
     else if (buffer[0] === 255 && buffer[1] === 216 && buffer[2] === 255) mime = "image/jpeg";
@@ -49,6 +50,7 @@ async function upload(f: FormData, kind: "receipt" | "music"): Promise<Upload> {
     else if (ascii(4, 8) === "ftyp" && /M4A|isom|mp42/.test(ascii(8, 28))) mime = "audio/mp4";
   }
   ensure(mime, kind === "music" ? "Usa un audio MP3, WAV, OGG o M4A válido." : "Usa un comprobante PDF, JPG, PNG o WebP válido.");
+  ensure(kind !== "photo" || ["image/png", "image/jpeg"].includes(mime), "La foto debe ser JPG o PNG.");
   return { id: randomUUID(), name: file.name.replace(/[^\p{L}\p{N}._ -]/gu, "_").slice(0, 120), mime, buffer, kind };
 }
 function putFile(file: Upload, owner: string) {
@@ -89,7 +91,7 @@ async function handleGET(req: NextRequest, ctx: Context) {
       const user = actor(req);
       const file = db().prepare("SELECT * FROM files WHERE id=?").get(parts[1]);
       ensure(file, "Archivo no encontrado.", 404);
-      const contractorFile = user.role === "contractor" && (file.kind === "receipt" || (file.kind === "music" && readState().enrollments.some(e => e.musicId === file.id && e.participantId === file.owner)));
+      const contractorFile = user.role === "contractor" && (file.kind === "receipt" || file.kind === "photo" || (file.kind === "music" && readState().enrollments.some(e => e.musicId === file.id && e.participantId === file.owner)));
       ensure(user.role === "superadmin" || contractorFile || (user.role === "participant" && file.owner === user.id), "No tienes acceso a este archivo.", 403);
       const data = Buffer.from(file.content as Uint8Array);
       const headers: Record<string, string> = { "Content-Type": file.mime as string, "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "sandbox", "Accept-Ranges": "bytes", "Content-Disposition": `${req.nextUrl.searchParams.has("download") || file.kind === "receipt" ? "attachment" : "inline"}; filename*=UTF-8''${encodeURIComponent(file.name as string)}` };
@@ -138,7 +140,7 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       const address = text(f, "email").toLowerCase();
       const state = readState();
       const globalAdmin = globalAdminFor(address);
-      const user = globalAdmin || state.users.find(u => (!u.demoOnly || state.settings.demo) && (u.email === address || u.username?.toLowerCase() === address));
+      const user = globalAdmin || state.users.find(u => (!u.demoOnly || state.settings.demo) && (u.email === address || u.username?.toLowerCase() === address || (u.role === "participant" && state.participants.some(p => p.id === u.id && p.document === address.toUpperCase().replace(/[\s.-]/g, "")))));
       rateLimit(`login-ip:${ip}`, 80); rateLimit(`login:${user?.email || address}`);
       const fallback = "00000000000000000000000000000000:" + "0".repeat(128);
       const valid = await verifyPassword(text(f, "password", 160), user?.passwordHash || fallback);
@@ -156,12 +158,46 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       const phone = text(f, "phone", 30); ensure(/^[+\d ()-]{7,30}$/.test(phone), "Revisa el teléfono.");
       const city = text(f, "city"); const academy = text(f, "academy", 200, false); const extra = text(f, "extra", 2000, false);
       ensure(f.get("consent") === "on", "Debes autorizar el uso de los datos para tu inscripción.");
+      let registration: Registration | undefined; let receipt: Upload | undefined; let photo: Upload | undefined;
+      let reference = "";
+      if (!creator) {
+        const firstName = text(f, "firstName", 100), lastName = text(f, "lastName", 100);
+        ensure(name === firstName + " " + lastName, "Revisa los nombres y apellidos.");
+        ensure(document === text(f, "documentConfirm", 30).toUpperCase().replace(/[\s.-]/g, ""), "Los números de documento no coinciden.");
+        ensure(text(f, "password", 160) === text(f, "passwordConfirm", 160), "Las contraseñas no coinciden.");
+        const sex = text(f, "sex", 30), country = text(f, "country", 100), callingCode = text(f, "callingCode", 5);
+        const salsa = text(f, "salsa", 30), bachata = text(f, "bachata", 30), documentType = text(f, "documentType", 30);
+        ensure(["Femenino", "Masculino", "Otro", "Prefiero no indicar"].includes(sex) && /^\+\d{1,4}$/.test(callingCode), "Revisa tus datos personales.");
+        ensure(LEVELS.includes(salsa) && LEVELS.includes(bachata) && DOCUMENT_TYPES.includes(documentType), "Revisa el nivel y el tipo de documento.");
+        ensure(f.get("waiverAccepted") === "on", "Debes leer y aceptar la carta de exoneración.");
+        let signature: unknown;
+        try { signature = JSON.parse(text(f, "signature", 150000)); } catch { throw new DanceError("Dibuja tu firma antes de continuar."); }
+        ensure(validSignature(signature), "Dibuja una firma completa antes de continuar.");
+        const guardianName = text(f, "guardianName", 200, false), guardianDocument = text(f, "guardianDocument", 30, false);
+        if (isMinor(birthDate)) ensure(guardianName && guardianDocument && f.get("guardianConsent") === "on", "El representante del menor debe identificarse, firmar y autorizar el registro.");
+        registration = { firstName, lastName, sex, country, callingCode, salsa, bachata, documentType, photoId: "", waiver: { version: WAIVER_VERSION, text: text(f, "waiverText", 12000).replace(/\r\n/g, "\n"), acceptedAt: "", signature, guardianName: isMinor(birthDate) ? guardianName : "", guardianDocument: isMinor(birthDate) ? guardianDocument : "" } };
+        reference = text(f, "reference", 100);
+        receipt = await upload(f, "receipt", "receipt"); photo = await upload(f, "photo", "photo");
+        registration.photoId = photo.id;
+      }
       const passwordHash = await hashPassword(text(f, "password", 160)); const id = randomUUID();
       const participant = transaction(s => {
         ensure(creator || s.settings.registrationOpen, "Las inscripciones están cerradas.");
-        ensure(!globalAdminFor(address) && !s.users.some(u => u.email === address) && !s.participants.some(p => p.document === document), creator ? "Ya existe un registro con ese correo o documento. Búscalo en Registros." : "Ya existe un registro con ese correo o documento. Ingresa con tu cuenta.", 409);
-        const p = { id, code: `PAR-${String(s.participants.length + 1).padStart(4, "0")}`, name, document, birthDate, city, phone, email: address, academy, extra, createdAt: new Date().toISOString(), fullPassFee: s.settings.fullPassFee };
-        s.users.push({ id, name, email: address, passwordHash, role: "participant", categories: [] }); s.participants.push(p); audit(s, creator?.id || id, creator ? "Participante registrado por organización" : "Registro creado", id); return p;
+        if (registration) {
+          ensure(s.settings.demo || (s.settings.eventStart && s.settings.eventEnd && s.settings.eventLocation), "La organización debe configurar las fechas y la sede antes de recibir registros reales.");
+          ensure(registration.waiver.text === waiverText(s.settings, name, document), "Los datos del evento cambiaron. Actualiza la página y revisa la carta nuevamente.", 409);
+          ensure(Number(f.get("fullPassFee")) === s.settings.fullPassFee, "La tarifa cambió. Actualiza la página antes de enviar.", 409);
+          registration.waiver.acceptedAt = new Date().toISOString();
+        }
+        ensure(!globalAdminFor(address) && !s.users.some(u => u.email === address || u.username?.toUpperCase() === document) && !s.participants.some(p => p.document === document), creator ? "Ya existe un registro con ese correo o documento. Búscalo en Registros." : "Ya existe un registro con ese correo o documento. Ingresa con tu cuenta.", 409);
+        const p = { id, code: `PAR-${String(s.participants.length + 1).padStart(4, "0")}`, name, document, birthDate, city, phone, email: address, academy, extra, createdAt: new Date().toISOString(), fullPassFee: s.settings.fullPassFee, ...(registration ? { registration } : {}) };
+        s.users.push({ id, name, email: address, passwordHash, role: "participant", categories: [] }); s.participants.push(p);
+        if (registration && receipt && photo) {
+          putFile(receipt, id); putFile(photo, id);
+          s.payments.push({ id: randomUUID(), participantId: id, enrollmentId: null, kind: "fullpass", amount: s.settings.fullPassFee, date: colombiaDate(), receiptId: receipt.id, reference, status: "pending", note: "", reviewedBy: null, reviewedAt: null, createdAt: p.createdAt });
+          audit(s, id, "Carta aceptada y documentos de registro recibidos", id);
+        }
+        audit(s, creator?.id || id, creator ? "Participante registrado por organización" : "Registro creado", id); return p;
       });
       // Crear desde administración no inicia sesión como el nuevo participante.
       if (creator) return json({ participantId: participant.id, code: participant.code }, 201);
@@ -259,8 +295,14 @@ async function handlePOST(req: NextRequest, ctx: Context) {
     }
     if (action === "settings") {
       const name = text(f, "name", 100); const tagline = text(f, "tagline", 200); const fullPassFee = numeric(f, "fullPassFee", 1); const paymentInstructions = text(f, "paymentInstructions", 3000);
+      const eventStart = f.has("eventStart") ? text(f, "eventStart", 10, false) : undefined;
+      const eventEnd = f.has("eventEnd") ? text(f, "eventEnd", 10, false) : undefined;
+      const eventLocation = f.has("eventLocation") ? text(f, "eventLocation", 200, false) : undefined;
+      ensure(!eventStart || validDate(eventStart), "Revisa la fecha inicial del evento.");
+      ensure(!eventEnd || validDate(eventEnd), "Revisa la fecha final del evento.");
+      ensure(!eventStart || !eventEnd || eventEnd >= eventStart, "La fecha final no puede ser anterior al inicio.");
       const formula = text(f, "formula"); ensure(formula === "average" || formula === "sum", "Fórmula inválida.");
-      transaction(s => { ensure(formula === s.settings.formula || !s.schedule.some(x => x.status === "finished"), "No cambies la fórmula cuando hay resultados definitivos.", 409); s.settings = { ...s.settings, name, tagline, fullPassFee, paymentInstructions, formula, registrationOpen: f.get("registrationOpen") === "on", categoryRegistrationOpen: f.get("categoryRegistrationOpen") === "on" }; audit(s, user.id, "Configuración actualizada", "evento"); }); return json({ ok: true });
+      transaction(s => { ensure(formula === s.settings.formula || !s.schedule.some(x => x.status === "finished"), "No cambies la fórmula cuando hay resultados definitivos.", 409); s.settings = { ...s.settings, ...(eventStart !== undefined ? { eventStart } : {}), ...(eventEnd !== undefined ? { eventEnd } : {}), ...(eventLocation !== undefined ? { eventLocation } : {}), name, tagline, fullPassFee, paymentInstructions, formula, registrationOpen: f.get("registrationOpen") === "on", categoryRegistrationOpen: f.get("categoryRegistrationOpen") === "on" }; audit(s, user.id, "Configuración actualizada", "evento"); }); return json({ ok: true });
     }
     if (action === "contractor") {
       const address = email(f), name = text(f, "name");

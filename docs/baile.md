@@ -93,3 +93,42 @@ El catálogo se configura en `src/lib/baile/event-catalog.ts`. Los tres ejemplos
 - Los pagos siguen siendo carga de comprobante y validación manual, no cobros con tarjeta ni una pasarela bancaria. Nombres, fechas, fotografías y precios del catálogo inicial siguen siendo ejemplos hasta que la organización confirme información real.
 
 Verificación: `npm run build`, `npm run test:baile`, `node --test tests/baile-multievent.integration.mjs tests/baile-events.test.mjs`. Prueba visual local: `tests/baile-events.browser.cjs` (Playwright y Chrome indicados mediante PLAYWRIGHT_MODULE/CHROME_PATH). Usar BAILE_DATA_DIR temporal; no crear datos de prueba en producción.
+
+## Registro público en cinco pasos
+
+La ruta `/prueba-baile/registro` tiene una línea de progreso: Datos, Nivel,
+ID, Exoneración y Documentos. Conserva los campos y archivos al retroceder;
+no guarda contraseñas ni documentos en localStorage. Recargar pierde el borrador.
+
+El envío crea en una sola transacción el participante, su cuenta, foto privada,
+carta aceptada (texto exacto, versión, trazos de firma y hora del servidor) y
+comprobante del Full Pass pendiente de validación. No aprueba pagos. Las
+categorías siguen siendo independientes. El acceso admite documento o correo;
+la contraseña se guarda con scrypt y no se envía por correo. El servidor valida
+confirmaciones, niveles, consentimiento, firma, archivos y tarifa. La carta se
+compara normalizando saltos de línea CRLF/LF para funcionar en Windows.
+
+En Ajustes se pueden completar fecha inicial, fecha final y ciudad/sede. La carta
+usa esos datos y el nombre del evento; nunca los datos del sitio de referencia.
+En modo de ejemplo, los datos no definidos se indican como pendientes de publicar.
+Fuera de modo de ejemplo deben estar definidos antes de aceptar registros.
+El texto proporcionado por el organizador necesita revisión jurídica antes de su
+uso real. La captura de una firma no equivale a certificar su validez jurídica.
+Para menores se solicitan identificación, autorización y firma del representante;
+la organización debe revisar sus requisitos específicos.
+
+La ficha (Registro > Ver ficha) y el panel del participante permiten consultar
+los nuevos datos, la foto y la carta guardada. Los registros anteriores y las
+altas manuales del administrador se conservan sin inventar firmas ni documentos:
+se muestran como registros sin documentación del nuevo flujo. El alta manual no
+puede hacer constar la aceptación de esta carta en nombre del participante.
+No se implementan códigos de descuento: no hay todavía reglas de descuentos
+configuradas, por lo que no se ofrece un control que prometa una rebaja inexistente.
+
+Pruebas: `npm run build`, `npm run test:baile` y
+`node --test tests/baile-wizard.test.mjs`. Las pruebas usan una base SQLite temporal,
+identidades ficticias y trazos sintéticos; no crean participantes en producción.
+
+## Publicación
+
+Por indicación del responsable, los cambios de este proyecto se publican en la página oficial (`https://tornirepuestos.com/prueba-baile`) después de integrar y verificar la versión completa. No dar por entregado un cambio solamente por estar guardado localmente. Conservar el volumen de datos, no reinicializar cuentas y comprobar el despliegue y los registros existentes antes de confirmar la publicación.

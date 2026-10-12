@@ -28,6 +28,9 @@ export function db() {
       state.settings.name = event.name;
       state.settings.tagline = event.description;
       state.settings.demo = event.demo;
+      state.settings.eventStart = event.date;
+      state.settings.eventEnd = event.date;
+      state.settings.eventLocation = `${event.city}, sede por confirmar`;
       state.categories = state.categories.filter(c => c.rhythm === event.genre);
     }
     connection.prepare("INSERT OR IGNORE INTO state (id,data) VALUES (1,?)").run(JSON.stringify(state));

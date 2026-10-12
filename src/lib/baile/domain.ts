@@ -98,7 +98,7 @@ export function recordPayment(s: State, user: User, enrollmentId: string | null,
   ensure(Number.isFinite(amount) && amount > 0 && amount <= 100000000, "Indica un valor válido.");
   ensure(amount >= (e ? e.fee : s.participants.find(p => p.id === user.id)?.fullPassFee ?? s.settings.fullPassFee), "El valor reportado es menor al valor de inscripción.");
   ensure(validDate(date) && date <= new Date().toLocaleDateString("en-CA", { timeZone: "America/Bogota" }), "Indica una fecha de pago válida, no futura.");
-  const p: Payment = { id: old?.id || randomUUID(), participantId: user.id, enrollmentId, kind: e ? "category" : "fullpass", amount, date, receiptId, status: "pending", note: "", reviewedBy: null, reviewedAt: null, createdAt: new Date().toISOString() };
+  const p: Payment = { id: old?.id || randomUUID(), participantId: user.id, enrollmentId, kind: e ? "category" : "fullpass", amount, date, receiptId, ...(old?.reference ? { reference: old.reference } : {}), status: "pending", note: "", reviewedBy: null, reviewedAt: null, createdAt: new Date().toISOString() };
   if (old) Object.assign(old, p); else s.payments.push(p);
   audit(s, user.id, "Comprobante enviado", p.id);
   return p;

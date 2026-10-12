@@ -9,6 +9,8 @@ import { ensure } from "./domain";
 import { currentEventId, withEvent } from "./event-scope";
 import { findEvent } from "./event-catalog";
 
+import { seedSunFest } from "./pricing";
+
 const connections = new Map<string, DatabaseSync>();
 export function db() {
   const eventId = currentEventId();
@@ -32,6 +34,7 @@ export function db() {
       state.settings.eventEnd = event.date;
       state.settings.eventLocation = `${event.city}, sede por confirmar`;
       state.categories = state.categories.filter(c => c.rhythm === event.genre);
+      if (event.id === "thesunfest") seedSunFest(state);
     }
     connection.prepare("INSERT OR IGNORE INTO state (id,data) VALUES (1,?)").run(JSON.stringify(state));
     connections.set(dir, connection);

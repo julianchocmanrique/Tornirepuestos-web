@@ -1,0 +1,17 @@
+.dance-app .pass-picker { border: 0; padding: 0; margin: 0 0 2rem; min-width: 0; }
+.dance-app .pass-picker legend { font-size: 1.5rem; font-weight: 700; }
+.dance-app .pass-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+.dance-app .pass-card { display: flex; flex-direction: column; gap: 1rem; padding: clamp(1.2rem, 2.5vw, 2rem); border: 1px solid #d2d6c8; border-radius: 12px; background: #fffefb; min-width: 0; overflow-wrap: anywhere; }
+.dance-app .pass-card.selected { border-color: #a94228; box-shadow: inset 0 0 0 2px #a94228; background: #fbf2ea; }
+.dance-app .pass-card:focus-within { outline: 2px solid #a94228; outline-offset: 3px; }
+.dance-app .pass-choice { display: flex; align-items: flex-start; gap: .75rem; }
+.dance-app .pass-choice input { width: 20px; height: 20px; flex: 0 0 20px; accent-color: #a94228; }
+.dance-app .pass-price { font-size: clamp(1.8rem, 3vw, 2.7rem); font-weight: 700; line-height: 1.1; }
+.dance-app .pass-price small { font-size: .7rem; font-weight: 400; }
+.dance-app .pass-card ul { padding-left: 1.2rem; margin: 0; line-height: 1.8; flex: 1; }
+.dance-app .pass-card .dance-btn { margin-top: auto; justify-content: center; }
+.dance-app .pass-card small { color: #585e50; }
+.dance-app .pass-admin { padding: 1rem 0; border-bottom: 1px solid #d2d6c8; }
+.dance-app .pass-admin summary { font-weight: 700; cursor: pointer; padding: .5rem 0; }
+.dance-app .event-pass-section { padding-top: 2rem; padding-bottom: 2rem; scroll-margin-top: 2rem; }
+@media (max-width: 760px) { .dance-app .pass-grid { grid-template-columns: 1fr; } .dance-app .pass-price { font-size: 2rem; } }

@@ -1,3 +1,4 @@
+import { passPlans, passAvailable, type PassPlan } from "@/lib/baile/pricing";
 import { withEvent, sessionCookieName } from "@/lib/baile/event-scope";
 import { findEvent } from "@/lib/baile/event-catalog";
 import { DOCUMENT_TYPES, LEVELS, WAIVER_VERSION, colombiaDate, isMinor, validSignature, waiverText, type Registration } from "@/lib/baile/registration";
@@ -183,18 +184,21 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       const passwordHash = await hashPassword(text(f, "password", 160)); const id = randomUUID();
       const participant = transaction(s => {
         ensure(creator || s.settings.registrationOpen, "Las inscripciones están cerradas.");
+        const plan = passPlans(s.settings).find(p => p.id === (f.get("passId") || (!s.settings.passPlans ? "fullpass" : "")));
+        ensure(plan && passAvailable(plan, s.settings), "Selecciona un pase disponible para este evento.");
+        const purchased = s.settings.passPlans ? { id: plan.id, name: plan.name, benefits: [...plan.benefits], canCompete: plan.canCompete } : undefined;
         if (registration) {
           ensure(s.settings.demo || (s.settings.eventStart && s.settings.eventEnd && s.settings.eventLocation), "La organización debe configurar las fechas y la sede antes de recibir registros reales.");
-          ensure(registration.waiver.text === waiverText(s.settings, name, document), "Los datos del evento cambiaron. Actualiza la página y revisa la carta nuevamente.", 409);
-          ensure(Number(f.get("fullPassFee")) === s.settings.fullPassFee, "La tarifa cambió. Actualiza la página antes de enviar.", 409);
+          ensure(registration.waiver.text === waiverText(s.settings, name, document, purchased), "Los datos del evento cambiaron. Actualiza la página y revisa la carta nuevamente.", 409);
+          ensure(Number(f.get("fullPassFee")) === plan.fee, "La tarifa cambió. Actualiza la página antes de enviar.", 409);
           registration.waiver.acceptedAt = new Date().toISOString();
         }
         ensure(!globalAdminFor(address) && !s.users.some(u => u.email === address || u.username?.toUpperCase() === document) && !s.participants.some(p => p.document === document), creator ? "Ya existe un registro con ese correo o documento. Búscalo en Registros." : "Ya existe un registro con ese correo o documento. Ingresa con tu cuenta.", 409);
-        const p = { id, code: `PAR-${String(s.participants.length + 1).padStart(4, "0")}`, name, document, birthDate, city, phone, email: address, academy, extra, createdAt: new Date().toISOString(), fullPassFee: s.settings.fullPassFee, ...(registration ? { registration } : {}) };
+        const p = { id, code: `PAR-${String(s.participants.length + 1).padStart(4, "0")}`, name, document, birthDate, city, phone, email: address, academy, extra, createdAt: new Date().toISOString(), fullPassFee: plan.fee, ...(purchased ? { pass: purchased } : {}), ...(registration ? { registration } : {}) };
         s.users.push({ id, name, email: address, passwordHash, role: "participant", categories: [] }); s.participants.push(p);
         if (registration && receipt && photo) {
           putFile(receipt, id); putFile(photo, id);
-          s.payments.push({ id: randomUUID(), participantId: id, enrollmentId: null, kind: "fullpass", amount: s.settings.fullPassFee, date: colombiaDate(), receiptId: receipt.id, reference, status: "pending", note: "", reviewedBy: null, reviewedAt: null, createdAt: p.createdAt });
+          s.payments.push({ id: randomUUID(), participantId: id, enrollmentId: null, kind: "fullpass", amount: plan.fee, date: colombiaDate(), receiptId: receipt.id, reference, status: "pending", note: "", reviewedBy: null, reviewedAt: null, createdAt: p.createdAt });
           audit(s, id, "Carta aceptada y documentos de registro recibidos", id);
         }
         audit(s, creator?.id || id, creator ? "Participante registrado por organización" : "Registro creado", id); return p;
@@ -293,6 +297,25 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       transaction(s => saveSchedule(s, user, { id: text(f, "id", 100, false) || randomUUID(), categoryId: text(f, "categoryId"), startAt: new Date(startAt).toISOString(), duration: numeric(f, "duration", 1, 240), stage: text(f, "stage", 80), status: text(f, "status", 20) as StageStatus, note: text(f, "note", 1000, false) }));
       return json({ ok: true });
     }
+    if (action === "pass-plan") {
+      const id = text(f, "id", 60);
+      ensure(/^[a-z0-9][a-z0-9-]{0,59}$/.test(id), "Usa un identificador sin espacios ni acentos.");
+      const validUntil = text(f, "validUntil", 10, false);
+      ensure(!validUntil || validDate(validUntil), "Revisa la vigencia del pase.");
+      const benefits = text(f, "benefits", 1600).split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+      ensure(benefits.length <= 8 && benefits.every(x => x.length <= 200), "Usa hasta ocho beneficios de máximo 200 caracteres.");
+      const plan: PassPlan = { id, name: text(f, "name", 100), fee: numeric(f, "fee", 1), benefits, validUntil, active: f.get("active") === "on", canCompete: f.get("canCompete") === "on" };
+      ensure(Number.isInteger(plan.fee), "Usa un precio en pesos enteros.");
+      transaction(s => {
+        const plans = passPlans(s.settings);
+        const old = plans.find(p => p.id === id);
+        ensure(old || plans.length < 12, "Este evento admite hasta doce pases.");
+        if (old) Object.assign(old, plan); else plans.push(plan);
+        s.settings.passPlans = plans;
+        audit(s, user.id, "Plan de pase actualizado", id);
+      });
+      return json({ ok: true });
+    }
     if (action === "settings") {
       const name = text(f, "name", 100); const tagline = text(f, "tagline", 200); const fullPassFee = numeric(f, "fullPassFee", 1); const paymentInstructions = text(f, "paymentInstructions", 3000);
       const eventStart = f.has("eventStart") ? text(f, "eventStart", 10, false) : undefined;
@@ -322,7 +345,9 @@ async function handlePOST(req: NextRequest, ctx: Context) {
     if (action === "category") {
       const id = text(f, "id", 100, false) || randomUUID(); const deadline = text(f, "deadline", 100, false);
       ensure(!deadline || Number.isFinite(Date.parse(deadline)), "Fecha límite inválida.");
-      const c: Category = { id, name: text(f, "name", 120), rhythm: text(f, "rhythm", 80), modality: text(f, "modality", 30), division: text(f, "division", 80), fee: numeric(f, "fee", 1), active: f.get("active") === "on", deadline: deadline ? new Date(deadline).toISOString() : "" };
+      const validUntil = f.has("validUntil") ? text(f, "validUntil", 10, false) : undefined;
+      ensure(!validUntil || validDate(validUntil), "Revisa la vigencia de la tarifa.");
+      const c: Category = { id, ...(validUntil !== undefined ? { validUntil } : {}), name: text(f, "name", 120), rhythm: text(f, "rhythm", 80), modality: text(f, "modality", 30), division: text(f, "division", 80), fee: numeric(f, "fee", 1), active: f.get("active") === "on", deadline: deadline ? new Date(deadline).toISOString() : "" };
       ensure(["Solista", "Pareja", "Grupo"].includes(c.modality), "Modalidad inválida.");
       transaction(s => { ensure(!c.active || !s.schedule.some(x => x.categoryId === id && x.status === "finished"), "La categoría ya finalizó. Crea otra categoría para una nueva competencia.", 409); const old = s.categories.find(x => x.id === id); if (old) { ensure(!s.enrollments.some(e => e.categoryId === id) || (old.modality === c.modality && old.rhythm === c.rhythm && old.division === c.division), "No cambies modalidad, ritmo o división de una categoría con inscritos."); Object.assign(old, c); } else s.categories.push(c); audit(s, user.id, "Categoría actualizada", id); }); return json({ ok: true });
     }

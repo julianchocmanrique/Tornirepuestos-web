@@ -1,3 +1,4 @@
+import type { PurchasedPass } from './pricing';
 import type { Settings } from './types';
 
 export const LEVELS = ['No aplica', 'Principiante', 'Amateur', 'Semiprofesional', 'Profesional'];
@@ -14,12 +15,19 @@ export function isMinor(birthDate: string, at = colombiaDate()) {
   const cutoff = `${Number(at.slice(0, 4)) - 18}${at.slice(4)}`;
   return birthDate > cutoff;
 }
-export function waiverText(settings: Settings, name: string, document: string) {
+export function waiverText(settings: Settings, name: string, document: string, pass?: PurchasedPass) {
   const event = settings.name;
   const date = (value: string) => new Intl.DateTimeFormat('es-CO', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(`${value}T12:00:00Z`));
   const when = settings.eventStart ? `del ${date(settings.eventStart)} al ${date(settings.eventEnd || settings.eventStart)}` : 'en las fechas que publique la organización';
   const where = settings.eventLocation ? `en ${settings.eventLocation}` : 'en la sede que publique la organización';
+  if (pass?.canCompete === false) return [
+    `Registro de acompañante: ${name.toUpperCase()}, documento ${document}, para ${event}, ${when}, ${where}.`,
+    `Pase seleccionado: ${pass.name}. Incluye: ${pass.benefits.join(', ')}. No habilita la participación en competencias.`,
+    'Declaro que los datos proporcionados son correctos y solicito el registro como acompañante. La organización revisará el comprobante antes de confirmar el acceso.',
+    ...(settings.demo ? ['Este es un registro de prueba. No realices pagos reales.'] : []),
+  ].join('\n\n');
   return [
+    ...(pass ? [`Pase seleccionado: ${pass.name}. Incluye: ${pass.benefits.join(', ')}. Las categorías se pagan por separado.`] : []),
     `El suscrito COMPETIDOR, ${name.toUpperCase()} identificado con número de identificación ${document}, declaro que conozco y acepto el reglamento de ${event}, que se llevará a cabo ${when}, ${where}, y que en razón a lo anteriormente expuesto acepto expresamente lo siguiente:`,
     `1. Que participo en la competencia voluntariamente y a título personal, por mi cuenta y riesgo, exonerando a ${event}, a sus organizadores y equipo de trabajo, de toda responsabilidad por cualquier clase de accidente o incidente de salud que ponga en riesgo mi integridad y que se pueda presentar antes y durante el desarrollo del mismo.`,
     '2. Que toda la información proporcionada, consignada y por mí diligenciada, es verídica.',

@@ -27,10 +27,12 @@ export function eligible(s: Pick<State, "payments">, e: Enrollment) {
 }
 export function enroll(s: State, user: User, categoryId: string, team: string, members: string) {
   ensure(user.role === "participant", "Solo los participantes pueden inscribirse.", 403);
+  ensure(s.participants.find(p => p.id === user.id)?.pass?.canCompete !== false, "El pase de acompañante no permite competir.", 403);
   ensure(s.settings.categoryRegistrationOpen, "Las inscripciones a categorías están cerradas.");
   ensure(fullPass(s, user.id)?.status === "approved", "Primero debe aprobarse tu Full Pass.", 403);
   const c = s.categories.find(c => c.id === categoryId && c.active);
   ensure(c, "La categoría no está disponible.");
+  ensure(s.settings.demo || !c.validUntil || c.validUntil >= new Date().toLocaleDateString("en-CA", { timeZone: "America/Bogota" }), "Esta tarifa venció. Contacta a la organización.");
   ensure(!s.schedule.some(x => x.categoryId === c.id && ["live", "finished"].includes(x.status)), "Esta categoría ya comenzó su competencia.");
   ensure(!s.enrollments.some(e => e.participantId === user.id && e.categoryId === c.id), "Ya tienes una inscripción en esta categoría.", 409);
   ensure(c.modality === "Solista" || (team.trim() && members.trim()), "Indica el nombre de la pareja o grupo y sus integrantes.");

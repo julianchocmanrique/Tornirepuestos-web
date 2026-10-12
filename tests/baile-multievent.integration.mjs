@@ -36,7 +36,9 @@ test('Eventos independientes: permisos, registros, pagos, archivos y sesiones', 
         if (action === 'register') {
           const settings = (await (await fetch(api + '/public')).json()).settings;
           const [firstName, ...last] = fields.name.split(' ');
-          fields = { ...fields, firstName, lastName: last.join(' '), sex: 'Otro', country: 'Colombia', callingCode: '+57', salsa: 'Amateur', bachata: 'No aplica', documentType: 'CC', documentConfirm: fields.document, passwordConfirm: fields.password, guardianName: '', guardianDocument: '', waiverAccepted: 'on', signature: JSON.stringify([[[10,20],[40,50],[80,20]]]), waiverText: waiverText(settings, fields.name, fields.document), fullPassFee: String(settings.fullPassFee), reference: 'TEST-REF', receipt: receipt(), photo: receipt() };
+          const chosen = settings.passPlans?.find(p => p.id === fields.passId);
+          const acceptedFee = fields.fullPassFee ?? chosen?.fee ?? settings.fullPassFee;
+          fields = { ...fields, firstName, lastName: last.join(' '), sex: 'Otro', country: 'Colombia', callingCode: '+57', salsa: 'Amateur', bachata: 'No aplica', documentType: 'CC', documentConfirm: fields.document, passwordConfirm: fields.password, guardianName: '', guardianDocument: '', waiverAccepted: 'on', signature: JSON.stringify([[[10,20],[40,50],[80,20]]]), waiverText: waiverText(settings, fields.name, fields.document, chosen), fullPassFee: String(acceptedFee), reference: 'TEST-REF', receipt: receipt(), photo: receipt() };
         }
         const body = new FormData();
         for (const [k, v] of Object.entries(fields)) Array.isArray(v) ? v.forEach(x => body.append(k, x)) : body.append(k, v);
@@ -157,6 +159,69 @@ test('Eventos independientes: permisos, registros, pagos, archivos y sesiones', 
     assert.equal((await fetch(root + '/api/baile/eventos/' + a)).status, 404);
     const publicState = await client(a).snapshot(); assert.equal(publicState.user, null); assert.deepEqual(publicState.participants, []); assert.deepEqual(publicState.payments, []);
     const results = await (await client(b).get('results')).json(); assert.deepEqual(results.categories, []);
+  });
+  await t.test('The Sun Fest: planes, precios históricos, permisos y pases de acompañante', async () => {
+    const event = 'thesunfest', admin = client(event);
+    await admin.post('login', credentials);
+    const initial = await admin.snapshot(), originalOther = await adminB.snapshot();
+    assert.deepEqual(initial.settings.passPlans.map(p => [p.id, p.fee, p.canCompete]), [['competidor',70000,true],['congreso',95000,true],['acompanante',20000,false]]);
+    assert.deepEqual(initial.categories.map(c => c.fee), [80000,105000,250000]);
+    assert.match(initial.settings.pricingNote, /prueba/);
+    const people = {};
+    for (const [index, plan] of initial.settings.passPlans.entries()) {
+      const who = client(event), person = { ...info, email: 'plan'+index+'@example.test', document: 'SUNFEST'+index, passId: plan.id };
+      await who.post('register', person, 201);
+      const state = await who.snapshot(), p = state.participants[0];
+      assert.equal(p.fullPassFee, plan.fee); assert.equal(p.pass.id, plan.id);
+      assert.equal(state.payments[0].amount, plan.fee);
+      await admin.post('review', { paymentId: state.payments[0].id, status: 'approved', note: '' });
+      people[plan.id] = who;
+      if (!plan.canCompete) {
+        assert.doesNotMatch(p.registration.waiver.text, /suscrito COMPETIDOR/);
+        assert.match(p.registration.waiver.text, /acompañante/);
+        await who.post('enroll', { categoryId:'solista',team:'',members:'' },403);
+      } else {
+        assert.match(p.registration.waiver.text, new RegExp(plan.name));
+        for (const cat of initial.categories) {
+          const entry = await who.post('enroll', { categoryId: cat.id, team:'Equipo prueba',members:'Integrantes de prueba' },201);
+          assert.equal(entry.fee, cat.fee);
+        }
+      }
+    }
+    await client(event).post('register', { ...info, document:'INVALID123',passId:'no-existe' },400);
+    await client(event).post('register', { ...info, document:'STALE123',passId:'congreso',fullPassFee:20000 },409);
+    await people.competidor.post('pass-plan', {},403);
+    await admin.post('contractor', { name:'Gestor', email:'gestor@example.test', password:'GestorPrueba1234' });
+    const staff=client(event); await staff.post('login',{email:'gestor@example.test', password:'GestorPrueba1234'});
+    await staff.post('pass-plan',{},403);
+    const plan = initial.settings.passPlans[0];
+    const fields = { ...plan, benefits: plan.benefits.join('\n'), active:'on',canCompete:'on',fee:71000 };
+    await admin.post('pass-plan', fields);
+    assert.equal((await people.competidor.snapshot()).participants[0].fullPassFee,70000);
+    assert.equal((await people.competidor.snapshot()).payments[0].amount,70000);
+    assert.equal((await admin.snapshot()).settings.passPlans[0].fee,71000);
+    await admin.post('pass-plan', {...fields,canCompete:'',benefits:'Nuevo beneficio'});
+    assert.equal((await people.competidor.snapshot()).participants[0].pass.canCompete,true);
+    await admin.post('pass-plan',{...fields,active:''});
+    await client(event).post('register',{...info,document:'CLOSED123',passId:'competidor'},400);
+    await admin.post('pass-plan',fields);
+    await admin.post('pass-plan',{...fields,validUntil:'2026-02-30'},400);
+    await admin.post('pass-plan',{...fields,fee:-1},400);
+    const newPerson = client(event);
+    await newPerson.post('register',{...info,document:'NEWPRICE123',passId:'competidor'},201);
+    assert.equal((await newPerson.snapshot()).participants[0].fullPassFee,71000);
+    const manual = await admin.post('admin-register',{...info,email:'manual@example.test',document:'MANUAL123',passId:'acompanante'},201);
+    assert.equal((await admin.snapshot()).participants.find(p => p.id===manual.participantId).fullPassFee,20000);
+    assert.deepEqual((await adminB.snapshot()).settings,originalOther.settings);
+    assert.deepEqual((await adminB.snapshot()).participants,originalOther.participants);
+    assert.deepEqual((await owner.snapshot()).settings,original.settings);
+    // Real registrations may not reuse expired reference rates, even with forged client values.
+    const db = new DatabaseSync(path.join(dir,'events',event,'event.sqlite'));
+    const saved = JSON.parse(db.prepare('SELECT data FROM state WHERE id=1').get().data);
+    saved.settings.demo=false;
+    db.prepare('UPDATE state SET data=? WHERE id=1').run(JSON.stringify(saved));
+    await client(event).post('register',{...info,email:'expired@example.test',document:'EXPIRED123',passId:'competidor'},400);
+    saved.settings.demo=true; db.prepare('UPDATE state SET data=? WHERE id=1').run(JSON.stringify(saved)); db.close();
   });
   await t.test('persistencia por evento tras reinicio y revocación del administrador global', async () => {
     const sa = await adminA.snapshot(), sb = await adminB.snapshot();

@@ -129,6 +129,31 @@ Pruebas: `npm run build`, `npm run test:baile` y
 `node --test tests/baile-wizard.test.mjs`. Las pruebas usan una base SQLite temporal,
 identidades ficticias y trazos sintéticos; no crean participantes en producción.
 
+## Pases y tarifas por evento
+
+The Sun Fest tiene su propio ejemplo en `/prueba-baile/eventos/thesunfest`:
+competidor $70.000, congreso $95.000 y acompañante $20.000 COP por persona.
+Categorías de ejemplo: solista $80.000, pareja/dúo $105.000 y grupo $250.000
+por inscripción. La ciudad, los ritmos y divisiones deben definirse antes de
+usar el evento con público real. Las fechas de agosto y las tarifas con corte
+del 31 de julio de 2026 son referencias de prueba, no una oferta vigente.
+
+En Ajustes > Pases y beneficios, superadministración puede crear o editar
+precios, beneficios, vigencia, disponibilidad y derecho a competir para cada
+evento. Los valores por categoría se editan en Categorías. Contratistas y
+participantes no pueden modificar planes. Los registros existentes conservan
+su precio y su pase; modificar un plan solo afecta nuevos registros.
+
+El acompañante puede registrarse y cargar su comprobante, pero no competir.
+Esta restricción se valida en el servidor. Su declaración de registro no lo
+identifica como competidor. Cambiar el pase invalida la firma y aceptación
+previas. Fuera del modo de prueba se rechazan tarifas vencidas. Los eventos
+anteriores conservan su Full Pass y su información sin reinicializar datos.
+
+Pruebas específicas: `tests/baile-multievent.integration.mjs` y
+`tests/baile-pricing.browser.cjs`; usar almacenamiento temporal y comprobantes
+ficticios, nunca crear registros de prueba en producción para verificar cambios.
+
 ## Publicación
 
 Por indicación del responsable, los cambios de este proyecto se publican en la página oficial (`https://tornirepuestos.com/prueba-baile`) después de integrar y verificar la versión completa. No dar por entregado un cambio solamente por estar guardado localmente. Conservar el volumen de datos, no reinicializar cuentas y comprobar el despliegue y los registros existentes antes de confirmar la publicación.

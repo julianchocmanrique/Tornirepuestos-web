@@ -17,7 +17,7 @@ export function charges(s: Snapshot) {
   const rows: { id: string; participant: Participant; label: string; kind: string; expected: number; payment?: Payment; balance: number }[] = [];
   for (const p of s.participants) {
     const payment = passFor(s, p.id), expected = p.fullPassFee ?? s.settings.fullPassFee;
-    rows.push({ id: p.id, participant: p, label: "Full Pass", kind: "fullpass", expected, payment, balance: Math.max(0, expected - (payment?.status === "approved" ? payment.amount : 0)) });
+    rows.push({ id: p.id, participant: p, label: p.pass?.name || "Full Pass", kind: "fullpass", expected, payment, balance: Math.max(0, expected - (payment?.status === "approved" ? payment.amount : 0)) });
   }
   for (const e of s.enrollments) {
     const participant = s.participants.find(p => p.id === e.participantId);

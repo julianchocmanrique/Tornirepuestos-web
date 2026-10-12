@@ -6,7 +6,7 @@ export function SearchBar({ query, onQuery, children }: { query: string; onQuery
   return <div className="dance-filters"><input aria-label="Buscar registros" placeholder="Nombre, documento, código, academia o ciudad…" value={query} onChange={e => onQuery(e.target.value)} />{children}</div>;
 }
 export function CategoryFilter({ s, value, onChange }: { s: Snapshot; value: string; onChange: (v: string) => void }) {
-  return <select aria-label="Filtrar categoría" value={value} onChange={e => onChange(e.target.value)}><option value="">Todas las categorías</option>{s.categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>;
+  return <select aria-label="Filtrar categoría" value={value} onChange={e => onChange(e.target.value)}><option value="">Todas las categorías</option>{s.categories.map(c => <option key={c.id} value={c.id}>{c.name} · {c.modality} · {c.rhythm} · {c.division}</option>)}</select>;
 }
 export function usePage<T>(rows: T[], filterKey: string) {
   const [page, setPage] = useState(0);

@@ -1,6 +1,8 @@
+import { withEvent, sessionCookieName } from "@/lib/baile/event-scope";
+import { findEvent } from "@/lib/baile/event-catalog";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID, randomBytes } from "node:crypto";
-import { db, readState, transaction, hashPassword, verifyPassword, createSession, sessionUser, tokenHash, rateLimit } from "@/lib/baile/store";
+import { db, readState, transaction, hashPassword, verifyPassword, createSession, sessionUser, tokenHash, rateLimit, globalAdminFor } from "@/lib/baile/store";
 import { DanceError, ensure, scope, enroll, review, recordPayment, saveScore, audit, eligible, validDate } from "@/lib/baile/domain";
 import { publicResults } from "@/lib/baile/results";
 import { judgeDeletionBlock } from "@/lib/baile/judge-policy";
@@ -10,7 +12,6 @@ import { accredit, revokeAccreditation, saveSchedule } from "@/lib/baile/operati
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-const COOKIE = "baile_session";
 const cookieOptions = { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" as const, path: "/", maxAge: 86400 };
 const json = (value: unknown, status = 200) => NextResponse.json(value, { status, headers: { "Cache-Control": "no-store", "X-Robots-Tag": "noindex" } });
 type Context = { params: Promise<{ path: string[] }> };
@@ -19,7 +20,7 @@ function text(f: FormData, key: string, max = 200, required = true) {
   ensure(typeof value === "string" && value.length <= max && (!required || value.trim()), `Revisa el campo ${key}.`);
   return value.trim();
 }
-function actor(req: NextRequest) { const u = sessionUser(req.cookies.get(COOKIE)?.value); ensure(u, "Inicia sesión para continuar.", 401); return u; }
+function actor(req: NextRequest) { const u = sessionUser(req.cookies.get(sessionCookieName())?.value); ensure(u, "Inicia sesión para continuar.", 401); return u; }
 function admin(user: User) { ensure(user.role === "superadmin", "Acceso reservado a organización.", 403); }
 function email(f: FormData) { const v = text(f, "email").toLowerCase(); ensure(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), "Revisa el correo electrónico."); return v; }
 function numeric(f: FormData, key: string, min = 0, max = 100000000) { const n = Number(text(f, key)); ensure(Number.isFinite(n) && n >= min && n <= max, `Revisa el valor de ${key}.`); return n; }
@@ -55,10 +56,10 @@ function putFile(file: Upload, owner: string) {
   ensure(size + file.buffer.length <= 5 * 1024 ** 3, "El almacenamiento del evento está lleno. Contacta a la organización.", 507);
   db().prepare("INSERT INTO files VALUES (?,?,?,?,?,?)").run(file.id, owner, file.kind, file.name, file.mime, file.buffer);
 }
-export async function GET(req: NextRequest, ctx: Context) {
+async function handleGET(req: NextRequest, ctx: Context) {
   try {
     const parts = (await ctx.params).path;
-    if (parts[0] === "snapshot" || parts[0] === "public") return json(scope(readState(), sessionUser(req.cookies.get(COOKIE)?.value)));
+    if (parts[0] === "snapshot" || parts[0] === "public") return json(scope(readState(), sessionUser(req.cookies.get(sessionCookieName())?.value)));
     if (parts[0] === "results") return json(publicResults(readState()));
     if (parts[0] === "profiles") {
       actor(req);
@@ -105,7 +106,7 @@ export async function GET(req: NextRequest, ctx: Context) {
     return json({ error: "Ruta no encontrada." }, 404);
   } catch (error) { return errorResponse(error); }
 }
-export async function POST(req: NextRequest, ctx: Context) {
+async function handlePOST(req: NextRequest, ctx: Context) {
   try {
     const origin = req.headers.get("origin");
     ensure(origin && new URL(origin).host === req.headers.get("host"), "Origen de solicitud inválido.", 403);
@@ -127,21 +128,22 @@ export async function POST(req: NextRequest, ctx: Context) {
         const current = actor(req); const selected = s.users.find(u => u.id === target.id);
         ensure(current.id === previous.id && selected?.passwordHash === target.passwordHash, "La cuenta cambió. Vuelve a intentarlo.", 401);
         const token = createSession(target.id);
-        db().prepare("DELETE FROM sessions WHERE token=?").run(tokenHash(req.cookies.get(COOKIE)!.value));
+        db().prepare("DELETE FROM sessions WHERE token=?").run(tokenHash(req.cookies.get(sessionCookieName())!.value));
         audit(s, previous.id, "Cambio de perfil de prueba", target.id);
         return token;
       });
-      const res = json({ role: target.role }); res.cookies.set(COOKIE, token, cookieOptions); return res;
+      const res = json({ role: target.role }); res.cookies.set(sessionCookieName(), token, cookieOptions); return res;
     }
     if (action === "login") {
       const address = text(f, "email").toLowerCase();
       const state = readState();
-      const user = state.users.find(u => (!u.demoOnly || state.settings.demo) && (u.email === address || u.username?.toLowerCase() === address));
+      const globalAdmin = globalAdminFor(address);
+      const user = globalAdmin || state.users.find(u => (!u.demoOnly || state.settings.demo) && (u.email === address || u.username?.toLowerCase() === address));
       rateLimit(`login-ip:${ip}`, 80); rateLimit(`login:${user?.email || address}`);
       const fallback = "00000000000000000000000000000000:" + "0".repeat(128);
       const valid = await verifyPassword(text(f, "password", 160), user?.passwordHash || fallback);
       ensure(user && valid, "Usuario o contraseña incorrectos.", 401);
-      const res = json({ role: user.role }); res.cookies.set(COOKIE, createSession(user.id), cookieOptions); return res;
+      const res = json({ role: user.role }); res.cookies.set(sessionCookieName(), createSession(user.id, globalAdmin), cookieOptions); return res;
     }
     if (action === "register" || action === "admin-register") {
       const creator = action === "admin-register" ? actor(req) : null;
@@ -157,18 +159,18 @@ export async function POST(req: NextRequest, ctx: Context) {
       const passwordHash = await hashPassword(text(f, "password", 160)); const id = randomUUID();
       const participant = transaction(s => {
         ensure(creator || s.settings.registrationOpen, "Las inscripciones están cerradas.");
-        ensure(!s.users.some(u => u.email === address) && !s.participants.some(p => p.document === document), creator ? "Ya existe un registro con ese correo o documento. Búscalo en Registros." : "Ya existe un registro con ese correo o documento. Ingresa con tu cuenta.", 409);
+        ensure(!globalAdminFor(address) && !s.users.some(u => u.email === address) && !s.participants.some(p => p.document === document), creator ? "Ya existe un registro con ese correo o documento. Búscalo en Registros." : "Ya existe un registro con ese correo o documento. Ingresa con tu cuenta.", 409);
         const p = { id, code: `PAR-${String(s.participants.length + 1).padStart(4, "0")}`, name, document, birthDate, city, phone, email: address, academy, extra, createdAt: new Date().toISOString(), fullPassFee: s.settings.fullPassFee };
         s.users.push({ id, name, email: address, passwordHash, role: "participant", categories: [] }); s.participants.push(p); audit(s, creator?.id || id, creator ? "Participante registrado por organización" : "Registro creado", id); return p;
       });
       // Crear desde administración no inicia sesión como el nuevo participante.
       if (creator) return json({ participantId: participant.id, code: participant.code }, 201);
-      const res = json({ role: "participant", code: participant.code }, 201); res.cookies.set(COOKIE, createSession(id), cookieOptions); return res;
+      const res = json({ role: "participant", code: participant.code }, 201); res.cookies.set(sessionCookieName(), createSession(id), cookieOptions); return res;
     }
     const user = actor(req); rateLimit(`mutation:${user.id}`, 240);
     if (action === "logout") {
-      db().prepare("DELETE FROM sessions WHERE token=?").run(tokenHash(req.cookies.get(COOKIE)!.value));
-      const res = json({ ok: true }); res.cookies.set(COOKIE, "", { ...cookieOptions, maxAge: 0 }); return res;
+      db().prepare("DELETE FROM sessions WHERE token=?").run(tokenHash(req.cookies.get(sessionCookieName())!.value));
+      const res = json({ ok: true }); res.cookies.set(sessionCookieName(), "", { ...cookieOptions, maxAge: 0 }); return res;
     }
     if (action === "enroll") {
       const category = text(f, "categoryId"); const team = text(f, "team", 120, false); const members = text(f, "members", 2000, false);
@@ -260,6 +262,21 @@ export async function POST(req: NextRequest, ctx: Context) {
       const formula = text(f, "formula"); ensure(formula === "average" || formula === "sum", "Fórmula inválida.");
       transaction(s => { ensure(formula === s.settings.formula || !s.schedule.some(x => x.status === "finished"), "No cambies la fórmula cuando hay resultados definitivos.", 409); s.settings = { ...s.settings, name, tagline, fullPassFee, paymentInstructions, formula, registrationOpen: f.get("registrationOpen") === "on", categoryRegistrationOpen: f.get("categoryRegistrationOpen") === "on" }; audit(s, user.id, "Configuración actualizada", "evento"); }); return json({ ok: true });
     }
+    if (action === "contractor") {
+      const address = email(f), name = text(f, "name");
+      const passwordHash = await hashPassword(text(f, "password", 160));
+      transaction(s => {
+        ensure(!globalAdminFor(address), "Ese correo pertenece a superadministración.", 409);
+        const old = s.users.find(u => u.email === address);
+        ensure(!old || old.role === "contractor", "Ese correo ya tiene otro perfil en este evento.", 409);
+        if (old) {
+          old.name = name; old.passwordHash = passwordHash;
+          db().prepare("DELETE FROM sessions WHERE userId=?").run(old.id);
+        } else s.users.push({ id: randomUUID(), email: address, name, passwordHash, role: "contractor", categories: [] });
+        audit(s, user.id, "Acceso de contratista actualizado", address);
+      });
+      return json({ ok: true });
+    }
     if (action === "category") {
       const id = text(f, "id", 100, false) || randomUUID(); const deadline = text(f, "deadline", 100, false);
       ensure(!deadline || Number.isFinite(Date.parse(deadline)), "Fecha límite inválida.");
@@ -289,7 +306,7 @@ export async function POST(req: NextRequest, ctx: Context) {
         ensure(categories.length > 0 && categories.every(c => s.categories.some(x => x.id === c)), "Asigna al menos una categoría válida.");
         const old = s.users.find(x => x.id === id && x.role === "judge");
         ensure(!s.schedule.some(x => ["live", "finished"].includes(x.status) && categories.includes(x.categoryId) !== Boolean(old?.categories.includes(x.categoryId))), "No cambies los jurados de una competencia iniciada o finalizada.", 409);
-        ensure(!s.users.some(x => x.email === address && x.id !== old?.id), "Ese correo ya está en uso.", 409);
+        ensure(!globalAdminFor(address) && !s.users.some(x => x.email === address && x.id !== old?.id), "Ese correo ya está en uso.", 409);
         if (old) {
           ensure(!s.scores.some(x => x.judgeId === old.id && !categories.includes(s.enrollments.find(e => e.id === x.enrollmentId)!.categoryId)), "Este jurado ya calificó una categoría que intentas quitar.");
           Object.assign(old, { name, email: address, categories, ...(passwordHash ? { passwordHash } : {}) });
@@ -333,3 +350,16 @@ export async function POST(req: NextRequest, ctx: Context) {
     return json({ error: "Operación no encontrada." }, 404);
   } catch (error) { return errorResponse(error); }
 }
+
+async function dispatch(req: NextRequest, ctx: Context, handler: typeof handleGET) {
+  try {
+    const parts = (await ctx.params).path;
+    if (parts[0] !== "eventos") return await withEvent(undefined, () => handler(req, ctx));
+    const event = findEvent(parts[1]);
+    ensure(event && parts.length >= 3, "Evento no encontrado.", 404);
+    ensure(!event.demo || withEvent(undefined, () => readState().settings.demo), "Evento no disponible.", 404);
+    return await withEvent(event.id, () => handler(req, { params: Promise.resolve({ path: parts.slice(2) }) }));
+  } catch (error) { return errorResponse(error); }
+}
+export async function GET(req: NextRequest, ctx: Context) { return dispatch(req, ctx, handleGET); }
+export async function POST(req: NextRequest, ctx: Context) { return dispatch(req, ctx, handlePOST); }

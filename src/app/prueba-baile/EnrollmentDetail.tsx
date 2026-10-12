@@ -1,11 +1,12 @@
 "use client";
+import { useDanceScope } from "./DanceScope";
 import { MobileModuleSelect } from "./MobileModuleSelect";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { dateTime, statusLabels, type Payment, type Snapshot } from "@/lib/baile/types";
 import { passFor, paymentFor, readyEntry } from "@/lib/baile/reporting";
-import { Badge, Empty, Field, Form, Music, base, fileUrl, rolePath, type Run } from "./ui";
+import { Badge, Empty, Field, Form, Music, rolePath, type Run } from "./ui";
 import { ReceiptViewer } from "./ReceiptViewer";
 import { adminModules, contractorModules } from "./admin-navigation";
 
@@ -18,6 +19,7 @@ function ReviewEntry({ payment, run }: { payment: Payment; run: Run }) {
 }
 
 export function EnrollmentDetail({ s, enrollmentId, run }: { s: Snapshot; enrollmentId: string; run: Run }) {
+  const { base, fileUrl } = useDanceScope();
   const router = useRouter();
   const [editing, setEditing] = useState(false), [changing, setChanging] = useState(false);
   const e = s.enrollments.find(e => e.id === enrollmentId), p = s.participants.find(p => p.id === e?.participantId);

@@ -1,4 +1,5 @@
 "use client";
+import { useDanceScope } from "./DanceScope";
 import { useEffect, useId, useRef, useState } from "react";
 
 export function ReceiptViewer({ receiptId, label = "Visualizar", description = "Comprobante de pago" }: { receiptId: string; label?: string; description?: string }) {
@@ -17,7 +18,8 @@ function ReceiptModal({ receiptId, description, onClose }: { receiptId: string; 
   const [error, setError] = useState("");
   const [smallImage, setSmallImage] = useState(false);
   const [attempt, setAttempt] = useState(0);
-  const endpoint = `/api/baile/files/${encodeURIComponent(receiptId)}`;
+  const { fileUrl } = useDanceScope();
+  const endpoint = fileUrl(receiptId);
   useEffect(() => {
     const el = dialog.current, overflow = document.body.style.overflow;
     el?.showModal(); document.body.style.overflow = "hidden";

@@ -1,4 +1,5 @@
 "use client";
+import { useDanceScope } from "./DanceScope";
 import { StatusEditor } from "./StatusEditor";
 import Link from "next/link";
 import { useState } from "react";
@@ -9,6 +10,7 @@ import { CategoryFilter, ModuleHeading, SearchBar, usePage } from "./AdminShared
 import { ReceiptViewer } from "./ReceiptViewer";
 
 export function EnrollmentsDesk({ s, run }: { s: Snapshot; run: Run }) {
+  const { base } = useDanceScope();
   const [query, setQuery] = useState(""), [cat, setCat] = useState(""), [status, setStatus] = useState("");
   const rows = s.enrollments.filter(e => {
     const p = s.participants.find(p => p.id === e.participantId), c = s.categories.find(c => c.id === e.categoryId);
@@ -26,7 +28,7 @@ export function EnrollmentsDesk({ s, run }: { s: Snapshot; run: Run }) {
       <div className="dance-table-wrap dance-card-table-wrap" tabIndex={0} role="region" aria-label="Tabla de inscripciones"><table className="dance-enrollments-table dance-card-table" role="table"><thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Nombre artístico</th><th scope="col" role="columnheader">Categoría</th><th scope="col" role="columnheader">División / modalidad</th><th scope="col" role="columnheader">Participantes</th><th scope="col" role="columnheader">Escuela</th><th scope="col" role="columnheader">Ref. pago</th><th scope="col" role="columnheader">Comprobante</th><th scope="col" role="columnheader">Observaciones</th><th scope="col" role="columnheader">Estado</th><th scope="col" role="columnheader">Fecha</th><th scope="col" role="columnheader">Acción</th></tr></thead>
         <tbody role="rowgroup">{page.rows.map(e => { const p = s.participants.find(p => p.id === e.participantId)!, c = s.categories.find(c => c.id === e.categoryId), payment = paymentFor(s, e.id); return <tr role="row" key={e.id}>
           <td role="cell" data-label="Nombre artístico" className="dance-card-wide"><strong>{e.team || p.name}</strong><small>{e.code}</small></td><td role="cell" data-label="Categoría" className="dance-card-wide">{c?.name || "Categoría no disponible"}</td><td role="cell" data-label="División / modalidad">{c?.division || "Sin división"}<small>{c?.modality}</small></td><td role="cell" data-label="Participantes" className="dance-card-wide">{e.members || p.name}</td><td role="cell" data-label="Escuela">{e.school || p.academy || "Independiente"}</td><td role="cell" data-label="Ref. pago">{payment ? <span title={payment.id}>{payment.id.slice(0, 8)}<small>ID interno</small></span> : "Sin referencia"}</td>
-          <td role="cell" data-label="Comprobante">{payment ? <ReceiptViewer receiptId={payment.receiptId} description={`Comprobante · ${e.team || p.name}`} /> : "Por enviar"}</td><td role="cell" data-label="Observaciones" className="dance-card-wide">{e.note || payment?.note || "Sin observaciones"}</td><td role="cell" data-label="Estado" className="dance-card-wide"><StatusEditor payment={payment} label={`${e.team || p.name} · ${c?.name || e.code}`} run={run} /></td><td role="cell" data-label="Fecha">{dateTime(e.createdAt)}</td><td role="cell" data-label="Acción" className="dance-card-wide"><Link className="dance-btn secondary small" aria-label={`Ver ficha de ${e.team || p.name}, ${c?.name || e.code}`} href={`/prueba-baile/inscripciones/${encodeURIComponent(e.id)}`}>Ver →</Link></td>
+          <td role="cell" data-label="Comprobante">{payment ? <ReceiptViewer receiptId={payment.receiptId} description={`Comprobante · ${e.team || p.name}`} /> : "Por enviar"}</td><td role="cell" data-label="Observaciones" className="dance-card-wide">{e.note || payment?.note || "Sin observaciones"}</td><td role="cell" data-label="Estado" className="dance-card-wide"><StatusEditor payment={payment} label={`${e.team || p.name} · ${c?.name || e.code}`} run={run} /></td><td role="cell" data-label="Fecha">{dateTime(e.createdAt)}</td><td role="cell" data-label="Acción" className="dance-card-wide"><Link className="dance-btn secondary small" aria-label={`Ver ficha de ${e.team || p.name}, ${c?.name || e.code}`} href={`${base}/inscripciones/${encodeURIComponent(e.id)}`}>Ver →</Link></td>
         </tr>; })}</tbody></table></div>
       {!rows.length && <Empty>No hay inscripciones con estos filtros.</Empty>}{page.pager}
     </div>

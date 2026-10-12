@@ -6,11 +6,16 @@ import { promisify } from "node:util";
 import { initialState, migrateState } from "./types";
 import type { State, User } from "./types";
 import { ensure } from "./domain";
+import { currentEventId, withEvent } from "./event-scope";
+import { findEvent } from "./event-catalog";
 
-let connection: DatabaseSync | undefined;
+const connections = new Map<string, DatabaseSync>();
 export function db() {
+  const eventId = currentEventId();
+  const root = process.env.BAILE_DATA_DIR || path.join(process.cwd(), "data", "baile");
+  const dir = eventId ? path.join(root, "events", eventId) : root;
+  let connection = connections.get(dir);
   if (!connection) {
-    const dir = process.env.BAILE_DATA_DIR || path.join(process.cwd(), "data", "baile");
     mkdirSync(dir, { recursive: true, mode: 0o700 });
     connection = new DatabaseSync(path.join(dir, "event.sqlite"));
     connection.exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;
@@ -18,7 +23,15 @@ export function db() {
       CREATE TABLE IF NOT EXISTS sessions (token TEXT PRIMARY KEY, userId TEXT NOT NULL, expires INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS files (id TEXT PRIMARY KEY, owner TEXT NOT NULL, kind TEXT NOT NULL, name TEXT NOT NULL, mime TEXT NOT NULL, content BLOB NOT NULL);
       CREATE TABLE IF NOT EXISTS attempts (id TEXT PRIMARY KEY, count INTEGER NOT NULL, reset INTEGER NOT NULL);`);
-    connection.prepare("INSERT OR IGNORE INTO state (id,data) VALUES (1,?)").run(JSON.stringify(initialState()));
+    const state = initialState(), event = eventId ? findEvent(eventId) : undefined;
+    if (event) {
+      state.settings.name = event.name;
+      state.settings.tagline = event.description;
+      state.settings.demo = event.demo;
+      state.categories = state.categories.filter(c => c.rhythm === event.genre);
+    }
+    connection.prepare("INSERT OR IGNORE INTO state (id,data) VALUES (1,?)").run(JSON.stringify(state));
+    connections.set(dir, connection);
   }
   return connection;
 }
@@ -50,8 +63,17 @@ export async function verifyPassword(password: string, hash: string) {
   return expected.length === actual.length && timingSafeEqual(expected, actual);
 }
 export const tokenHash = (value: string) => createHash("sha256").update(value).digest("hex");
-export function createSession(userId: string) {
+export function globalAdminFor(address: string): User | undefined {
+  if (!currentEventId()) return undefined;
+  return withEvent(undefined, () => {
+    const state = readState();
+    return state.users.find(u => u.role === "superadmin" && (!u.demoOnly || state.settings.demo) && (u.email === address || u.username?.toLowerCase() === address));
+  });
+}
+export function createSession(userId: string, globalAdmin?: User) {
   const token = randomBytes(32).toString("hex");
+  // Root administrators are referenced, never copied into another event's accounts.
+  if (globalAdmin && currentEventId()) userId = `global:${globalAdmin.id}:${tokenHash(globalAdmin.passwordHash)}`;
   db().prepare("DELETE FROM sessions WHERE expires < ?").run(Date.now());
   db().prepare("INSERT INTO sessions VALUES (?,?,?)").run(tokenHash(token), userId, Date.now() + 86400000);
   return token;
@@ -59,6 +81,13 @@ export function createSession(userId: string) {
 export function sessionUser(token: string | undefined): User | null {
   if (!token) return null;
   const row = db().prepare("SELECT userId FROM sessions WHERE token=? AND expires>?").get(tokenHash(token), Date.now());
+  if (row && currentEventId() && String(row.userId).startsWith("global:")) {
+    const [, id, digest] = String(row.userId).split(":");
+    return withEvent(undefined, () => {
+      const root = readState();
+      return root.users.find(u => u.id === id && u.role === "superadmin" && tokenHash(u.passwordHash) === digest && (!u.demoOnly || root.settings.demo)) || null;
+    });
+  }
   const state = readState();
   return row ? state.users.find(u => u.id === row.userId && (!u.demoOnly || state.settings.demo)) || null : null;
 }

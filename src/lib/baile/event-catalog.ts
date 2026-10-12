@@ -30,3 +30,11 @@ export function upcomingEvents(events: EventListing[], today: string) {
 export function eventDate(value: string, options: Intl.DateTimeFormatOptions = { day: "numeric", month: "long", year: "numeric" }) {
   return new Intl.DateTimeFormat("es-CO", { ...options, timeZone: "America/Bogota" }).format(new Date(`${value}T12:00:00-05:00`));
 }
+
+export const eventHref = (id: string) => `/prueba-baile/eventos/${encodeURIComponent(id)}`;
+export const findEvent = (id: string) => eventCatalog.find(event => event.id === id);
+export function slideOffset(index: number, active: number, count: number) {
+  if (count < 2) return 0;
+  const offset = (index - active + count) % count;
+  return offset > Math.floor(count / 2) ? offset - count : offset;
+}

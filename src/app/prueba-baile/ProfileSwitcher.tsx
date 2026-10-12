@@ -1,4 +1,5 @@
 "use client";
+import { useDanceScope } from "./DanceScope";
 import { useEffect, useRef, useState } from "react";
 import type { User } from "@/lib/baile/types";
 import { Field, Form, type Run } from "./ui";
@@ -8,6 +9,7 @@ const labels = { superadmin: "Superadministrador", contractor: "Contratista del 
 const initials = (name: string) => name.trim().split(/\s+/).slice(0, 2).map(word => word[0]).join("").toUpperCase();
 
 export function ProfileSwitcher({ currentId, run, onCancel }: { currentId: string; run: Run; onCancel: () => void }) {
+  const { base, apiBase } = useDanceScope();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [selected, setSelected] = useState<Profile | null>(null);
   const [query, setQuery] = useState("");
@@ -20,14 +22,14 @@ export function ProfileSwitcher({ currentId, run, onCancel }: { currentId: strin
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true); setError("");
-    fetch("/api/baile/profiles", { cache: "no-store", signal: controller.signal }).then(async res => {
+    fetch(`${apiBase}/profiles`, { cache: "no-store", signal: controller.signal }).then(async res => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "No se pudieron cargar los perfiles.");
       setProfiles(data.profiles);
     }).catch(e => { if (!controller.signal.aborted) setError(e.message || "Revisa tu conexión."); })
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
-  }, [retry]);
+  }, [retry, apiBase]);
   const submit: Run = async (action, data) => {
     setBusy(true);
     try { return await run(action, data); } finally { setBusy(false); }
@@ -55,7 +57,7 @@ export function ProfileSwitcher({ currentId, run, onCancel }: { currentId: strin
         {!visible.length && <p>No hay perfiles con ese nombre.</p>}
       </>}
     </>}
-    <p className="dance-muted">Sin cuenta: <a className="dance-text-link" href="/prueba-baile/resultados">ver información y resultados públicos</a></p>
+    <p className="dance-muted">Sin cuenta: <a className="dance-text-link" href={`${base}/resultados`}>ver información y resultados públicos</a></p>
     <div className="dance-profile-controls"><button className="dance-btn secondary small" disabled={busy} onClick={onCancel}>Volver a mi panel</button><button className="dance-btn secondary small" disabled={busy} onClick={() => submit("logout", new FormData())}>Cerrar sesión por completo</button></div>
     <p className="dance-profile-hint">Selector temporal de pruebas. Tu sesión solo cambia al confirmar una contraseña válida.</p>
   </section>;

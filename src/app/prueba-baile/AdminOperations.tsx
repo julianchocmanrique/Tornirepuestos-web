@@ -1,4 +1,5 @@
 "use client";
+import { useDanceScope } from "./DanceScope";
 import { useState } from "react";
 import { dateTime, money, statusLabels, type Snapshot } from "@/lib/baile/types";
 import { charges, matchesPerson, normalize, passFor, readyEntry } from "@/lib/baile/reporting";
@@ -6,6 +7,7 @@ import { Badge, Empty, Stat, Form, Field, Music, exportCsv, type Run } from "./u
 import { CategoryFilter, ModuleHeading, SearchBar, usePage } from "./AdminShared";
 
 export function MusicDesk({ s }: { s: Snapshot }) {
+  const { apiBase } = useDanceScope();
   const [query, setQuery] = useState(""), [cat, setCat] = useState(""), [status, setStatus] = useState(""), [busy, setBusy] = useState(false), [error, setError] = useState("");
   const eligible = s.enrollments.filter(e => readyEntry(s, e));
   const rows = eligible.filter(e => (!cat || e.categoryId === cat) && (!status || Boolean(e.musicId) === (status === "uploaded")) && (matchesPerson(s.participants.find(p => p.id === e.participantId)!, query) || normalize(`${e.code} ${e.team} ${e.competitionNumber}`).includes(normalize(query))));
@@ -14,7 +16,7 @@ export function MusicDesk({ s }: { s: Snapshot }) {
   async function download() {
     setBusy(true); setError("");
     try {
-      const response = await fetch(`/api/baile/music-export?category=${encodeURIComponent(cat)}`);
+      const response = await fetch(`${apiBase}/music-export?category=${encodeURIComponent(cat)}`);
       if (!response.ok) throw new Error((await response.json()).error || "No se pudo descargar.");
       const url = URL.createObjectURL(await response.blob()), link = document.createElement("a");
       link.href = url; link.download = "pistas-competencia.zip"; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);

@@ -1,13 +1,13 @@
 # Competencia de baile
 
-El módulo está en `/prueba-baile`, con identidad visual y cuentas propias. Es un evento de ejemplo llamado Ritmo Caribe; las tarifas iniciales son ficticias. No recibe pagos bancarios: registra comprobantes que la organización valida manualmente.
+El módulo está en `/prueba-baile`, con identidad visual y cuentas propias. Conserva la competencia original Ritmo Caribe y permite competencias independientes desde el catálogo de eventos; las tarifas iniciales son ficticias. No recibe pagos bancarios: registra comprobantes que la organización valida manualmente.
 
 ## Accesos
 
 - `/prueba-baile/registro`: registro de participantes.
 - `/prueba-baile/acceso`: inicio de sesión y redirección según rol.
 - `/prueba-baile/participante`: Full Pass, categorías y pistas.
-- `/prueba-baile/admin`: centro de control con módulos de registros, inscripciones, pagos, acreditación, contabilidad, música, programación, categorías, jurados, resultados y ajustes. Cada módulo tiene un enlace directo, por ejemplo `/prueba-baile/admin#registros`.
+- `/prueba-baile/admin`: centro de control con módulos de registros, inscripciones, acreditación, contabilidad, música, programación, categorías, jurados, resultados y ajustes. Cada módulo tiene un enlace directo, por ejemplo `/prueba-baile/admin#registros`.
 - `/prueba-baile/jurado`: categorías asignadas y calificaciones propias.
 
 La cuenta inicial de organización se crea desde el servidor, nunca con un formulario público. Tras abrir `/api/baile/public`, ejecutar `node scripts/baile-admin.cjs` en el mismo entorno de datos. El comando genera una contraseña aleatoria una sola vez y no reemplaza cuentas existentes. También admite `BAILE_ADMIN_HASH` (salt hexadecimal de 16 bytes, dos puntos y scrypt de 64 bytes) y `BAILE_ADMIN_EMAIL`.
@@ -43,7 +43,7 @@ La organización de estos módulos toma como referencia funcional el panel de Su
 
 ## Almacenamiento
 
-Node >=22.13, SQLite nativo. Estado, sesiones y archivos están en `BAILE_DATA_DIR/event.sqlite` (por defecto `data/baile`). La base usa WAL y transacciones para proteger códigos, estados y notas frente a solicitudes simultáneas. Comprobantes privados PDF/JPG/PNG/WebP hasta 5 MB; audio MP3/WAV/OGG/M4A hasta 20 MB; límite global de archivos 5 GB. Las versiones antiguas se conservan. Se valida firma de archivo y permiso en el servidor.
+Node >=22.13, SQLite nativo. Estado, sesiones y archivos están en `BAILE_DATA_DIR/event.sqlite` (por defecto `data/baile`). La base usa WAL y transacciones para proteger códigos, estados y notas frente a solicitudes simultáneas. Comprobantes privados PDF/JPG/PNG/WebP hasta 5 MB; audio MP3/WAV/OGG/M4A hasta 20 MB; límite de archivos de 5 GB por evento. Las versiones antiguas se conservan. Se valida firma de archivo y permiso en el servidor.
 
 El despliegue crea el volumen Docker `tornirepuestos_baile_data` y el archivo de composición `baile.override.json`. Conservar este override en despliegues manuales: `docker compose -f <archivo-base> -f baile.override.json up -d --build`. No eliminar el volumen. Los datos no están en Git ni en `public`. Para copias con el sistema en ejecución usar la API de backup SQLite o `VACUUM INTO`, no copiar solo el archivo principal mientras WAL esté activo.
 
@@ -61,7 +61,7 @@ La tabla de Inscripciones no muestra importes y su exportación tampoco los incl
 - `judge`: conserva categorías asignadas y calificaciones propias.
 - Visitantes: información general y `/prueba-baile/resultados`, sin sesión. La API `/api/baile/results` solo proyecta nombre de participante/equipo, número, posición y puntuación de categorías finalizadas con todas las notas. No publica documentos, contactos, pagos, recibos ni notas internas.
 
-El ingreso acepta usuario o correo. `scripts/baile-test-profiles.cjs` configura únicamente los alias `superadmin`, `admin` (contratista) y `participante1`, mediante hashes scrypt recibidos en `BAILE_TEST_PROFILE_HASHES`; no contiene claves predeterminadas. Requiere modo de ejemplo, crea un backup SQLite consistente y no reemplaza cuentas ajenas. Sus cuentas `demoOnly` quedan bloqueadas, incluidas sus sesiones, al desactivar `settings.demo`. El workflow permite aplicar estos hashes de manera explícita; los despliegues normales no cambian claves. El sistema sigue gestionando un evento por instalación, no múltiples eventos independientes.
+El ingreso acepta usuario o correo. `scripts/baile-test-profiles.cjs` configura únicamente los alias `superadmin`, `admin` (contratista) y `participante1`, mediante hashes scrypt recibidos en `BAILE_TEST_PROFILE_HASHES`; no contiene claves predeterminadas. Requiere modo de ejemplo, crea un backup SQLite consistente y no reemplaza cuentas ajenas. Sus cuentas `demoOnly` quedan bloqueadas, incluidas sus sesiones, al desactivar `settings.demo`. El workflow permite aplicar estos hashes de manera explícita; los despliegues normales no cambian claves. Este script configura la competencia original; no propaga sus participantes ni contratistas a los eventos independientes.
 
 Durante el modo de ejemplo, el botón del encabezado **Cambiar usuario** abre un selector visual de perfiles. Solo usuarios con sesión pueden consultar nombres y roles; no se listan correos, documentos ni claves. Elegir un perfil pide su contraseña actual, aplica los mismos límites de intentos del ingreso normal y reemplaza la sesión anterior únicamente al validar la clave. Una contraseña incorrecta conserva la sesión actual. El panel también permite cerrar sesión por completo; después se usa el acceso normal por correo y contraseña. Al desactivar `settings.demo`, tanto el selector como su API quedan bloqueados. No usar esta lista de perfiles como directorio de un evento real.
 
@@ -75,6 +75,21 @@ Los ejemplos y tarifas son editables. No incluye cobros automáticos, correo tra
 
 ## Portada editorial de eventos
 
-El inicio incorpora `EventHome`: carrusel horizontal de los cinco eventos publicados más recientemente y agenda de todos los próximos eventos, agrupados por mes y ordenados por fecha ascendente. El día se calcula en America/Bogota; un evento se mantiene durante toda su fecha y desaparece de la agenda al día siguiente. Incluye filtros por estilo, ficha informativa, flechas, indicadores, gesto táctil, pausa y respeto a movimiento reducido. Las diapositivas inactivas no reciben foco.
+El inicio incorpora `EventHome`: carrusel de tarjetas con perspectiva de los cinco eventos publicados más recientemente y agenda de todos los próximos eventos, agrupados por mes y ordenados por fecha ascendente. El día se calcula en America/Bogota; un evento se mantiene durante toda su fecha y desaparece de la agenda al día siguiente. Incluye filtros por estilo, páginas propias de evento, flechas, indicadores, gesto táctil, pausa y respeto a movimiento reducido. Las diapositivas inactivas no reciben foco.
 
-El catálogo se configura en `src/lib/baile/event-catalog.ts`. Los tres ejemplos iniciales, sus fechas, ciudades y fotografías generadas son ilustrativos y están rotulados; se ocultan cuando se desactiva el modo demo. Las fotos WebP son locales, sin proveedores externos en tiempo de ejecución. Antes de anunciar eventos reales, reemplazar esta información con nombres, fotos autorizadas y fechas confirmadas. Este catálogo editorial NO crea competencias, pagos ni inscripciones independientes: la plataforma operativa sigue administrando un evento por instalación. Pruebas: `node --test tests/baile-events.test.mjs`.
+El catálogo se configura en `src/lib/baile/event-catalog.ts`. Los tres ejemplos iniciales, sus fechas, ciudades y fotografías generadas son ilustrativos y están rotulados; se ocultan cuando se desactiva el modo demo. Las fotos WebP son locales, sin proveedores externos en tiempo de ejecución. Antes de anunciar eventos reales, reemplazar esta información con nombres, fotos autorizadas y fechas confirmadas. Cada entrada del catálogo tiene su propia competencia, con base de datos, categorías, registros, pagos, pistas, jurados y resultados independientes. La competencia original mantiene sus rutas y datos sin migraciones destructivas. Pruebas: `node --test tests/baile-events.test.mjs`.
+
+## Eventos independientes
+
+- Página pública: `/prueba-baile/eventos/<id>`, resumen, fecha, ciudad, categorías y botón Registrarse.
+- Registro y paneles: `/prueba-baile/eventos/<id>/registro`, `acceso`, `participante`, `admin`, `contratista`, `jurado`, `resultados`. La ficha usa `inscripciones/<inscripción>`.
+- API: `/api/baile/eventos/<id>/<acción>`. Solo se permiten identificadores existentes en `event-catalog.ts`; los ejemplos se ocultan si se desactiva la demostración global.
+- Persistencia: `BAILE_DATA_DIR/events/<id>/event.sqlite`. El volumen existente conserva toda la carpeta, incluidos los archivos almacenados en SQLite. Respaldar cada base con SQLite backup/VACUUM INTO, o detener escrituras y copiar la carpeta completa; no copiar solo el archivo principal durante escrituras WAL.
+- La base original sigue en `BAILE_DATA_DIR/event.sqlite`; no se copian participantes, recibos, cuentas, calificaciones ni categorías entre eventos.
+- La sesión usa una cookie diferente por evento. Un token de otro evento, incluso renombrando la cookie, no es válido. El contexto de base de datos se conserva por solicitud con AsyncLocalStorage, incluidas operaciones asíncronas.
+- Los superadministradores originales pueden iniciar sesión en cada evento con su acceso existente. No se duplican sus claves: la sesión referencia la cuenta original y se invalida si cambia su contraseña, se elimina o pierde el rol. Participantes, contratistas y jurados son cuentas locales del evento.
+- Superadministración > Ajustes permite crear o actualizar el acceso del contratista por correo. Actualizar su contraseña cierra sus sesiones de ese evento. No permite convertir participantes en contratistas ni modificar el acceso global. Jurados se gestionan desde su módulo habitual.
+- El mismo correo y documento pueden registrarse en distintos eventos. Cada registro requiere su propio Full Pass y cada categoría su propio comprobante. Los precios fijados al registrar/inscribir no cambian con posteriores ajustes de tarifa.
+- Los pagos siguen siendo carga de comprobante y validación manual, no cobros con tarjeta ni una pasarela bancaria. Nombres, fechas, fotografías y precios del catálogo inicial siguen siendo ejemplos hasta que la organización confirme información real.
+
+Verificación: `npm run build`, `npm run test:baile`, `node --test tests/baile-multievent.integration.mjs tests/baile-events.test.mjs`. Prueba visual local: `tests/baile-events.browser.cjs` (Playwright y Chrome indicados mediante PLAYWRIGHT_MODULE/CHROME_PATH). Usar BAILE_DATA_DIR temporal; no crear datos de prueba en producción.

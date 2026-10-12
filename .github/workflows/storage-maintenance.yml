@@ -4,13 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: 'Inspect disk usage or clean only unused build cache older than 24 hours'
+        description: 'Inspect disk usage or clean unused build cache; never touch application data'
         required: true
         type: choice
         default: inspect
         options:
           - inspect
           - clean-old-build-cache
+          - clean-unused-build-cache
 
 permissions:
   contents: read
@@ -38,7 +39,7 @@ jobs:
           script: |
             set -euo pipefail
             case "$MAINTENANCE_ACTION" in
-              inspect|clean-old-build-cache) ;;
+              inspect|clean-old-build-cache|clean-unused-build-cache) ;;
               *) echo "Unsupported maintenance action"; exit 1 ;;
             esac
             CONTAINER_NAME=tornirepuestos-web
@@ -51,6 +52,8 @@ jobs:
             if [ "$MAINTENANCE_ACTION" = "clean-old-build-cache" ]; then
               # Never prune volumes, images or containers; never restart services.
               docker builder prune --all --force --filter 'until=24h' --keep-storage 2GB
+            elif [ "$MAINTENANCE_ACTION" = "clean-unused-build-cache" ]; then
+              docker builder prune --all --force --keep-storage 2GB
             fi
             echo "=== Filesystem usage after ==="
             df -h /

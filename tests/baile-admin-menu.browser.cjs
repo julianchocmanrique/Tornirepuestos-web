@@ -28,7 +28,7 @@ const snapshot = {
       const nav = page.locator('nav[aria-label="Módulos administrativos"]');
       assert.equal(await nav.locator('a[href="#acreditacion"]').count(), 0);
       assert.equal(await page.locator('option[value="acreditacion"]').count(), 0);
-      assert.equal(await nav.locator('a').count(), 10);
+      assert.equal(await nav.locator('a').count(), 11);
       if (width < 768) await page.getByLabel('Sección del panel').selectOption('inscripciones');
       else await nav.getByRole('link', { name: /Inscripciones/ }).click();
       await page.getByRole('heading', { name: 'Inscripciones', exact: true }).waitFor();

@@ -1,0 +1,24 @@
+.event-builder { min-width: 0; }
+.event-builder-steps { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); padding: 0; margin: 24px 0; list-style: none; gap: 8px; }
+.event-builder-steps li { border-bottom: 2px solid var(--dance-line, #66583e); padding: 12px 8px; font-size: .8rem; opacity: .6; }
+.event-builder-steps span { display: block; font-size: 1.1rem; font-weight: 800; margin-bottom: 4px; }
+.event-builder-steps [aria-current="step"] { opacity: 1; border-color: #e3be72; color: #e3be72; }
+.event-builder-item { border: 1px solid #66583e; padding: 20px; margin: 20px 0; border-radius: 12px; }
+.event-builder-cover { width: min(100%, 640px); height: 240px; object-fit: cover; border-radius: 12px; margin: 12px 0; }
+.event-builder .dance-field { margin: 16px 0; min-width: 0; }
+.event-builder .dance-field input, .event-builder .dance-field select, .event-builder .dance-field textarea { max-width: 100%; min-width: 0; }
+.event-builder-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 12px; margin-top: 32px; padding-top: 24px; border-top: 1px solid #66583e; }
+.event-builder-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.event-builder-summary b, .event-builder-existing small { display: block; margin-bottom: 6px; }
+.event-builder-payment { white-space: pre-wrap; }
+.event-builder-url, .event-builder-summary p, .event-builder-existing { overflow-wrap: anywhere; }
+.event-builder-existing { display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid #66583e; padding: 18px 0; }
+@media(max-width: 750px) {
+  .event-builder-steps { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+  .event-builder-steps li { padding: 8px 3px; font-size: .72rem; }
+  .event-builder-item { padding: 14px; }
+  .event-builder-cover { height: 180px; }
+  .event-builder-summary { grid-template-columns: 1fr; gap: 0; }
+  .event-builder-existing { align-items: flex-start; flex-direction: column; }
+  .event-builder-actions .dance-btn { flex: 1; }
+}

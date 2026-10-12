@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from "node:async_hooks";
-import { findEvent } from "./event-catalog";
+import { findRegisteredEvent as findEvent } from "./event-registry";
 
 const context = new AsyncLocalStorage<string | undefined>();
 export const currentEventId = () => context.getStore();

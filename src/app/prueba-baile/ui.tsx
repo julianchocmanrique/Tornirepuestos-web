@@ -3,7 +3,7 @@ import { useDanceScope } from "./DanceScope";
 import { useState, type ReactNode, type FormEvent } from "react";
 import { statusLabels, money, type Status, type Payment, type Enrollment } from "@/lib/baile/types";
 import { ReceiptViewer } from "./ReceiptViewer";
-export type Result = { access?: { name: string; email: string; password: string }[]; role?: string; error?: string; participantId?: string; code?: string };
+export type Result = { eventId?: string; eventUrl?: string; access?: { name: string; email: string; password: string }[]; role?: string; error?: string; participantId?: string; code?: string };
 export type Run = (action: string, data: FormData, onError?: (message: string) => void) => Promise<Result | null>;
 export const rolePath: Record<string, string> = { participant: "participante", superadmin: "admin", contractor: "contratista", judge: "jurado" };
 export const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/Bogota" });

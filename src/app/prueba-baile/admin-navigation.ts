@@ -1,5 +1,6 @@
 export const adminModules = [
   { name: "Resumen", id: "resumen", detail: "Una vista general del evento y las tareas pendientes." },
+  { name: "Crear evento", id: "crear-evento", detail: "Configura y publica un evento independiente, paso a paso." },
   { name: "Registro", id: "registros", detail: "Perfiles de participantes y estado del Full Pass." },
   { name: "Inscripciones", id: "inscripciones", detail: "Competidores, categorías y pagos independientes." },
   { name: "Jurados", id: "jurados", detail: "Visualiza los jurados, gestiona sus accesos y consulta sus calificaciones." },

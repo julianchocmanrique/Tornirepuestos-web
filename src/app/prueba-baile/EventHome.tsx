@@ -1,11 +1,11 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { EVENT_CATEGORIES, type EventCategory, colombiaDay, eventCatalog, eventDate, latestEvents, upcomingEvents, eventHref, slideOffset } from "@/lib/baile/event-catalog";
+import { EVENT_CATEGORIES, type EventCategory, type EventListing, colombiaDay, eventCatalog, eventDate, latestEvents, upcomingEvents, eventHref, slideOffset } from "@/lib/baile/event-catalog";
 import "./event-home.css";
 
-export function EventHome({ demo }: { demo: boolean }) {
-  const events = eventCatalog.filter(e => demo || !e.demo);
+export function EventHome({ demo, catalog = eventCatalog }: { demo: boolean; catalog?: EventListing[] }) {
+  const events = catalog.filter(e => demo || !e.demo);
   const slides = latestEvents(events);
   const [index, setIndex] = useState(0), [paused, setPaused] = useState(false), [hover, setHover] = useState(false);
   const [keyboardFocus, setKeyboardFocus] = useState(false), [touching, setTouching] = useState(false), [motionOptIn, setMotionOptIn] = useState(false);
@@ -52,7 +52,7 @@ export function EventHome({ demo }: { demo: boolean }) {
     </section> : <div className="dance-container dance-empty">Pronto publicaremos nuevos eventos. Mientras tanto, conoce la plataforma de competencia.</div>}
     <section id="proximos-eventos" className="event-agenda dance-container" aria-labelledby="event-agenda-title"><header className="event-agenda-header"><div><p className="dance-eyebrow">RESERVA LA FECHA</p><h2 id="event-agenda-title">Lo que viene.</h2><p>Próximos eventos, del más cercano al más lejano.</p></div><a className="dance-text-link" href="#como-funciona">¿Cómo participar? <span aria-hidden="true">↗</span></a></header>
       <div className="event-filters" role="group" aria-label="Filtrar eventos por categoría">{(["Todos", ...EVENT_CATEGORIES] as const).map(c => <button key={c} type="button" aria-pressed={c === category} onClick={() => setCategory(c)}>{c}</button>)}<span role="status">{upcoming.length} {upcoming.length === 1 ? "evento" : "eventos"}</span></div>
-      {demo && events.some(e => e.demo) && <p className="event-demo-note">Agenda de demostración · Fechas, ciudades y fotografías ilustrativas. No son eventos anunciados.</p>}
+      {demo && events.some(e => e.demo) && <p className="event-demo-note">Los eventos marcados como «Ejemplo» son demostraciones: sus datos y tarifas no deben usarse para pagos reales.</p>}
       <div className="event-list">{upcoming.map((e, i) => <div key={e.id}>{(i === 0 || upcoming[i - 1].date.slice(0, 7) !== e.date.slice(0, 7)) && <h3 className="event-month">{eventDate(e.date, { month: "long", year: "numeric" })}</h3>}<article className="event-row"><time className="event-date-block" dateTime={e.date}><strong>{e.date.slice(8)}</strong><span>{eventDate(e.date, { month: "short" })}</span></time><img src={e.image} alt={e.imageAlt} width={260} height={174} loading="lazy" /><div className="event-row-copy"><p className="event-row-tag">{e.genre}{e.demo && <span>Ejemplo</span>}</p><h3>{e.name}</h3><p>{e.city} <span aria-hidden="true">·</span> {eventDate(e.date, { weekday: "long", day: "numeric", month: "long" })}</p></div><Link className="event-row-link" aria-label={`Ver evento ${e.name}`} href={eventHref(e.id)}>Ver evento <span aria-hidden="true">↗</span></Link></article></div>)}</div>
       {!upcoming.length && <div className="dance-empty">{category === "Todos" ? "No hay próximos eventos publicados por ahora." : `Todavía no hay próximos eventos de ${category.toLowerCase()}. Selecciona otra categoría o vuelve a Todos.`}</div>}
     </section>

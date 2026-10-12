@@ -83,7 +83,7 @@ El catálogo se configura en `src/lib/baile/event-catalog.ts`. Los tres ejemplos
 
 - Página pública: `/prueba-baile/eventos/<id>`, resumen, fecha, ciudad, categorías y botón Registrarse.
 - Registro y paneles: `/prueba-baile/eventos/<id>/registro`, `acceso`, `participante`, `admin`, `contratista`, `jurado`, `resultados`. La ficha usa `inscripciones/<inscripción>`.
-- API: `/api/baile/eventos/<id>/<acción>`. Solo se permiten identificadores existentes en `event-catalog.ts`; los ejemplos se ocultan si se desactiva la demostración global.
+- API: `/api/baile/eventos/<id>/<acción>`. Solo se permiten identificadores del catálogo inicial o del registro persistente `events-index.sqlite`; los ejemplos se ocultan si se desactiva la demostración global.
 - Persistencia: `BAILE_DATA_DIR/events/<id>/event.sqlite`. El volumen existente conserva toda la carpeta, incluidos los archivos almacenados en SQLite. Respaldar cada base con SQLite backup/VACUUM INTO, o detener escrituras y copiar la carpeta completa; no copiar solo el archivo principal durante escrituras WAL.
 - La base original sigue en `BAILE_DATA_DIR/event.sqlite`; no se copian participantes, recibos, cuentas, calificaciones ni categorías entre eventos.
 - La sesión usa una cookie diferente por evento. Un token de otro evento, incluso renombrando la cookie, no es válido. El contexto de base de datos se conserva por solicitud con AsyncLocalStorage, incluidas operaciones asíncronas.
@@ -193,3 +193,17 @@ Cada jurado obtiene un total ponderado sobre 10; el resultado final es el promed
 El esquema se guarda con la primera transacción del evento. Si un evento antiguo ya tiene notas de seis criterios, no se convierte ni se recalculan sus resultados. La base original y los otros eventos no se modifican.
 
 En modo de prueba, `jurado1` muestra un ejercicio interactivo de The Sun Fest con las cinco áreas, aunque no tenga competidores asignados. Es una simulación local explícita: no envía notas, no crea usuarios y no afecta pagos, inscripciones ni resultados. Desaparece al desactivar el modo de prueba.
+
+## Crear eventos desde superadministración
+
+El menú **Crear evento** abre un asistente de siete pasos: información pública; fechas, sede y portada; pases e instrucciones de pago; categorías y plazos de pistas; fórmula de calificación; accesos opcionales de contratista/jurados; y revisión con confirmación de publicación. Conserva los campos al retroceder, pero no guarda borradores ni contraseñas en el navegador. Se recomienda completar el asistente sin cerrar la página.
+
+`POST /api/baile/create-event` (también disponible en el contexto de un evento) exige una sesión de superadministración global activa, origen válido y confirmación explícita. Acepta la configuración JSON y una portada opcional JPG/PNG de hasta 5 MB. Valida identificador, fechas, tarifas enteras, categorías, fórmula, cuentas y asignaciones. No admite enlaces de imágenes arbitrarios ni rutas de archivos enviadas por el cliente. Los duplicados devuelven 409 sin sobrescribir el evento existente. Los correos globales de superadministración no pueden reutilizarse como accesos del equipo.
+
+La ficha pública, la configuración inicial y la portada se insertan en una sola transacción en `BAILE_DATA_DIR/events-index.sqlite`. Este archivo forma parte del mismo volumen persistente que las competencias y debe incluirse en los respaldos, junto con `events/` y `event.sqlite`. Las contraseñas del equipo solo se persisten como hashes scrypt. El catálogo público únicamente devuelve los datos editoriales, nunca las cuentas ni la configuración inicial privada.
+
+Cada base `events/<id>/event.sqlite` se inicializa al primer acceso con esa configuración. El `INSERT OR IGNORE` de la base del evento evita restablecer categorías, usuarios, registros o pagos tras reiniciar o desplegar. Las portadas subidas se sirven desde `/api/baile/event-cover/<id>`; este recurso es público y no debe contener comprobantes ni documentos personales.
+
+El evento aparece en el carrusel y en la agenda cuando corresponde por fecha. Su página incluye sede, pases y categorías. Los registros y las inscripciones están cerrados de forma predeterminada y se pueden abrir al confirmar o más tarde en Ajustes. Los registros, archivos, pagos y resultados siguen aislados por evento. La cuenta global debe iniciar sesión en el nuevo evento; no se copia ni se comparte su cookie. El cronograma de tarima se completa desde Minuto a minuto. Los pagos siguen siendo validación de comprobantes, sin pasarela automática ni notificaciones automáticas de WhatsApp.
+
+Pruebas: `tests/baile-create-event.integration.mjs` verifica permisos, entradas inválidas, duplicados, portada, accesos, inscripción con tarifas propias y persistencia; `tests/baile-create-event.browser.cjs` recorre los siete pasos en móvil y escritorio con API simulada. Nunca crear eventos de prueba en producción para verificar el despliegue.

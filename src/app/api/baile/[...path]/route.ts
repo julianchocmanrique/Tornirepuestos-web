@@ -1,6 +1,8 @@
 import { passPlans, passAvailable, type PassPlan } from "@/lib/baile/pricing";
 import { withEvent, sessionCookieName } from "@/lib/baile/event-scope";
-import { findEvent } from "@/lib/baile/event-catalog";
+import { findRegisteredEvent as findEvent, listEvents, insertEvent, eventCover } from "@/lib/baile/event-registry";
+import { prepareEvent } from "@/lib/baile/create-event";
+import { eventHref } from "@/lib/baile/event-catalog";
 import { DOCUMENT_TYPES, LEVELS, WAIVER_VERSION, colombiaDate, isMinor, validSignature, waiverText, type Registration } from "@/lib/baile/registration";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID, randomBytes } from "node:crypto";
@@ -62,7 +64,18 @@ function putFile(file: Upload, owner: string) {
 async function handleGET(req: NextRequest, ctx: Context) {
   try {
     const parts = (await ctx.params).path;
-    if (parts[0] === "snapshot" || parts[0] === "public") return json(scope(readState(), sessionUser(req.cookies.get(sessionCookieName())?.value)));
+    if (parts[0] === "snapshot" || parts[0] === "public") {
+      const data = scope(readState(), sessionUser(req.cookies.get(sessionCookieName())?.value));
+      const demo = withEvent(undefined, () => readState().settings.demo);
+      return json({ ...data, events: listEvents().filter(e => demo || !e.demo) });
+    }
+    if (parts[0] === "event-cover" && parts[1]) {
+      const event = findEvent(parts[1]);
+      ensure(event && (!event.demo || withEvent(undefined, () => readState().settings.demo)), "Evento no encontrado.", 404);
+      const cover = eventCover(event.id);
+      ensure(cover, "Portada no encontrada.", 404);
+      return new NextResponse(new Uint8Array(cover.cover as Uint8Array), { headers: { "Content-Type": String(cover.mime), "Cache-Control": "public, max-age=3600", "X-Content-Type-Options": "nosniff" } });
+    }
     if (parts[0] === "results") return json(publicResults(readState()));
     if (parts[0] === "users") {
       admin(actor(req));
@@ -249,6 +262,29 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       transaction(s => review(s, user, text(f, "paymentId"), text(f, "status") as Status, text(f, "note", 1000, false))); return json({ ok: true });
     }
     admin(user);
+    if (action === "create-event") {
+      const rootAdmin = () => withEvent(undefined, () => {
+        const state = readState();
+        return state.users.find(u => u.id === user.id && u.role === "superadmin" && !u.disabledAt && u.passwordHash === user.passwordHash && (!u.demoOnly || state.settings.demo));
+      });
+      ensure(rootAdmin(), "Solo superadministración global puede crear eventos.", 403);
+      ensure(f.get("confirm") === "publish", "Confirma la creación y publicación del evento.");
+      let input: unknown;
+      try { input = JSON.parse(text(f, "event", 100000)); } catch { throw new DanceError("No se pudo leer la configuración del evento."); }
+      const file = f.get("cover");
+      const cover = file instanceof File && file.size ? await upload(f, "photo", "cover") : undefined;
+      const { listing, state, accounts } = prepareEvent(input, user.id, !!cover);
+      ensure(!listing.demo || withEvent(undefined, () => readState().settings.demo), "La plataforma tiene desactivados los eventos de prueba.");
+      ensure(!findEvent(listing.id), "Ese enlace ya pertenece a otro evento. Elige otro identificador.", 409);
+      for (const a of accounts) {
+        const reserved = withEvent(undefined, () => readState().users.some(u => u.role === "superadmin" && (u.email === a.email || u.username?.toLowerCase() === a.email)));
+        ensure(!reserved, "El correo del equipo no puede pertenecer a superadministración.", 409);
+        state.users.push({ id: randomUUID(), name: a.name, email: a.email, passwordHash: await hashPassword(a.password), role: a.role, categories: a.categories });
+      }
+      ensure(rootAdmin(), "Tu sesión cambió. Vuelve a iniciar sesión.", 401);
+      insertEvent(listing, state, cover);
+      return json({ ok: true, eventId: listing.id, eventUrl: eventHref(listing.id) }, 201);
+    }
     if (action === "enrollment-edit") {
       const data = { team: text(f, "team", 120, false), members: text(f, "members", 2000, false), school: text(f, "school", 200, false), contactEmail: text(f, "contactEmail", 200, false).toLowerCase() };
       transaction(s => editEnrollment(s, user, text(f, "enrollmentId"), data)); return json({ ok: true });

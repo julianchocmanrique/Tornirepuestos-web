@@ -49,3 +49,9 @@ test('superadministración no muestra Acreditación y sus enlaces antiguos abren
   assert.equal(normalizeModuleHash('#acreditacion'), 'resumen');
   assert.equal(normalizeModuleHash('acreditacion'), 'resumen');
 });
+
+test('Crear evento está disponible únicamente para superadministración', () => {
+  assert.equal(adminModules.filter(m => m.id === 'crear-evento').length, 1);
+  assert.equal(adminModules.findIndex(m => m.id === 'crear-evento'), 1);
+  assert.equal(contractorModules.some(m => m.id === 'crear-evento'), false);
+});

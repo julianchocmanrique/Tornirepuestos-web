@@ -7,7 +7,7 @@ import { initialState, migrateState } from "./types";
 import type { State, User } from "./types";
 import { ensure } from "./domain";
 import { currentEventId, withEvent } from "./event-scope";
-import { findEvent } from "./event-catalog";
+import { findRegisteredEvent as findEvent, eventSeed } from "./event-registry";
 
 import { seedSunFest } from "./pricing";
 
@@ -25,8 +25,9 @@ export function db() {
       CREATE TABLE IF NOT EXISTS sessions (token TEXT PRIMARY KEY, userId TEXT NOT NULL, expires INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS files (id TEXT PRIMARY KEY, owner TEXT NOT NULL, kind TEXT NOT NULL, name TEXT NOT NULL, mime TEXT NOT NULL, content BLOB NOT NULL);
       CREATE TABLE IF NOT EXISTS attempts (id TEXT PRIMARY KEY, count INTEGER NOT NULL, reset INTEGER NOT NULL);`);
-    const state = initialState(), event = eventId ? findEvent(eventId) : undefined;
-    if (event) {
+    const seed = eventId ? eventSeed(eventId) : undefined;
+    const state = seed || initialState(), event = eventId ? findEvent(eventId) : undefined;
+    if (event && !seed) {
       state.settings.name = event.name;
       state.settings.tagline = event.description;
       state.settings.demo = event.demo;

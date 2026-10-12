@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { findEvent } from "@/lib/baile/event-catalog";
+import { findRegisteredEvent as findEvent } from "@/lib/baile/event-registry";
 import { readState } from "@/lib/baile/store";
 import { withEvent } from "@/lib/baile/event-scope";
 import "../../event-pages.css";

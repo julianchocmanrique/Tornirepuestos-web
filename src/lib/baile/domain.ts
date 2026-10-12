@@ -64,8 +64,10 @@ export function review(s: State, admin: User, paymentId: string, status: Status,
 }
 export function saveScore(s: State, judge: User, enrollmentId: string, values: number[]) {
   ensure(judge.role === "judge", "Acceso reservado a jurados.", 403);
+  const currentJudge = s.users.find(user => user.id === judge.id && user.role === "judge");
+  ensure(currentJudge, "El acceso de este jurado ya no está disponible.", 403);
   const e = s.enrollments.find(x => x.id === enrollmentId);
-  ensure(e && judge.categories.includes(e.categoryId), "Competidor no asignado a este jurado.", 403);
+  ensure(e && currentJudge.categories.includes(e.categoryId), "Competidor no asignado a este jurado.", 403);
   ensure(!s.schedule.some(x => x.categoryId === e.categoryId && x.status === "finished"), "La categoría ya finalizó y sus resultados están cerrados.", 409);
   ensure(eligible(s, e) && e.competitionNumber !== null, "El competidor aún no está habilitado.");
   ensure(values.length === CRITERIA.length && values.every(v => Number.isFinite(v) && v >= 1 && v <= 10), "Cada criterio debe tener una nota entre 1 y 10.");

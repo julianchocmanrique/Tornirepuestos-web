@@ -3,6 +3,7 @@ import { randomUUID, randomBytes } from "node:crypto";
 import { db, readState, transaction, hashPassword, verifyPassword, createSession, sessionUser, tokenHash, rateLimit } from "@/lib/baile/store";
 import { DanceError, ensure, scope, enroll, review, recordPayment, saveScore, audit, eligible, validDate } from "@/lib/baile/domain";
 import { publicResults } from "@/lib/baile/results";
+import { judgeDeletionBlock } from "@/lib/baile/judge-policy";
 import { editableEnrollment, editEnrollment, moveEnrollment } from "@/lib/baile/enrollment-admin";
 import type { User, State, Status, Category, StageStatus } from "@/lib/baile/types";
 import { accredit, revokeAccreditation, saveSchedule } from "@/lib/baile/operations";
@@ -265,6 +266,20 @@ export async function POST(req: NextRequest, ctx: Context) {
       const c: Category = { id, name: text(f, "name", 120), rhythm: text(f, "rhythm", 80), modality: text(f, "modality", 30), division: text(f, "division", 80), fee: numeric(f, "fee", 1), active: f.get("active") === "on", deadline: deadline ? new Date(deadline).toISOString() : "" };
       ensure(["Solista", "Pareja", "Grupo"].includes(c.modality), "Modalidad inválida.");
       transaction(s => { ensure(!c.active || !s.schedule.some(x => x.categoryId === id && x.status === "finished"), "La categoría ya finalizó. Crea otra categoría para una nueva competencia.", 409); const old = s.categories.find(x => x.id === id); if (old) { ensure(!s.enrollments.some(e => e.categoryId === id) || (old.modality === c.modality && old.rhythm === c.rhythm && old.division === c.division), "No cambies modalidad, ritmo o división de una categoría con inscritos."); Object.assign(old, c); } else s.categories.push(c); audit(s, user.id, "Categoría actualizada", id); }); return json({ ok: true });
+    }
+    if (action === "judge-delete") {
+      const id = text(f, "judgeId", 100);
+      ensure(text(f, "confirmId", 100) === id, "Confirma el jurado que deseas eliminar.");
+      transaction(s => {
+        const judge = s.users.find(u => u.id === id && u.role === "judge");
+        ensure(judge, "Jurado no encontrado.", 404);
+        const blocked = judgeDeletionBlock(s, judge);
+        ensure(!blocked, blocked, 409);
+        s.users = s.users.filter(u => u.id !== id);
+        db().prepare("DELETE FROM sessions WHERE userId=?").run(id);
+        audit(s, user.id, `Jurado eliminado: ${judge.name}`, id);
+      });
+      return json({ ok: true });
     }
     if (action === "judge") {
       const id = text(f, "id", 100, false); const categories = f.getAll("categories").map(String);

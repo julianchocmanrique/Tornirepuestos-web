@@ -223,6 +223,18 @@
 
 /* One table and one set of controls: desktop rows become labeled mobile cards. */
 .dance-mobile-module { display: none; }
+.dance-judges-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.dance-judge-card { margin-bottom: 0; overflow-wrap: anywhere; }
+.dance-judge-card h2 { font-size: 25px; }
+.dance-judge-card .dance-actions { margin: 20px 0 0; gap: 12px; }
+.dance-app .dance-danger { color: #9a331c; border-color: #d5a18e; background: #fff0e9; }
+.dance-app .dance-danger:hover:not(:disabled) { background: #ffded0; }
+.dance-app .dance-danger:disabled { cursor: not-allowed; }
+.dance-judge-modal { width: min(760px, calc(100vw - 32px)); overflow-wrap: anywhere; }
+.dance-judge-modal header { position: sticky; top: -28px; z-index: 1; padding: 12px 0; background: #faf9f3; }
+.dance-judge-modal h3 { margin-top: 24px; }
+.dance-judge-modal ul { padding-left: 20px; }
+.dance-judge-modal .dance-form .dance-field { margin: 0; }
 @media (max-width: 1050px) {
   .dance-mobile-module { display: grid; gap: 8px; font-size: 12px; font-weight: 700; }
   .dance-admin-nav nav { display: none; }
@@ -230,6 +242,9 @@
   .dance-admin-workspace .dance-panel-title { flex-wrap: wrap; }
 }
 @media (max-width: 750px) {
+  .dance-judges-grid { grid-template-columns: minmax(0, 1fr); }
+  .dance-judge-modal header { top: -20px; }
+  .dance-judge-card .dance-actions > button { flex: 1; }
   .dance-app { overflow-wrap: anywhere; }
   .dance-header nav { flex-wrap: wrap; gap: 8px 16px; }
   .dance-header nav > a, .dance-header nav > button { min-height: 44px; display: inline-flex; align-items: center; }

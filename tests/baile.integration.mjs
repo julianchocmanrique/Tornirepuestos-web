@@ -461,6 +461,33 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     await admin.post('enrollment-edit', { ...fields, enrollmentId: 'missing' }, 404);
     assert.equal((await fetch(root + '/prueba-baile/inscripciones/' + entry.id)).status, 200);
   });
+  await t.test('eliminar jurados exige confirmación, permisos y preserva calificaciones', async () => {
+    const contractor = client(); await contractor.post('login', { email: 'admin', password: 'DemoKey99' });
+    for (const who of [contractor, p, judge1]) await who.post('judge-delete', {}, 403);
+    await outsider.post('judge-delete', {}, 401);
+    const before = await admin.snapshot();
+    const protectedJudge = before.judges.find(j => before.scores.some(score => score.judgeId === j.id));
+    await admin.post('judge-delete', { judgeId: protectedJudge.id, confirmId: protectedJudge.id }, 409);
+    await admin.post('judge-delete', { judgeId: before.user.id, confirmId: before.user.id }, 404);
+    await admin.post('judge-delete', { judgeId: 'missing', confirmId: 'missing' }, 404);
+    await admin.post('category', { id: 'judge-delete-test', name: 'Prueba de eliminación', rhythm: 'Salsa', modality: 'Solista', division: 'Abierta', fee: 60000, deadline: '', active: 'on' });
+    const account = { id: '', name: 'Jurado eliminable', email: 'eliminable@example.test', password: info.password, categories: ['judge-delete-test'] };
+    await admin.post('judge', account);
+    const temporary = client(); await temporary.post('login', { email: account.email, password: account.password });
+    const id = (await temporary.snapshot()).user.id;
+    await admin.post('judge-delete', { judgeId: id, confirmId: 'otro' }, 400);
+    assert.ok((await admin.snapshot()).judges.some(j => j.id === id));
+    await admin.post('judge-delete', { judgeId: id, confirmId: id });
+    const after = await admin.snapshot();
+    assert.equal(after.judges.some(j => j.id === id), false);
+    assert.ok(after.audit.some(a => a.target === id && a.action.includes('Jurado eliminado')));
+    for (const key of ['participants', 'payments', 'enrollments', 'scores']) assert.deepEqual(after[key], before[key]);
+    assert.equal((await temporary.snapshot()).user, null);
+    await temporary.post('login', { email: account.email, password: account.password }, 401);
+    await admin.post('judge-delete', { judgeId: id, confirmId: id }, 404);
+    const connection = new DatabaseSync(path.join(dir, 'event.sqlite'));
+    assert.equal(connection.prepare('SELECT count(*) AS n FROM sessions WHERE userId=?').get(id).n, 0); connection.close();
+  });
   await t.test('el selector comparte el límite de contraseñas con el acceso normal', async () => {
     const account = { ...info, document: 'LIMITE01', email: 'limite@example.test' };
     const created = await admin.post('admin-register', account, 201);

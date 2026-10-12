@@ -37,3 +37,8 @@ test("Registro aparece antes de Inscripciones y conserva enlaces anteriores", ()
   assert.equal(normalizeModuleHash("#participantes"), "registros");
   assert.equal(normalizeModuleHash("#registro"), "registros");
 });
+
+test('Jurados aparece debajo de Inscripciones sin ampliar permisos del contratista', () => {
+  assert.equal(adminModules.findIndex(m => m.id === 'jurados'), adminModules.findIndex(m => m.id === 'inscripciones') + 1);
+  assert.equal(contractorModules.some(m => m.id === 'jurados'), false);
+});

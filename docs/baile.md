@@ -78,3 +78,38 @@ Los ejemplos y tarifas son editables. No incluye cobros automáticos, correo tra
 El inicio incorpora `EventHome`: carrusel horizontal de los cinco eventos publicados más recientemente y agenda de todos los próximos eventos, agrupados por mes y ordenados por fecha ascendente. El día se calcula en America/Bogota; un evento se mantiene durante toda su fecha y desaparece de la agenda al día siguiente. Incluye filtros por estilo, ficha informativa, flechas, indicadores, gesto táctil, pausa y respeto a movimiento reducido. Las diapositivas inactivas no reciben foco.
 
 El catálogo se configura en `src/lib/baile/event-catalog.ts`. Los tres ejemplos iniciales, sus fechas, ciudades y fotografías generadas son ilustrativos y están rotulados; se ocultan cuando se desactiva el modo demo. Las fotos WebP son locales, sin proveedores externos en tiempo de ejecución. Antes de anunciar eventos reales, reemplazar esta información con nombres, fotos autorizadas y fechas confirmadas. Este catálogo editorial NO crea competencias, pagos ni inscripciones independientes: la plataforma operativa sigue administrando un evento por instalación. Pruebas: `node --test tests/baile-events.test.mjs`.
+
+## Registro público en cinco pasos
+
+La ruta `/prueba-baile/registro` tiene una línea de progreso: Datos, Nivel,
+ID, Exoneración y Documentos. Conserva los campos y archivos al retroceder;
+no guarda contraseñas ni documentos en localStorage. Recargar pierde el borrador.
+
+El envío crea en una sola transacción el participante, su cuenta, foto privada,
+carta aceptada (texto exacto, versión, trazos de firma y hora del servidor) y
+comprobante del Full Pass pendiente de validación. No aprueba pagos. Las
+categorías siguen siendo independientes. El acceso admite documento o correo;
+la contraseña se guarda con scrypt y no se envía por correo. El servidor valida
+confirmaciones, niveles, consentimiento, firma, archivos y tarifa. La carta se
+compara normalizando saltos de línea CRLF/LF para funcionar en Windows.
+
+En Ajustes se pueden completar fecha inicial, fecha final y ciudad/sede. La carta
+usa esos datos y el nombre del evento; nunca los datos del sitio de referencia.
+En modo de ejemplo, los datos no definidos se indican como pendientes de publicar.
+Fuera de modo de ejemplo deben estar definidos antes de aceptar registros.
+El texto proporcionado por el organizador necesita revisión jurídica antes de su
+uso real. La captura de una firma no equivale a certificar su validez jurídica.
+Para menores se solicitan identificación, autorización y firma del representante;
+la organización debe revisar sus requisitos específicos.
+
+La ficha (Registro > Ver ficha) y el panel del participante permiten consultar
+los nuevos datos, la foto y la carta guardada. Los registros anteriores y las
+altas manuales del administrador se conservan sin inventar firmas ni documentos:
+se muestran como registros sin documentación del nuevo flujo. El alta manual no
+puede hacer constar la aceptación de esta carta en nombre del participante.
+No se implementan códigos de descuento: no hay todavía reglas de descuentos
+configuradas, por lo que no se ofrece un control que prometa una rebaja inexistente.
+
+Pruebas: `npm run build`, `npm run test:baile` y
+`node --test tests/baile-wizard.test.mjs`. Las pruebas usan una base SQLite temporal,
+identidades ficticias y trazos sintéticos; no crean participantes en producción.

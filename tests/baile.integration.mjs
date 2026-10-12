@@ -48,20 +48,64 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
   const info = { name: 'Participante Prueba', document: '12345678', birthDate: '2000-01-01', city: 'Santa Marta', phone: '3000000000', email: 'participante@example.test', academy: 'Academia Prueba', extra: '', password: 'ClavePrueba12345', consent: 'on' };
   const date = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
   const receipt = () => new File([Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aWQAAAABJRU5ErkJggg==', 'base64')], 'recibo.png', { type: 'image/png' });
+  const registrationSource = readFileSync('src/lib/baile/registration.ts', 'utf8');
+  const registrationModule = ts.transpileModule(registrationSource, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
+  const { waiverText } = await import('data:text/javascript;base64,' + Buffer.from(registrationModule).toString('base64'));
+  async function completeRegistration(fields) {
+    const settings = (await outsider.snapshot()).settings;
+    return { ...fields, firstName: 'Participante', lastName: 'Prueba', sex: 'Masculino', country: 'Colombia', callingCode: '+57', salsa: 'Amateur', bachata: 'No aplica', documentType: 'CC', documentConfirm: fields.document, passwordConfirm: fields.password, guardianName: '', guardianDocument: '', waiverAccepted: 'on', signature: JSON.stringify([[[10,20],[40,50],[80,20]]]), waiverText: waiverText(settings, fields.name, fields.document), fullPassFee: String(settings.fullPassFee), reference: 'DEMO-REF', receipt: receipt(), photo: receipt() };
+  }
   const wave = Buffer.alloc(16044); wave.write('RIFF', 0); wave.writeUInt32LE(16036, 4); wave.write('WAVEfmt ', 8); wave.writeUInt32LE(16, 16); wave.writeUInt16LE(1, 20); wave.writeUInt16LE(1, 22); wave.writeUInt32LE(8000, 24); wave.writeUInt32LE(16000, 28); wave.writeUInt16LE(2, 32); wave.writeUInt16LE(16, 34); wave.write('data', 36); wave.writeUInt32LE(16000, 40);
   const music = () => new File([wave], 'pista.wav', { type: 'audio/wav' });
   let passId; let entry; let entry2; let categoryPayment;
   await t.test('registro único, fecha de registro, acceso y protección del Full Pass', async () => {
     await admin.post('login', credentials);
-    await p.post('register', { ...info, birthDate: '2000-02-30' }, 400);
-    await p.post('register', info, 201);
-    await stranger.post('register', info, 409);
+    await p.post('register', await completeRegistration({ ...info, birthDate: '2000-02-30' }), 400);
+    await p.post('register', await completeRegistration(info), 201);
+    await stranger.post('register', await completeRegistration(info), 409);
     const s = await p.snapshot(); assert.match(s.participants[0].code, /^PAR-/); assert.ok(s.participants[0].createdAt); assert.equal(s.user.passwordHash, undefined);
     await p.post('enroll', { categoryId: 'salsa-solista', team: '', members: '' }, 403);
     await p.post('settings', {}, 403);
     await stranger.post('review', {}, 401);
     await p.post('logout', {}, 403, 'https://otro-sitio.example');
-    await stranger.post('register', { ...info, document: '98765432', email: 'otro@example.test' }, 201);
+    await stranger.post('register', await completeRegistration({ ...info, document: '98765432', email: 'otro@example.test' }), 201);
+  });
+  await t.test('registro completo: firma, foto, referencia, privacidad y documento como usuario', async () => {
+    const snapshot = await p.snapshot(), person = snapshot.participants[0];
+    assert.equal(person.registration.salsa, 'Amateur');
+    assert.equal(person.registration.waiver.version, '2026-10-v1');
+    assert.ok(person.registration.waiver.acceptedAt);
+    assert.match(person.registration.waiver.text, /Ritmo Caribe/);
+    assert.equal(snapshot.payments[0].reference, 'DEMO-REF');
+    assert.equal((await p.file(person.registration.photoId)).status, 200);
+    assert.equal((await stranger.file(person.registration.photoId)).status, 403);
+    assert.equal((await outsider.file(person.registration.photoId)).status, 401);
+    assert.equal((await outsider.snapshot()).participants.length, 0);
+    const docLogin = client(); await docLogin.post('login', { email: info.document, password: info.password });
+    assert.equal((await docLogin.snapshot()).user.id, person.id);
+    const payload = await completeRegistration({ ...info, document: 'NEGATIVE01', email: 'negative@example.test' });
+    const before = (await admin.snapshot()).participants.length;
+    await outsider.post('register', { ...payload, waiverAccepted: '' }, 400);
+    await outsider.post('register', { ...payload, signature: '[]' }, 400);
+    await outsider.post('register', { ...payload, documentConfirm: 'MISMATCH' }, 400);
+    await outsider.post('register', { ...payload, photo: new File(['not-image'], 'x.png') }, 400);
+    const connection = new DatabaseSync(path.join(dir, 'event.sqlite'));
+    const fileCount = connection.prepare('SELECT count(*) AS n FROM files').get().n;
+    const invalids = [
+      [{ passwordConfirm: 'NoCoincide12345' }, 400],
+      [{ waiverText: 'Carta anterior' }, 409],
+      [{ fullPassFee: '1' }, 409],
+      [{ birthDate: '2015-01-01' }, 400],
+      [{ signature: JSON.stringify([[[0,0],[900,10],[20,30]]]) }, 400],
+    ];
+    for (const [i, [patch, expected]] of invalids.entries()) {
+      const form = new FormData(); for (const [k,v] of Object.entries({ ...payload, ...patch })) form.append(k,v);
+      const response = await fetch(root + '/api/baile/register', { method: 'POST', headers: { origin: root, 'x-forwarded-for': '198.51.100.' + (i + 1) }, body: form });
+      assert.equal(response.status, expected, await response.text());
+    }
+    assert.equal(connection.prepare('SELECT count(*) AS n FROM files').get().n, fileCount);
+    connection.close();
+    assert.equal((await admin.snapshot()).participants.length, before);
   });
   await t.test('comprobantes privados, rechazo y nueva revisión', async () => {
     await p.post('payment', { enrollmentId: '', amount: '180000', date, file: new File(['html'], 'mal.png', { type: 'image/png' }) }, 400);
@@ -208,11 +252,11 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     const fields = { ...settings, fullPassFee: '250000', registrationOpen: '', categoryRegistrationOpen: 'on' };
     const fresh = client();
     await admin.post('settings', fields);
-    await fresh.post('register', { ...info, document: '99887766', email: 'nuevo@example.test' }, 400);
+    await fresh.post('register', await completeRegistration({ ...info, document: '99887766', email: 'nuevo@example.test' }), 400);
     await p.post('enroll', { categoryId: 'salsa-parejas', team: 'Prueba', members: 'Dos personas' }, 201);
     await admin.post('settings', { ...fields, registrationOpen: 'on', categoryRegistrationOpen: '' });
     await p.post('enroll', { categoryId: 'urbana-grupal', team: 'Prueba', members: 'Tres personas' }, 400);
-    await fresh.post('register', { ...info, document: '99887766', email: 'nuevo@example.test' }, 201);
+    await fresh.post('register', await completeRegistration({ ...info, document: '99887766', email: 'nuevo@example.test' }), 201);
     assert.equal((await fresh.snapshot()).participants[0].fullPassFee, 250000);
     const s = await admin.snapshot(), person = (await p.snapshot()).participants[0]; assert.equal(person.fullPassFee, 180000);
     const { charges, ageAt, whatsapp } = await import(pathToFileURL(path.join(dir, 'reporting.mjs')));
@@ -309,7 +353,7 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
   await t.test('organización puede registrar con registro público cerrado', async () => {
     const settings = (await admin.snapshot()).settings;
     await admin.post('settings', { ...settings, registrationOpen: '', categoryRegistrationOpen: 'on' });
-    await outsider.post('register', { ...info, document: 'AD90003', email: 'cerrado@example.test' }, 400);
+    await outsider.post('register', await completeRegistration({ ...info, document: 'AD90003', email: 'cerrado@example.test' }), 400);
     await admin.post('admin-register', { ...info, document: 'AD90003', email: 'cerrado@example.test' }, 201);
     assert.equal((await admin.snapshot()).user.role, 'superadmin');
     await admin.post('settings', { ...settings, registrationOpen: 'on', categoryRegistrationOpen: 'on' });

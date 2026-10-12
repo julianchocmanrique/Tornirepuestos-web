@@ -72,3 +72,9 @@ Las pruebas usan una base temporal independiente y un servidor en el puerto 3321
 ## Alcance de esta versión
 
 Los ejemplos y tarifas son editables. No incluye cobros automáticos, correo transaccional, recuperación de contraseña por correo, generación de facturas, gastos/devoluciones, bootcamps, tallas, pases por días ni rondas eliminatorias. La programación agrupa categorías, no turnos individuales. Los nombres de integrantes de parejas/grupos los declara el titular de la inscripción; no se cruzan todavía sus Full Pass individuales. La cantidad de criterios y sus pesos están fijados en seis criterios iguales. Para operar un evento real hay que definir las reglas de la organización, datos del evento y medios de pago reales antes de retirar el aviso de demostración.
+
+## Portada editorial de eventos
+
+El inicio incorpora `EventHome`: carrusel horizontal de los cinco eventos publicados más recientemente y agenda de todos los próximos eventos, agrupados por mes y ordenados por fecha ascendente. El día se calcula en America/Bogota; un evento se mantiene durante toda su fecha y desaparece de la agenda al día siguiente. Incluye filtros por estilo, ficha informativa, flechas, indicadores, gesto táctil, pausa y respeto a movimiento reducido. Las diapositivas inactivas no reciben foco.
+
+El catálogo se configura en `src/lib/baile/event-catalog.ts`. Los tres ejemplos iniciales, sus fechas, ciudades y fotografías generadas son ilustrativos y están rotulados; se ocultan cuando se desactiva el modo demo. Las fotos WebP son locales, sin proveedores externos en tiempo de ejecución. Antes de anunciar eventos reales, reemplazar esta información con nombres, fotos autorizadas y fechas confirmadas. Este catálogo editorial NO crea competencias, pagos ni inscripciones independientes: la plataforma operativa sigue administrando un evento por instalación. Pruebas: `node --test tests/baile-events.test.mjs`.

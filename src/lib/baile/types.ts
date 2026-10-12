@@ -1,7 +1,7 @@
-export type Role = "participant" | "admin" | "judge";
+export type Role = "participant" | "superadmin" | "contractor" | "judge";
 export type Status = "pending" | "approved" | "rejected";
 export const CRITERIA = ["Técnica", "Musicalidad", "Interpretación", "Conexión / trabajo en equipo", "Creatividad", "Presentación escénica"];
-export type User = { id: string; name: string; email: string; passwordHash: string; role: Role; categories: string[] };
+export type User = { id: string; name: string; username?: string; demoOnly?: boolean; email: string; passwordHash: string; role: Role; categories: string[] };
 export type PublicUser = Omit<User, "passwordHash">;
 export type Participant = { id: string; code: string; name: string; document: string; birthDate: string; city: string; phone: string; email: string; academy: string; extra: string; createdAt: string; fullPassFee?: number };
 export type Payment = { id: string; participantId: string; enrollmentId: string | null; kind: "fullpass" | "category"; amount: number; date: string; receiptId: string; status: Status; note: string; reviewedBy: string | null; reviewedAt: string | null; createdAt: string };
@@ -20,7 +20,7 @@ export type Snapshot = { settings: Settings; user: PublicUser | null; participan
 export const statusLabels: Record<Status, string> = { pending: "Pendiente", approved: "Aprobado", rejected: "Rechazado" };
 export function initialState(): State {
   return {
-    version: 2,
+    version: 3,
     settings: { name: "Ritmo Caribe", tagline: "Tu talento tiene escenario.", fullPassFee: 180000, paymentInstructions: "Evento de ejemplo. Usa comprobantes ficticios para probar el proceso. La organización puede editar aquí sus instrucciones y medios de pago.", formula: "average", registrationOpen: true, categoryRegistrationOpen: true, demo: true },
     users: [], participants: [], payments: [], enrollments: [], scores: [], audit: [], accreditations: [], notes: [], schedule: [],
     categories: [
@@ -36,7 +36,8 @@ export function migrateState(s: State): State {
   s.accreditations ??= []; s.notes ??= []; s.schedule ??= [];
   s.settings.categoryRegistrationOpen ??= s.settings.registrationOpen;
   for (const p of s.participants) p.fullPassFee ??= s.settings.fullPassFee;
-  s.version = 2;
+  for (const u of s.users) if ((u.role as string) === "admin") u.role = "superadmin";
+  s.version = 3;
   return s;
 }
 export const money = (value: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(value);

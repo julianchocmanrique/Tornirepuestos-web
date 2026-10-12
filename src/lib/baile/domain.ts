@@ -40,7 +40,7 @@ export function enroll(s: State, user: User, categoryId: string, team: string, m
   return e;
 }
 export function review(s: State, admin: User, paymentId: string, status: Status, note: string) {
-  ensure(admin.role === "admin", "Acceso reservado a organización.", 403);
+  ensure(admin.role === "superadmin" || admin.role === "contractor", "Acceso reservado a organización.", 403);
   const p = s.payments.find(p => p.id === paymentId);
   ensure(p, "Pago no encontrado.", 404);
   ensure(["approved", "rejected", "pending"].includes(status), "Estado inválido.");
@@ -79,7 +79,8 @@ export function scope(s: State, user: User | null): Snapshot {
   const publicUser = user ? (({ passwordHash: _ignored, ...rest }) => rest)(user) : null;
   const base: Snapshot = { settings: s.settings, user: publicUser, participants: [], payments: [], categories: s.categories.filter(c => c.active), enrollments: [], scores: [], judges: [], audit: [], accreditations: [], notes: [], schedule: [], exampleCreated: s.audit.some(x => x.action === "Ejemplo creado") };
   if (!user) return base;
-  if (user.role === "admin") return { ...base, categories: s.categories, participants: s.participants, payments: s.payments, enrollments: s.enrollments, scores: s.scores, audit: s.audit.slice(-150).reverse(), accreditations: s.accreditations, notes: s.notes, schedule: s.schedule, judges: s.users.filter(u => u.role === "judge").map(({ passwordHash: _ignored, ...u }) => u) };
+  if (user.role === "superadmin") return { ...base, categories: s.categories, participants: s.participants, payments: s.payments, enrollments: s.enrollments, scores: s.scores, audit: s.audit.slice(-150).reverse(), accreditations: s.accreditations, notes: s.notes, schedule: s.schedule, judges: s.users.filter(u => u.role === "judge").map(({ passwordHash: _ignored, ...u }) => u) };
+  if (user.role === "contractor") return { ...base, categories: s.categories, participants: s.participants.map(p => ({ ...p, extra: "" })), payments: s.payments, enrollments: s.enrollments };
   if (user.role === "participant") return { ...base, categories: s.categories.filter(c => c.active || s.enrollments.some(e => e.categoryId === c.id && e.participantId === user.id)), participants: s.participants.filter(p => p.id === user.id), payments: s.payments.filter(p => p.participantId === user.id), enrollments: s.enrollments.filter(e => e.participantId === user.id), accreditations: s.accreditations.filter(a => a.participantId === user.id && !a.revokedAt), schedule: s.schedule.filter(x => x.status !== "cancelled" && s.enrollments.some(e => e.categoryId === x.categoryId && e.participantId === user.id)).map(x => ({ ...x, note: "" })) };
   // Jurados reciben solo identificadores de competencia y sus propias notas.
   return { ...base, categories: s.categories.filter(c => user.categories.includes(c.id)), enrollments: s.enrollments.filter(e => user.categories.includes(e.categoryId) && eligible(s, e)).map(e => ({ ...e, participantId: "", team: "", members: "", musicId: null, musicName: "", fee: 0 })), scores: s.scores.filter(x => x.judgeId === user.id) };

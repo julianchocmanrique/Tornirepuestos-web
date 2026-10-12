@@ -4,7 +4,7 @@ import { statusLabels, money, type Status, type Payment, type Enrollment } from 
 export type Result = { access?: { name: string; email: string; password: string }[]; role?: string; error?: string; participantId?: string; code?: string };
 export type Run = (action: string, data: FormData) => Promise<Result | null>;
 export const base = "/prueba-baile";
-export const rolePath: Record<string, string> = { participant: "participante", admin: "admin", judge: "jurado" };
+export const rolePath: Record<string, string> = { participant: "participante", superadmin: "admin", contractor: "contratista", judge: "jurado" };
 export const fileUrl = (id: string) => `/api/baile/files/${id}`;
 export const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/Bogota" });
 export function Badge({ status }: { status?: Status }) { return <span className={`dance-badge ${status || "missing"}`}>{status ? statusLabels[status] : "Por enviar"}</span>; }

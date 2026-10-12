@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
+import { randomBytes, scryptSync } from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
 import JSZip from 'jszip';
 
@@ -126,6 +127,7 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     await judge2.post('score', { enrollmentId: entry.id, values: JSON.stringify([10,10,10,10,10,10]) });
     s = await admin.snapshot(); let r = ranking(s, entry.categoryId)[0]; assert.equal(r.total, 108); assert.equal(r.average, 9); assert.equal(r.position, 1);
     assert.equal(r.final, false);
+    assert.deepEqual((await (await fetch(root + '/api/baile/results')).json()).categories, []);
     const score = s.scores.find(x => x.judgeId === s.judges.find(j => j.email === 'jurado1@example.test').id);
     await admin.post('unlock', { scoreId: score.id, note: 'Corrección autorizada' });
     s = await admin.snapshot(); assert.equal(ranking(s, entry.categoryId)[0].position, null);
@@ -139,12 +141,14 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     const connection = new DatabaseSync(path.join(dir, 'event.sqlite'));
     const legacy = JSON.parse(connection.prepare('SELECT data FROM state WHERE id=1').get().data);
     const original = structuredClone(legacy);
+    legacy.users.find(u => u.role === 'superadmin').role = 'admin';
     legacy.version = 1; delete legacy.accreditations; delete legacy.notes; delete legacy.schedule; delete legacy.settings.categoryRegistrationOpen;
     legacy.participants.forEach(p => delete p.fullPassFee);
     connection.prepare('UPDATE state SET data=? WHERE id=1').run(JSON.stringify(legacy)); connection.close();
     const s = await admin.snapshot(); assert.deepEqual(s.payments, original.payments); assert.deepEqual(s.scores, original.scores); assert.deepEqual(s.enrollments, original.enrollments);
     assert.equal(s.participants.length, original.participants.length); assert.equal(s.participants[0].fullPassFee, 180000);
     assert.deepEqual(s.schedule, []); assert.deepEqual(s.accreditations, []); assert.deepEqual(s.notes, []); assert.equal(s.settings.categoryRegistrationOpen, true);
+    assert.equal(s.user.role, 'superadmin');
     assert.equal((await admin.file(s.payments[0].receiptId)).status, 200);
   });
   await t.test('cierres independientes, tarifas históricas y saldos por concepto', async () => {
@@ -238,7 +242,7 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     const result = await admin.post('admin-register', fields, 201);
     assert.ok(result.participantId); assert.match(result.code, /^PAR-/); assert.equal(result.role, undefined);
     const after = await admin.snapshot();
-    assert.equal(after.user.id, before.user.id); assert.equal(after.user.role, 'admin');
+    assert.equal(after.user.id, before.user.id); assert.equal(after.user.role, 'superadmin');
     assert.equal(after.participants.length, before.participants.length + 1);
     assert.equal(after.payments.length, before.payments.length); assert.equal(after.enrollments.length, before.enrollments.length);
     const created = after.participants.find(x => x.id === result.participantId);
@@ -255,8 +259,51 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     await admin.post('settings', { ...settings, registrationOpen: '', categoryRegistrationOpen: 'on' });
     await outsider.post('register', { ...info, document: 'AD90003', email: 'cerrado@example.test' }, 400);
     await admin.post('admin-register', { ...info, document: 'AD90003', email: 'cerrado@example.test' }, 201);
-    assert.equal((await admin.snapshot()).user.role, 'admin');
+    assert.equal((await admin.snapshot()).user.role, 'superadmin');
     await admin.post('settings', { ...settings, registrationOpen: 'on', categoryRegistrationOpen: 'on' });
+  });
+  await t.test('perfiles por usuario: superadministrador, contratista y participante aislados', async () => {
+    const before = await admin.snapshot();
+    const hashes = {};
+    for (const name of ['superadmin', 'admin', 'participante1']) { const salt = randomBytes(16).toString('hex'); hashes[name] = salt + ':' + scryptSync(name === 'admin' ? 'DemoKey99' : info.password, salt, 64).toString('hex'); }
+    const seedEnv = { ...env, BAILE_TEST_PROFILE_HASHES: JSON.stringify(hashes) };
+    execFileSync(process.execPath, ['scripts/baile-test-profiles.cjs'], { env: seedEnv });
+    execFileSync(process.execPath, ['scripts/baile-test-profiles.cjs'], { env: seedEnv });
+    const after = await admin.snapshot();
+    assert.equal(after.participants.length, before.participants.length + 1);
+    assert.deepEqual(after.payments, before.payments); assert.deepEqual(after.scores, before.scores);
+    const owner = client(), contractor = client(), participant = client();
+    assert.equal((await owner.post('login', { email: 'SUPERADMIN', password: info.password })).role, 'superadmin');
+    assert.equal((await contractor.post('login', { email: 'admin', password: 'DemoKey99' })).role, 'contractor');
+    assert.equal((await participant.post('login', { email: 'participante1', password: info.password })).role, 'participant');
+    const limited = await contractor.snapshot();
+    assert.equal(limited.participants.length, after.participants.length);
+    for (const field of ['scores', 'judges', 'audit', 'notes', 'accreditations', 'schedule']) assert.deepEqual(limited[field], []);
+    for (const action of ['settings', 'category', 'judge', 'unlock', 'reset-password', 'admin-register', 'participant-note', 'schedule', 'accredit', 'example']) await contractor.post(action, {}, 403);
+    assert.equal((await contractor.zip()).status, 403);
+    const musicId = after.enrollments.find(e => e.musicId)?.musicId; assert.ok(musicId);
+    assert.equal((await contractor.file(musicId)).status, 403);
+    const own = await participant.snapshot(); assert.equal(own.participants.length, 1); assert.equal(own.user.username, 'participante1');
+    await participant.post('payment', { enrollmentId: '', amount: String(own.participants[0].fullPassFee), date, file: receipt() });
+    const payment = (await participant.snapshot()).payments[0];
+    assert.equal((await contractor.file(payment.receiptId)).status, 200);
+    await participant.post('review', { paymentId: payment.id, status: 'approved', note: '' }, 403);
+    await contractor.post('review', { paymentId: payment.id, status: 'rejected', note: 'Ejemplo incompleto' });
+    assert.equal((await participant.snapshot()).payments[0].status, 'rejected');
+    await contractor.post('review', { paymentId: payment.id, status: 'approved', note: 'Ejemplo validado' });
+    assert.equal((await participant.snapshot()).payments[0].status, 'approved');
+    await participant.post('music', { enrollmentId: entry.id, file: music() }, 404);
+    await owner.post('admin-register', { ...info, document: 'OWNER001', email: 'owner-test@example.test' }, 201);
+  });
+  await t.test('resultados públicos muestran solo posiciones definitivas y datos mínimos', async () => {
+    const response = await fetch(root + '/api/baile/results'); assert.equal(response.status, 200);
+    const data = await response.json(); assert.ok(data.categories.length > 0);
+    assert.deepEqual(Object.keys(data).sort(), ['categories', 'formula']);
+    for (const category of data.categories) {
+      assert.ok((await admin.snapshot()).schedule.some(s => s.categoryId === category.id && s.status === 'finished'));
+      for (const row of category.rows) assert.deepEqual(Object.keys(row).sort(), ['name', 'number', 'position', 'value']);
+    }
+    assert.equal((await outsider.snapshot()).participants.length, 0);
   });
   await t.test('selector de pruebas exige clave, cambia permisos y revoca la sesión anterior', async () => {
     assert.equal((await outsider.profiles()).status, 401);
@@ -282,15 +329,18 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     await switcher.post('switch-profile', { profileId: judge.id, password: info.password });
     own = await switcher.snapshot(); assert.equal(own.user.role, 'judge'); assert.equal(own.participants.length, 0);
     await switcher.post('switch-profile', { profileId: original.user.id, password: credentials.password });
-    assert.equal((await switcher.snapshot()).user.role, 'admin');
+    assert.equal((await switcher.snapshot()).user.role, 'superadmin');
     assert.ok((await admin.snapshot()).audit.some(x => x.action === 'Cambio de perfil de prueba' && x.target === participant.id));
+    const demoAccount = client(); await demoAccount.post('login', { email: 'superadmin', password: info.password });
     const connection = new DatabaseSync(path.join(dir, 'event.sqlite'));
     const setDemo = value => { const state = JSON.parse(connection.prepare('SELECT data FROM state WHERE id=1').get().data); state.settings.demo = value; connection.prepare('UPDATE state SET data=? WHERE id=1').run(JSON.stringify(state)); };
     try {
       setDemo(false);
+      assert.equal((await demoAccount.snapshot()).user, null);
+      await demoAccount.post('login', { email: 'superadmin', password: info.password }, 401);
       assert.equal((await switcher.profiles()).status, 403);
       await switcher.post('switch-profile', { profileId: participant.id, password: info.password }, 403);
-      assert.equal((await switcher.snapshot()).user.role, 'admin');
+      assert.equal((await switcher.snapshot()).user.role, 'superadmin');
     } finally { setDemo(true); connection.close(); }
     await switcher.post('logout'); assert.equal((await switcher.profiles()).status, 401);
   });
@@ -300,7 +350,7 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     for (let i = 0; i < 15; i++) await admin.post('switch-profile', { profileId: created.participantId, password: 'incorrecta' }, 401);
     await admin.post('switch-profile', { profileId: created.participantId, password: info.password }, 429);
     await outsider.post('login', { email: account.email, password: info.password }, 429);
-    assert.equal((await admin.snapshot()).user.role, 'admin');
+    assert.equal((await admin.snapshot()).user.role, 'superadmin');
   });
   await t.test('persistencia después de reiniciar y cierre de sesión', async () => {
     const before = await admin.snapshot(); const stopped = new Promise(r => server.once('exit', r)); server.kill('SIGTERM'); await stopped;

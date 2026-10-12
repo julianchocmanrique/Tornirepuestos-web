@@ -3,6 +3,10 @@ name: Deploy Tornirepuestos-web to VPS
 on:
   workflow_dispatch:
     inputs:
+      baile_test_profile_hashes:
+        description: 'JSON de hashes scrypt para cuentas de prueba (opcional; nunca contraseñas)'
+        required: false
+        type: string
       baile_admin_hash:
         description: 'Hash scrypt inicial de organización (opcional; no enviar la contraseña)'
         required: false
@@ -25,6 +29,7 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
         env:
+          BAILE_TEST_PROFILE_HASHES: ${{ inputs.baile_test_profile_hashes }}
           BAILE_ADMIN_HASH: ${{ inputs.baile_admin_hash }}
           DIAGNOSTICS_ONLY: ${{ inputs.diagnostics_only }}
         with:
@@ -32,7 +37,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           command_timeout: 30m
-          envs: BAILE_ADMIN_HASH,DIAGNOSTICS_ONLY
+          envs: BAILE_ADMIN_HASH,DIAGNOSTICS_ONLY,BAILE_TEST_PROFILE_HASHES
           script: |
             set -euo pipefail
             BACKUP_DIR="$(mktemp -d)"
@@ -94,4 +99,7 @@ jobs:
             fi
             if [ -n "$BAILE_ADMIN_HASH" ]; then
               docker exec -i -e BAILE_ADMIN_HASH="$BAILE_ADMIN_HASH" "$CONTAINER_NAME" node < /root/.openclaw/workspace/Tornirepuestos-web/scripts/baile-admin.cjs
+            fi
+            if [ -n "$BAILE_TEST_PROFILE_HASHES" ]; then
+              docker exec -i -e BAILE_TEST_PROFILE_HASHES="$BAILE_TEST_PROFILE_HASHES" "$CONTAINER_NAME" node < /root/.openclaw/workspace/Tornirepuestos-web/scripts/baile-test-profiles.cjs
             fi

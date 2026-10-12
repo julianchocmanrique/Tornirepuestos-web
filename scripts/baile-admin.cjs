@@ -9,7 +9,7 @@ const database = new DatabaseSync(file);
 database.exec('PRAGMA busy_timeout=5000; BEGIN IMMEDIATE');
 try {
   const state = JSON.parse(database.prepare('SELECT data FROM state WHERE id=1').get().data);
-  if (state.users.some(u => u.role === 'admin')) {
+  if (state.users.some(u => ['admin', 'superadmin'].includes(u.role))) {
     console.log('El administrador ya existe. No se cambió su acceso.');
   } else {
     const email = process.env.BAILE_ADMIN_EMAIL || 'organizacion@ritmocaribe.test';
@@ -21,7 +21,7 @@ try {
       passwordHash = `${salt}:${scryptSync(password, salt, 64).toString('hex')}`;
     }
     if (!/^[a-f0-9]{32}:[a-f0-9]{128}$/.test(passwordHash)) throw new Error('Hash de contraseña inválido.');
-    state.users.push({ id: randomUUID(), name: 'Organización', email, passwordHash, role: 'admin', categories: [] });
+    state.users.push({ id: randomUUID(), name: 'Organización', email, passwordHash, role: 'superadmin', categories: [] });
     database.prepare('UPDATE state SET data=? WHERE id=1').run(JSON.stringify(state));
     if (password) console.log(JSON.stringify({ email, password }));
     else console.log('Administrador creado con el acceso configurado.');

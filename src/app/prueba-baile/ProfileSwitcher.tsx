@@ -4,7 +4,7 @@ import type { User } from "@/lib/baile/types";
 import { Field, Form, type Run } from "./ui";
 
 type Profile = Pick<User, "id" | "name" | "role">;
-const labels = { admin: "Organización", participant: "Participante", judge: "Jurado" };
+const labels = { superadmin: "Superadministrador", contractor: "Contratista del evento", participant: "Participante", judge: "Jurado" };
 const initials = (name: string) => name.trim().split(/\s+/).slice(0, 2).map(word => word[0]).join("").toUpperCase();
 
 export function ProfileSwitcher({ currentId, run, onCancel }: { currentId: string; run: Run; onCancel: () => void }) {
@@ -55,6 +55,7 @@ export function ProfileSwitcher({ currentId, run, onCancel }: { currentId: strin
         {!visible.length && <p>No hay perfiles con ese nombre.</p>}
       </>}
     </>}
+    <p className="dance-muted">Sin cuenta: <a className="dance-text-link" href="/prueba-baile/resultados">ver información y resultados públicos</a></p>
     <div className="dance-profile-controls"><button className="dance-btn secondary small" disabled={busy} onClick={onCancel}>Volver a mi panel</button><button className="dance-btn secondary small" disabled={busy} onClick={() => submit("logout", new FormData())}>Cerrar sesión por completo</button></div>
     <p className="dance-profile-hint">Selector temporal de pruebas. Tu sesión solo cambia al confirmar una contraseña válida.</p>
   </section>;

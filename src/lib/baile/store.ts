@@ -59,7 +59,8 @@ export function createSession(userId: string) {
 export function sessionUser(token: string | undefined): User | null {
   if (!token) return null;
   const row = db().prepare("SELECT userId FROM sessions WHERE token=? AND expires>?").get(tokenHash(token), Date.now());
-  return row ? readState().users.find(u => u.id === row.userId) || null : null;
+  const state = readState();
+  return row ? state.users.find(u => u.id === row.userId && (!u.demoOnly || state.settings.demo)) || null : null;
 }
 export function rateLimit(key: string, max = 15) {
   const id = tokenHash(key); const now = Date.now();

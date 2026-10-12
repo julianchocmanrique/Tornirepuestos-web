@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID, randomBytes } from "node:crypto";
 import { db, readState, transaction, hashPassword, verifyPassword, createSession, sessionUser, tokenHash, rateLimit } from "@/lib/baile/store";
 import { DanceError, ensure, scope, enroll, review, recordPayment, saveScore, audit, eligible, validDate } from "@/lib/baile/domain";
+import { publicResults } from "@/lib/baile/results";
 import type { User, State, Status, Category, StageStatus } from "@/lib/baile/types";
 import { accredit, revokeAccreditation, saveSchedule } from "@/lib/baile/operations";
 
@@ -17,7 +18,7 @@ function text(f: FormData, key: string, max = 200, required = true) {
   return value.trim();
 }
 function actor(req: NextRequest) { const u = sessionUser(req.cookies.get(COOKIE)?.value); ensure(u, "Inicia sesión para continuar.", 401); return u; }
-function admin(user: User) { ensure(user.role === "admin", "Acceso reservado a organización.", 403); }
+function admin(user: User) { ensure(user.role === "superadmin", "Acceso reservado a organización.", 403); }
 function email(f: FormData) { const v = text(f, "email").toLowerCase(); ensure(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), "Revisa el correo electrónico."); return v; }
 function numeric(f: FormData, key: string, min = 0, max = 100000000) { const n = Number(text(f, key)); ensure(Number.isFinite(n) && n >= min && n <= max, `Revisa el valor de ${key}.`); return n; }
 function errorResponse(error: unknown) {
@@ -56,6 +57,7 @@ export async function GET(req: NextRequest, ctx: Context) {
   try {
     const parts = (await ctx.params).path;
     if (parts[0] === "snapshot" || parts[0] === "public") return json(scope(readState(), sessionUser(req.cookies.get(COOKIE)?.value)));
+    if (parts[0] === "results") return json(publicResults(readState()));
     if (parts[0] === "profiles") {
       actor(req);
       const state = readState();
@@ -84,7 +86,7 @@ export async function GET(req: NextRequest, ctx: Context) {
       const user = actor(req);
       const file = db().prepare("SELECT * FROM files WHERE id=?").get(parts[1]);
       ensure(file, "Archivo no encontrado.", 404);
-      ensure(user.role === "admin" || (user.role === "participant" && file.owner === user.id), "No tienes acceso a este archivo.", 403);
+      ensure(user.role === "superadmin" || (user.role === "contractor" && file.kind === "receipt") || (user.role === "participant" && file.owner === user.id), "No tienes acceso a este archivo.", 403);
       const data = Buffer.from(file.content as Uint8Array);
       const headers: Record<string, string> = { "Content-Type": file.mime as string, "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "sandbox", "Accept-Ranges": "bytes", "Content-Disposition": `${req.nextUrl.searchParams.has("download") || file.kind === "receipt" ? "attachment" : "inline"}; filename*=UTF-8''${encodeURIComponent(file.name as string)}` };
       const range = req.headers.get("range");
@@ -129,12 +131,13 @@ export async function POST(req: NextRequest, ctx: Context) {
       const res = json({ role: target.role }); res.cookies.set(COOKIE, token, cookieOptions); return res;
     }
     if (action === "login") {
-      const address = email(f);
-      rateLimit(`login-ip:${ip}`, 80); rateLimit(`login:${address}`);
-      const user = readState().users.find(u => u.email === address);
+      const address = text(f, "email").toLowerCase();
+      const state = readState();
+      const user = state.users.find(u => (!u.demoOnly || state.settings.demo) && (u.email === address || u.username?.toLowerCase() === address));
+      rateLimit(`login-ip:${ip}`, 80); rateLimit(`login:${user?.email || address}`);
       const fallback = "00000000000000000000000000000000:" + "0".repeat(128);
       const valid = await verifyPassword(text(f, "password", 160), user?.passwordHash || fallback);
-      ensure(user && valid, "Correo o contraseña incorrectos.", 401);
+      ensure(user && valid, "Usuario o contraseña incorrectos.", 401);
       const res = json({ role: user.role }); res.cookies.set(COOKIE, createSession(user.id), cookieOptions); return res;
     }
     if (action === "register" || action === "admin-register") {
@@ -193,6 +196,9 @@ export async function POST(req: NextRequest, ctx: Context) {
       ensure(Array.isArray(values), "Notas inválidas.");
       transaction(s => saveScore(s, user, text(f, "enrollmentId"), values)); return json({ ok: true });
     }
+    if (action === "review") {
+      transaction(s => review(s, user, text(f, "paymentId"), text(f, "status") as Status, text(f, "note", 1000, false))); return json({ ok: true });
+    }
     admin(user);
     if (action === "accredit") {
       transaction(s => accredit(s, user, text(f, "participantId"), text(f, "code", 32))); return json({ ok: true });
@@ -214,9 +220,6 @@ export async function POST(req: NextRequest, ctx: Context) {
       const startAt = text(f, "startAt", 40); ensure(Number.isFinite(Date.parse(startAt)), "Fecha de programación inválida.");
       transaction(s => saveSchedule(s, user, { id: text(f, "id", 100, false) || randomUUID(), categoryId: text(f, "categoryId"), startAt: new Date(startAt).toISOString(), duration: numeric(f, "duration", 1, 240), stage: text(f, "stage", 80), status: text(f, "status", 20) as StageStatus, note: text(f, "note", 1000, false) }));
       return json({ ok: true });
-    }
-    if (action === "review") {
-      transaction(s => review(s, user, text(f, "paymentId"), text(f, "status") as Status, text(f, "note", 1000, false))); return json({ ok: true });
     }
     if (action === "settings") {
       const name = text(f, "name", 100); const tagline = text(f, "tagline", 200); const fullPassFee = numeric(f, "fullPassFee", 1); const paymentInstructions = text(f, "paymentInstructions", 3000);

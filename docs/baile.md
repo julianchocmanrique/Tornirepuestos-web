@@ -51,6 +51,16 @@ La migración de versión 1 a 2 completa los campos nuevos al leer, conservando 
 
 ## Verificación
 
+### Perfiles y acceso público
+
+- `superadmin`: control completo del evento actual: configuración, categorías, registros, pagos, jurados, programación y resultados. Las cuentas antiguas con rol `admin` migran a `superadmin` conservando IDs y claves.
+- `contractor`: consulta participantes e inscripciones por categoría y revisa comprobantes (aprobar/rechazar). Puede descargar recibos; no puede modificar configuración, accesos, categorías, notas, acreditaciones ni calificaciones, ni descargar las pistas.
+- `participant`: conserva registro, inscripciones, comprobantes y pistas propios, con los requisitos de pago y plazos existentes.
+- `judge`: conserva categorías asignadas y calificaciones propias.
+- Visitantes: información general y `/prueba-baile/resultados`, sin sesión. La API `/api/baile/results` solo proyecta nombre de participante/equipo, número, posición y puntuación de categorías finalizadas con todas las notas. No publica documentos, contactos, pagos, recibos ni notas internas.
+
+El ingreso acepta usuario o correo. `scripts/baile-test-profiles.cjs` configura únicamente los alias `superadmin`, `admin` (contratista) y `participante1`, mediante hashes scrypt recibidos en `BAILE_TEST_PROFILE_HASHES`; no contiene claves predeterminadas. Requiere modo de ejemplo, crea un backup SQLite consistente y no reemplaza cuentas ajenas. Sus cuentas `demoOnly` quedan bloqueadas, incluidas sus sesiones, al desactivar `settings.demo`. El workflow permite aplicar estos hashes de manera explícita; los despliegues normales no cambian claves. El sistema sigue gestionando un evento por instalación, no múltiples eventos independientes.
+
 Durante el modo de ejemplo, el botón del encabezado **Cambiar usuario** abre un selector visual de perfiles. Solo usuarios con sesión pueden consultar nombres y roles; no se listan correos, documentos ni claves. Elegir un perfil pide su contraseña actual, aplica los mismos límites de intentos del ingreso normal y reemplaza la sesión anterior únicamente al validar la clave. Una contraseña incorrecta conserva la sesión actual. El panel también permite cerrar sesión por completo; después se usa el acceso normal por correo y contraseña. Al desactivar `settings.demo`, tanto el selector como su API quedan bloqueados. No usar esta lista de perfiles como directorio de un evento real.
 
 `npm run build` y `node --test tests/baile.integration.mjs`.

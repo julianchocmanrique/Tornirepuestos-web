@@ -6,9 +6,11 @@ import { money, type Snapshot } from "@/lib/baile/types";
 import { base, rolePath, Heading, Form, Field, exportCsv, type Run, type Result } from "./ui";
 import { Register, Participant } from "./Participant";
 import { Admin } from "./Admin";
+import { Contractor } from "./Contractor";
+import { PublicResults } from "./PublicResults";
 import { Judge } from "./Judge";
 import { ProfileSwitcher } from "./ProfileSwitcher";
-export type View = "home" | "registro" | "acceso" | "participante" | "admin" | "jurado";
+export type View = "home" | "registro" | "acceso" | "participante" | "admin" | "contratista" | "resultados" | "jurado";
 export function DanceApp({ view }: { view: View }) {
   const [switching, setSwitching] = useState(false);
   const router = useRouter(); const [s, setS] = useState<Snapshot | null>(null); const [error, setError] = useState(""); const [message, setMessage] = useState(""); const [access, setAccess] = useState<Result["access"]>();
@@ -29,9 +31,9 @@ export function DanceApp({ view }: { view: View }) {
       return out;
     } catch (e) { setError(e instanceof Error ? e.message : "Error de conexión. Vuelve a intentarlo."); return null; }
   };
-  const allowed = view === "participante" ? s?.user?.role === "participant" : view === "admin" ? s?.user?.role === "admin" : view === "jurado" ? s?.user?.role === "judge" : true;
+  const allowed = view === "participante" ? s?.user?.role === "participant" : view === "admin" ? s?.user?.role === "superadmin" : view === "contratista" ? s?.user?.role === "contractor" : view === "jurado" ? s?.user?.role === "judge" : true;
   return <div className="dance-app">
-    <header className="dance-header"><Link className="dance-brand" href={base} onClick={() => setSwitching(false)}><span className="dance-brand-symbol" aria-hidden="true">r.</span><span>{s?.settings.name || "Ritmo Caribe"}<small>PLATAFORMA DE COMPETENCIA</small></span></Link><nav aria-label="Navegación del evento"><Link href={base} onClick={() => setSwitching(false)}>El evento</Link>{s?.user ? <><Link href={`${base}/${rolePath[s.user.role]}`} onClick={() => setSwitching(false)}>Mi panel</Link><button onClick={() => { if (s.settings.demo) { setError(""); setMessage(""); setAccess(undefined); setSwitching(true); } else { run("logout", new FormData()); } }}>{s.settings.demo ? "Cambiar usuario" : "Salir"}</button></> : <><Link href={`${base}/acceso`}>Ingresar</Link><Link className="dance-btn small" href={`${base}/registro`}>Inscribirme <span aria-hidden="true">↗</span></Link></>}</nav></header>
+    <header className="dance-header"><Link className="dance-brand" href={base} onClick={() => setSwitching(false)}><span className="dance-brand-symbol" aria-hidden="true">r.</span><span>{s?.settings.name || "Ritmo Caribe"}<small>PLATAFORMA DE COMPETENCIA</small></span></Link><nav aria-label="Navegación del evento"><Link href={`${base}/resultados`} onClick={() => setSwitching(false)}>Resultados</Link><Link href={base} onClick={() => setSwitching(false)}>El evento</Link>{s?.user ? <><Link href={`${base}/${rolePath[s.user.role]}`} onClick={() => setSwitching(false)}>Mi panel</Link><button onClick={() => { if (s.settings.demo) { setError(""); setMessage(""); setAccess(undefined); setSwitching(true); } else { run("logout", new FormData()); } }}>{s.settings.demo ? "Cambiar usuario" : "Salir"}</button></> : <><Link href={`${base}/acceso`}>Ingresar</Link><Link className="dance-btn small" href={`${base}/registro`}>Inscribirme <span aria-hidden="true">↗</span></Link></>}</nav></header>
     {s?.settings.demo && <div className="dance-demo"><span className="dance-dot" />EVENTO DE EJEMPLO <span>Tarifas y datos de muestra. No realices pagos reales.</span></div>}
     <main>
       {(error || message) && <div className={`dance-notice ${error ? "error" : "success"}`} role={error ? "alert" : "status"}>{error || message}<button onClick={() => { setError(""); setMessage(""); }} aria-label="Cerrar aviso">×</button></div>}
@@ -39,8 +41,10 @@ export function DanceApp({ view }: { view: View }) {
       {!s ? <div className="dance-container dance-loading">{error ? <button className="dance-btn" onClick={() => refresh().catch(e => setError(e.message))}>Reintentar conexión</button> : "Preparando el escenario…"}</div> : switching && s.user && s.settings.demo ? <ProfileSwitcher currentId={s.user.id} run={run} onCancel={() => { setSwitching(false); setError(""); setMessage(""); router.push(`${base}/${rolePath[s.user!.role]}`); }} /> : !allowed ? <section className="dance-container dance-auth"><Heading eyebrow="Tu acceso" title="Ingresa a tu espacio" detail="Usa la cuenta correspondiente a participante, organización o jurado." /><Link className="dance-btn" href={`${base}/acceso`}>Iniciar sesión ↗</Link></section> : <>
         {view === "home" && <Home s={s} />}
         {view === "registro" && <Register s={s} run={run} />}
-        {view === "acceso" && <section className="dance-container dance-auth"><div><Heading eyebrow="Bienvenido de nuevo" title="Nos vemos en la pista." detail="Participantes, organización y jurados ingresan con su propio correo y contraseña." /><div className="dance-callout">Tu cuenta te lleva directamente al espacio que te corresponde.</div></div><div className="dance-panel"><h2>Ingresa a tu cuenta</h2><Form action="login" run={run} label="Entrar"><Field label="Correo electrónico" name="email" type="email" autoComplete="username" /><Field label="Contraseña" name="password" type="password" autoComplete="current-password" maxLength={160} /></Form><p className="dance-muted">¿Es tu primera vez? <Link href={`${base}/registro`}>Crea tu registro</Link></p><p className="dance-muted">Si olvidaste tu contraseña, solicita a la organización que la restablezca.</p></div></section>}
+        {view === "acceso" && <section className="dance-container dance-auth"><div><Heading eyebrow="Bienvenido de nuevo" title="Nos vemos en la pista." detail="Superadministradores, contratistas, participantes y jurados ingresan con su usuario o correo y contraseña." /><div className="dance-callout">Tu cuenta te lleva directamente al espacio que te corresponde.</div></div><div className="dance-panel"><h2>Ingresa a tu cuenta</h2><Form action="login" run={run} label="Entrar"><Field label="Usuario o correo" name="email" type="text" autoComplete="username" /><Field label="Contraseña" name="password" type="password" autoComplete="current-password" maxLength={160} /></Form><p className="dance-muted">¿Es tu primera vez? <Link href={`${base}/registro`}>Crea tu registro</Link></p><p className="dance-muted">Si olvidaste tu contraseña, solicita a la organización que la restablezca.</p></div></section>}
         {view === "participante" && <Participant s={s} run={run} />}
+        {view === "resultados" && <PublicResults />}
+        {view === "contratista" && <Contractor s={s} run={run} />}
         {view === "admin" && <Admin s={s} run={run} refresh={refresh} />}
         {view === "jurado" && <Judge s={s} run={run} />}
       </>}

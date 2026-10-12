@@ -3,7 +3,7 @@ import { ensure, fullPass, eligible, audit } from "./domain";
 import { stageLabels, type State, type User, type ScheduleSlot } from "./types";
 
 export function accredit(s: State, actor: User, participantId: string, code: string) {
-  ensure(actor.role === "admin", "Acceso reservado a organización.", 403);
+  ensure(actor.role === "superadmin", "Acceso reservado a organización.", 403);
   ensure(s.participants.some(p => p.id === participantId), "Participante no encontrado.", 404);
   ensure(fullPass(s, participantId)?.status === "approved", "El Full Pass debe estar aprobado para acreditar.", 409);
   code = code.trim().toUpperCase();
@@ -14,7 +14,7 @@ export function accredit(s: State, actor: User, participantId: string, code: str
   audit(s, actor.id, `Acreditación registrada: ${code}`, participantId);
 }
 export function revokeAccreditation(s: State, actor: User, id: string, reason: string) {
-  ensure(actor.role === "admin", "Acceso reservado a organización.", 403);
+  ensure(actor.role === "superadmin", "Acceso reservado a organización.", 403);
   const record = s.accreditations.find(a => a.id === id && !a.revokedAt);
   ensure(record, "Acreditación activa no encontrada.", 404);
   ensure(reason.trim(), "Indica el motivo de anulación.");
@@ -22,7 +22,7 @@ export function revokeAccreditation(s: State, actor: User, id: string, reason: s
   audit(s, actor.id, `Acreditación anulada (${record.code}): ${reason}`, record.participantId);
 }
 export function saveSchedule(s: State, actor: User, input: ScheduleSlot) {
-  ensure(actor.role === "admin", "Acceso reservado a organización.", 403);
+  ensure(actor.role === "superadmin", "Acceso reservado a organización.", 403);
   const category = s.categories.find(c => c.id === input.categoryId);
   ensure(category, "Categoría no encontrada.", 404);
   ensure(Object.hasOwn(stageLabels, input.status), "Estado de tarima inválido.");

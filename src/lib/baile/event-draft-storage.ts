@@ -1,3 +1,4 @@
+import { parsePaymentMethod } from "./payment-method";
 import { newEventDraft, type EventDraft } from "./event-draft";
 
 const DATABASE = "rankia-event-drafts";
@@ -29,6 +30,7 @@ export function restoreDraft(value: unknown): { draft: EventDraft; step: number 
   if (!Array.isArray(d.judges) || d.judges.length > 20 || d.judges.some(j => !j || !text(j.name) || !text(j.email) || !Array.isArray(j.categories) || j.categories.some(n => !Number.isInteger(n) || n < 0 || n >= d.categories.length))) throw new Error("Invalid judges");
   // Copy only known fields and never restore credentials, even from an older record.
   const restored = Object.fromEntries(Object.keys(base).map(key => [key, d[key as keyof StoredDraft]])) as EventDraft;
+  restored.paymentMethod = parsePaymentMethod(d.paymentMethod, true);
   restored.criteria = Array.isArray(d.criteria) && d.criteria.length <= 12 && d.criteria.every(c => c && typeof c.name === "string" && typeof c.weight === "number") ? d.criteria : null;
   restored.contractor = d.contractor ? { name: d.contractor.name, email: d.contractor.email, password: "" } : null;
   restored.judges = d.judges.map(j => ({ name: j.name, email: j.email, categories: j.categories, password: "" }));

@@ -36,7 +36,7 @@ test('Crear eventos: publicación, aislamiento, accesos, tarifas y persistencia'
   const draft = {
     id: 'festival-prueba-2099', name: 'Festival de integración', category: 'Danza', genre: 'Salsa', tagline: 'Prueba de aislamiento', description: 'Un evento independiente para pruebas.',
     start: '2099-11-10', end: '2099-11-12', city: 'Santa Marta', venue: 'Teatro de prueba, calle 10', imageAlt: 'Portada de prueba', demo: false,
-    registrationOpen: false, categoryRegistrationOpen: false, paymentInstructions: 'Usar únicamente comprobantes ficticios.', scoring: 'sunfest-v1',
+    registrationOpen: false, categoryRegistrationOpen: false, paymentInstructions: '', paymentMethod: { type: 'Llave', entity: 'Banco de prueba', holder: 'Organización ficticia', destination: '@LLAVE-PRUEBA', accountType: '' }, scoring: 'sunfest-v1',
     passes: [{ name: 'Competidor', fee: '32000', benefits: 'Talleres\nDerecho de competidor', canCompete: true, validUntil: '' }, { name: 'Acompañante', fee: '12000', benefits: 'Ver competencia', canCompete: false, validUntil: '' }],
     categories: [{ name: 'Salsa solista', modality: 'Solista', rhythm: 'Salsa', division: 'Amateur', fee: '88000', deadline: '2099-11-09T18:00', validUntil: '2099-11-10' }],
     contractor: { name: 'Contratista', email: 'contratista@example.test', password: 'prueba-contratista-123' },
@@ -64,6 +64,7 @@ test('Crear eventos: publicación, aislamiento, accesos, tarifas y persistencia'
     await admin.post('create-event', fields(draft), 409);
     const publicState = await client(draft.id).get();
     assert.equal(publicState.settings.name, draft.name);
+    assert.deepEqual(publicState.settings.paymentMethod, draft.paymentMethod);
     assert.equal(publicState.settings.scoringScheme, 'sunfest-v1');
     assert.equal(publicState.settings.registrationOpen, false);
     assert.equal(publicState.categories[0].fee, 88000);
@@ -87,6 +88,31 @@ test('Crear eventos: publicación, aislamiento, accesos, tarifas y persistencia'
     assert.deepEqual((await judge.get()).user.categories, ['categoria-1']);
     await judge.post('create-event', fields({ ...draft, id: 'denied-event' }), 403);
     await client('encuentro-salsa').post('login', draft.contractor, 401);
+  });
+  await t.test('organización comparte el medio de pago con permisos, validación y control de concurrencia', async () => {
+    const owner = client(draft.id), contractor = client(draft.id), judge = client(draft.id), visitor = client(draft.id);
+    await owner.post('login', credentials); await contractor.post('login', draft.contractor); await judge.post('login', draft.judges[0]);
+    const previous = await owner.get();
+    const config = settings => JSON.stringify({ paymentMethod: settings.paymentMethod || null, paymentInstructions: settings.paymentInstructions });
+    const method = { type: 'Transferencia bancaria', entity: 'Banco ficticio', holder: 'Organizador de prueba', destination: '0000000000', accountType: 'Ahorros' };
+    const payload = { paymentMethod: JSON.stringify(method), paymentInstructions: 'Solo comprobantes ficticios.', previousPaymentConfig: config(previous.settings) };
+    await visitor.post('payment-settings', payload, 401); await judge.post('payment-settings', payload, 403);
+    for (const invalid of [{ ...method, holder: '' }, { ...method, destination: '' }, { ...method, entity: '' }, { ...method, accountType: '' }, { ...method, type: 'inventado' }]) await contractor.post('payment-settings', { ...payload, paymentMethod: JSON.stringify(invalid) }, 400);
+    await contractor.post('payment-settings', { ...payload, paymentMethod: 'not-json' }, 400);
+    await contractor.post('payment-settings', { ...payload, paymentMethod: 'null', paymentInstructions: '' }, 400);
+    await contractor.post('payment-settings', payload);
+    const updated = await owner.get();
+    assert.deepEqual(updated.settings.paymentMethod, method);
+    assert.deepEqual((await visitor.get()).settings.paymentMethod, method);
+    assert.ok(updated.audit.some(a => a.action === 'Medio de pago del evento actualizado'));
+    await owner.post('payment-settings', payload, 409, root);
+    for (const key of ['participants', 'payments', 'enrollments', 'scores', 'categories', 'judges']) assert.deepEqual(updated[key], previous[key]);
+    await owner.post('settings', { name: updated.settings.name, tagline: updated.settings.tagline, fullPassFee: updated.settings.fullPassFee, formula: updated.settings.formula });
+    assert.deepEqual((await owner.get()).settings.paymentMethod, method);
+    assert.equal((await owner.get()).settings.paymentInstructions, payload.paymentInstructions);
+    await owner.post('payment-settings', { ...payload, paymentMethod: JSON.stringify(draft.paymentMethod), paymentInstructions: '', previousPaymentConfig: config(updated.settings) });
+    assert.deepEqual((await contractor.get()).settings.paymentMethod, draft.paymentMethod);
+    assert.deepEqual((await admin.get()).settings, before.settings, 'No cambia el destino de pagos de otros eventos');
   });
   await t.test('registro real del flujo, precio correcto y comprobantes aislados', async () => {
     const owner = client(draft.id); await owner.post('login', credentials);

@@ -1,4 +1,6 @@
 "use client";
+import { PaymentMethodFields, PaymentInstructions } from "./PaymentMethod";
+import type { Settings } from "@/lib/baile/types";
 import Link from "next/link";
 import { useEffect, useRef, useState, type InputHTMLAttributes } from "react";
 import { EVENT_CATEGORIES, eventHref, type EventListing } from "@/lib/baile/event-catalog";
@@ -20,9 +22,9 @@ function Check({ label, value, onValue }: { label: string; value: boolean; onVal
   return <label className="dance-check"><input type="checkbox" checked={value} onChange={e => onValue(e.target.checked)} />{label}</label>;
 }
 
-export function CreateEvent({ run, events = [], demoEnabled, userId }: { run: Run; events?: EventListing[]; demoEnabled: boolean; userId: string }) {
+export function CreateEvent({ run, events = [], demoEnabled, userId, paymentDefaults }: { run: Run; events?: EventListing[]; demoEnabled: boolean; userId: string; paymentDefaults?: Settings }) {
   const { eventId } = useDanceScope();
-  const saved = useSavedEventDraft(JSON.stringify([userId, eventId || "root"]), demoEnabled);
+  const saved = useSavedEventDraft(JSON.stringify([userId, eventId || "root"]), demoEnabled, paymentDefaults);
   const { draft, setDraft, step, setStep, cover, setCover, ready } = saved;
   const [busy, setBusy] = useState(false), [error, setError] = useState("");
   const [preview, setPreview] = useState("");
@@ -109,7 +111,9 @@ export function CreateEvent({ run, events = [], demoEnabled, userId }: { run: Ru
               <Check label={`El pase ${i + 1} permite competir`} value={p.canCompete} onValue={v => change("passes", draft.passes.map((x, n) => n === i ? { ...x, canCompete: v } : x))} />
             </section>)}
             <button type="button" className="dance-btn secondary small" disabled={draft.passes.length >= 12} onClick={() => change("passes", [...draft.passes, { ...emptyPass(), name: "" }])}>Añadir pase</button>
-            <Input label="Instrucciones y medios de pago" multiline maxLength={3000} value={draft.paymentInstructions} onValue={v => change("paymentInstructions", v)} />
+            <PaymentMethodFields value={draft.paymentMethod || null} onChange={v => change("paymentMethod", v)} />
+            {paymentDefaults?.paymentMethod && <button type="button" className="dance-btn secondary small" onClick={() => { change("paymentMethod", { ...paymentDefaults.paymentMethod! }); change("paymentInstructions", paymentDefaults.paymentInstructions); }}>Usar medio guardado del evento actual</button>}
+            <Input label={draft.paymentMethod ? "Instrucciones adicionales" : "Instrucciones y medios de pago"} required={!draft.paymentMethod} multiline maxLength={3000} value={draft.paymentInstructions} onValue={v => change("paymentInstructions", v)} />
           </>}
           {step === 3 && <>
             <CategoryExcel onApply={importCategories} />
@@ -140,7 +144,7 @@ export function CreateEvent({ run, events = [], demoEnabled, userId }: { run: Ru
             <h3>{draft.name}</h3><p>{draft.description}</p><div className="event-builder-summary"><p><b>Tipo</b>{draft.category} / {draft.genre}</p><p><b>Fechas</b>{draft.start} al {draft.end}</p><p><b>Ubicación</b>{draft.city}: {draft.venue}</p><p><b>Modo</b>{draft.demo ? "Ejemplo de prueba, sin pagos reales" : "Evento real"}</p><p><b>Equipo inicial</b>{draft.contractor ? "1 contratista" : "Sin contratista"} · {draft.judges.length} jurados</p><p><b>Calificación</b>{draft.scoring === "custom-v1" ? "Criterios y porcentajes personalizados" : draft.scoring === "sunfest-v1" ? "Promedio ponderado The Sun Fest" : draft.scoring === "sum" ? "Suma de criterios" : "Promedio de criterios"}</p></div>
             <h3>Pases</h3>{draft.passes.map((p, i) => <div className="dance-list-row" key={i}><span>{p.name} · {p.canCompete ? "Puede competir" : "Acompañante"}</span><strong>{money(Number(p.fee))}</strong></div>)}
             <h3>Categorías</h3>{draft.categories.map((c, i) => <div className="dance-list-row" key={i}><span>{c.name} · {c.modality} · {c.division}</span><strong>{money(Number(c.fee))}</strong></div>)}
-            <h3>Instrucciones de pago</h3><p className="event-builder-payment">{draft.paymentInstructions}</p>
+            <h3>Instrucciones de pago</h3><PaymentInstructions settings={draft} />
             <Check label="Abrir registros generales al publicar" value={draft.registrationOpen} onValue={v => change("registrationOpen", v)} /><Check label="Abrir inscripciones a categorías al publicar" value={draft.categoryRegistrationOpen} onValue={v => change("categoryRegistrationOpen", v)} />
             <p>La página aparecerá en el inicio de RANKIA. Puedes mantener los registros cerrados mientras completas los horarios y el equipo de jurados.</p>
             <label className="dance-check"><input type="checkbox" checked={confirm} required onChange={e => setConfirm(e.target.checked)} />He revisado los datos y quiero crear y publicar este evento.</label>

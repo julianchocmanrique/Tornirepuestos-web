@@ -1,4 +1,5 @@
 import { passPlans, passAvailable, type PassPlan } from "@/lib/baile/pricing";
+import { parsePaymentMethod } from "@/lib/baile/payment-method";
 import { scoringConfiguration } from "@/lib/baile/scoring-config";
 import { parseCategoryWorkbook, categoryIdentity } from "@/lib/baile/category-excel";
 import { protectedJudgeCategories } from "@/lib/baile/types";
@@ -264,6 +265,21 @@ async function handlePOST(req: NextRequest, ctx: Context) {
     if (action === "review") {
       transaction(s => review(s, user, text(f, "paymentId"), text(f, "status") as Status, text(f, "note", 1000, false))); return json({ ok: true });
     }
+    if (action === "payment-settings") {
+      ensure(user.role === "superadmin" || user.role === "contractor", "Solo la organización puede configurar los medios de pago.", 403);
+      let method;
+      try { method = parsePaymentMethod(JSON.parse(text(f, "paymentMethod", 2000))); }
+      catch (e) { throw new DanceError(e instanceof Error ? e.message : "Revisa el medio de pago."); }
+      const instructions = text(f, "paymentInstructions", 3000, false);
+      ensure(method || instructions, "Configura un medio de pago o escribe las instrucciones.");
+      const previous = text(f, "previousPaymentConfig", 6000);
+      transaction(s => {
+        ensure(previous === JSON.stringify({ paymentMethod: s.settings.paymentMethod || null, paymentInstructions: s.settings.paymentInstructions }), "Otro integrante cambió los medios de pago. Actualiza la página antes de guardar.", 409);
+        s.settings.paymentMethod = method; s.settings.paymentInstructions = instructions;
+        audit(s, user.id, "Medio de pago del evento actualizado", "evento");
+      });
+      return json({ ok: true });
+    }
     admin(user);
     if (action === "archive-demo-events") {
       const global = withEvent(undefined, () => readState().users.some(u => u.id === user.id && u.role === "superadmin" && !u.disabledAt && u.passwordHash === user.passwordHash));
@@ -370,7 +386,7 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       return json({ ok: true });
     }
     if (action === "settings") {
-      const name = text(f, "name", 100); const tagline = text(f, "tagline", 200); const fullPassFee = numeric(f, "fullPassFee", 1); const paymentInstructions = text(f, "paymentInstructions", 3000);
+      const name = text(f, "name", 100); const tagline = text(f, "tagline", 200); const fullPassFee = numeric(f, "fullPassFee", 1); const paymentInstructions = f.has("paymentInstructions") ? text(f, "paymentInstructions", 3000, false) : undefined;
       const eventStart = f.has("eventStart") ? text(f, "eventStart", 10, false) : undefined;
       const eventEnd = f.has("eventEnd") ? text(f, "eventEnd", 10, false) : undefined;
       const eventLocation = f.has("eventLocation") ? text(f, "eventLocation", 200, false) : undefined;
@@ -378,7 +394,7 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       ensure(!eventEnd || validDate(eventEnd), "Revisa la fecha final del evento.");
       ensure(!eventStart || !eventEnd || eventEnd >= eventStart, "La fecha final no puede ser anterior al inicio.");
       const formula = text(f, "formula"); ensure(formula === "average" || formula === "sum", "Fórmula inválida.");
-      transaction(s => { ensure(!s.settings.scoringScheme || formula === "average", "Este evento usa promedio ponderado sobre 10."); ensure(formula === s.settings.formula || (!s.scores.length && !s.schedule.some(x => ["live", "finished"].includes(x.status))), "No cambies la fórmula cuando hay calificaciones o competencias iniciadas.", 409); s.settings = { ...s.settings, ...(eventStart !== undefined ? { eventStart } : {}), ...(eventEnd !== undefined ? { eventEnd } : {}), ...(eventLocation !== undefined ? { eventLocation } : {}), name, tagline, fullPassFee, paymentInstructions, formula, registrationOpen: f.get("registrationOpen") === "on", categoryRegistrationOpen: f.get("categoryRegistrationOpen") === "on" }; audit(s, user.id, "Configuración actualizada", "evento"); }); return json({ ok: true });
+      transaction(s => { ensure((paymentInstructions ?? s.settings.paymentInstructions).trim() || s.settings.paymentMethod, "Configura el medio de pago o sus instrucciones."); ensure(!s.settings.scoringScheme || formula === "average", "Este evento usa promedio ponderado sobre 10."); ensure(formula === s.settings.formula || (!s.scores.length && !s.schedule.some(x => ["live", "finished"].includes(x.status))), "No cambies la fórmula cuando hay calificaciones o competencias iniciadas.", 409); s.settings = { ...s.settings, ...(eventStart !== undefined ? { eventStart } : {}), ...(eventEnd !== undefined ? { eventEnd } : {}), ...(eventLocation !== undefined ? { eventLocation } : {}), name, tagline, fullPassFee, ...(paymentInstructions !== undefined ? { paymentInstructions } : {}), formula, registrationOpen: f.get("registrationOpen") === "on", categoryRegistrationOpen: f.get("categoryRegistrationOpen") === "on" }; audit(s, user.id, "Configuración actualizada", "evento"); }); return json({ ok: true });
     }
     if (action === "contractor") {
       const address = email(f), name = text(f, "name");

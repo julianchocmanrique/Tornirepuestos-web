@@ -9,7 +9,7 @@ assert.ok(['localhost', '127.0.0.1'].includes(new URL(root).hostname));
     for (const width of [320, 375, 768, 1280]) {
       const page = await browser.newPage({ viewport: { width, height: 900 } });
       const errors = []; page.on('pageerror', e => errors.push(e.message));
-      const data = { user: { id: 'admin', role: 'superadmin', name: 'Prueba' }, settings: { name: 'RANKIA', demo: true, fullPassFee: 70000 }, participants: [], payments: [], categories: [], enrollments: [], scores: [], judges: [], audit: [], accreditations: [], notes: [], schedule: [], events: [], exampleCreated: true };
+      const data = { user: { id: 'admin', role: 'superadmin', name: 'Prueba' }, settings: { name: 'RANKIA', demo: true, fullPassFee: 70000, paymentInstructions: 'Solo comprobantes ficticios.', paymentMethod: { type: 'Llave', entity: 'Banco de prueba', holder: 'Organizador de prueba', destination: '@LLAVE-PRUEBA', accountType: '' } }, participants: [], payments: [], categories: [], enrollments: [], scores: [], judges: [], audit: [], accreditations: [], notes: [], schedule: [], events: [], exampleCreated: true };
       let payload = null;
       await page.route('**/api/baile/**', async route => {
         const url = new URL(route.request().url());
@@ -77,7 +77,13 @@ assert.ok(['localhost', '127.0.0.1'].includes(new URL(root).hostname));
       await page.getByRole('heading', {name:'Fecha y portada',exact:true}).waitFor();
       await next('Pases y pagos');
       await page.getByLabel('Precio del pase 1 (COP)', {exact:true}).fill('70000');
-      await page.getByLabel('Instrucciones y medios de pago', {exact:true}).fill('Solo comprobantes ficticios. No pagar.');
+      assert.equal(await page.getByLabel('Tipo de medio de pago').inputValue(), 'Llave');
+      assert.equal(await page.getByLabel('Llave de pago', {exact:true}).inputValue(), '@LLAVE-PRUEBA');
+      await page.getByLabel('Llave de pago', {exact:true}).fill('@LLAVE-EDITADA');
+      await saved(); await page.reload();
+      await page.getByRole('heading', {name:'Pases y pagos',exact:true}).waitFor();
+      assert.equal(await page.getByLabel('Llave de pago', {exact:true}).inputValue(), '@LLAVE-EDITADA');
+      await page.getByLabel(/Instrucciones adicionales/).fill('Solo comprobantes ficticios. No pagar.');
       await next('Categorías');
       await page.getByLabel('Nombre de categoría 1', {exact:true}).fill('Salsa solista');
       await page.getByLabel('Ritmo o disciplina 1', {exact:true}).fill('Salsa');

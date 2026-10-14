@@ -1,10 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import type { Settings } from "@/lib/baile/types";
 import { newEventDraft } from "@/lib/baile/event-draft";
 import { readEventDraft, writeEventDraft, deleteEventDraft } from "@/lib/baile/event-draft-storage";
 
-export function useSavedEventDraft(key: string, demoEnabled: boolean) {
-  const [draft, setDraft] = useState(() => ({ ...newEventDraft(), demo: demoEnabled }));
+export function useSavedEventDraft(key: string, demoEnabled: boolean, paymentDefaults?: Settings) {
+  const freshDraft = () => ({ ...newEventDraft(), demo: demoEnabled, paymentMethod: paymentDefaults?.paymentMethod ? { ...paymentDefaults.paymentMethod } : null, paymentInstructions: paymentDefaults?.paymentMethod ? paymentDefaults.paymentInstructions : "" });
+  const [draft, setDraft] = useState(freshDraft);
   const [step, setStep] = useState(0), [cover, setCover] = useState<File | null>(null);
   const [ready, setReady] = useState(false), [restored, setRestored] = useState(false);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
@@ -53,7 +55,7 @@ export function useSavedEventDraft(key: string, demoEnabled: boolean) {
   async function reset() {
     if (!await clear()) { suspended.current = false; return false; }
     suspended.current = false;
-    setDraft({ ...newEventDraft(), demo: demoEnabled }); setStep(0); setCover(null);
+    setDraft(freshDraft()); setStep(0); setCover(null);
     return true;
   }
   return { draft, setDraft, step, setStep, cover, setCover, ready, restored, status, clear, reset };

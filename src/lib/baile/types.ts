@@ -1,3 +1,4 @@
+import type { PaymentMethod } from "./payment-method";
 import type { PassPlan, PurchasedPass } from "./pricing";
 import type { Registration } from "./registration";
 import type { EventListing } from "./event-catalog";
@@ -45,7 +46,7 @@ export type ParticipantNote = { participantId: string; text: string; at: string;
 export type StageStatus = "planned" | "backstage" | "live" | "finished" | "cancelled";
 export const stageLabels: Record<StageStatus, string> = { planned: "Programado", backstage: "En camerino", live: "En tarima", finished: "Finalizado", cancelled: "Cancelado" };
 export type ScheduleSlot = { id: string; categoryId: string; startAt: string; duration: number; stage: string; status: StageStatus; note: string };
-export type Settings = { scoringConfigured?: boolean; scoringScheme?: "sunfest-v1" | "custom-v1"; criteria?: ScoringCriterion[]; passPlans?: PassPlan[]; pricingNote?: string; eventStart?: string; eventEnd?: string; eventLocation?: string; name: string; tagline: string; fullPassFee: number; paymentInstructions: string; formula: "average" | "sum"; registrationOpen: boolean; categoryRegistrationOpen: boolean; demo: boolean };
+export type Settings = { paymentMethod?: PaymentMethod | null; scoringConfigured?: boolean; scoringScheme?: "sunfest-v1" | "custom-v1"; criteria?: ScoringCriterion[]; passPlans?: PassPlan[]; pricingNote?: string; eventStart?: string; eventEnd?: string; eventLocation?: string; name: string; tagline: string; fullPassFee: number; paymentInstructions: string; formula: "average" | "sum"; registrationOpen: boolean; categoryRegistrationOpen: boolean; demo: boolean };
 export type State = { version: number; settings: Settings; users: User[]; participants: Participant[]; payments: Payment[]; categories: Category[]; enrollments: Enrollment[]; scores: Score[]; audit: Audit[]; accreditations: Accreditation[]; notes: ParticipantNote[]; schedule: ScheduleSlot[] };
 export type Snapshot = { events?: EventListing[]; settings: Settings; user: PublicUser | null; participants: Participant[]; payments: Payment[]; categories: Category[]; enrollments: Enrollment[]; scores: Score[]; judges: PublicUser[]; audit: Audit[]; accreditations: Accreditation[]; notes: ParticipantNote[]; schedule: ScheduleSlot[]; exampleCreated: boolean };
 export const statusLabels: Record<Status, string> = { pending: "Pendiente", review: "En revisión", approved: "Aprobado", rejected: "Rechazado" };

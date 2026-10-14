@@ -11,7 +11,7 @@ export const adminModules = [
   { name: "Resultados", id: "resultados", detail: "Puntuaciones, posiciones y resultados por categoría." },
   { name: "Ajustes", id: "ajustes", detail: "Nombre, tarifas, instrucciones y apertura de inscripciones." },
 ];
-export const contractorModules = [{ name: "Registro", id: "registros" }, { name: "Inscripciones", id: "inscripciones" }];
+export const contractorModules = [{ name: "Registro", id: "registros" }, { name: "Inscripciones", id: "inscripciones" }, { name: "Medios de pago", id: "medios-de-pago" }];
 
 export function normalizeModuleHash(hash: string) {
   const id = hash.replace(/^#/, "");

@@ -9,8 +9,18 @@ function moduleUrl(source) {
 }
 const draftUrl = moduleUrl(readFileSync(new URL('../src/lib/baile/event-draft.ts', import.meta.url), 'utf8'));
 const { newEventDraft } = await import(draftUrl);
-const storageSource = readFileSync(new URL('../src/lib/baile/event-draft-storage.ts', import.meta.url), 'utf8').replace('"./event-draft"', JSON.stringify(draftUrl));
+const paymentUrl = moduleUrl(readFileSync(new URL("../src/lib/baile/payment-method.ts", import.meta.url), "utf8"));
+const storageSource = readFileSync(new URL('../src/lib/baile/event-draft-storage.ts', import.meta.url), 'utf8').replace('"./event-draft"', JSON.stringify(draftUrl)).replace('"./payment-method"', JSON.stringify(paymentUrl));
 const { withoutPasswords, restoreDraft } = await import(moduleUrl(storageSource));
+
+test('payment method draft survives refresh, accepts incomplete fields and keeps legacy drafts', () => {
+  const draft = newEventDraft();
+  draft.paymentMethod = { type: 'Llave', entity: '', holder: '', destination: '@PRUEBA', accountType: '' };
+  assert.deepEqual(restoreDraft({ version: 1, draft: withoutPasswords(draft) }).draft.paymentMethod, draft.paymentMethod);
+  delete draft.paymentMethod;
+  assert.equal(restoreDraft({ version: 1, draft }).draft.paymentMethod, null);
+  assert.throws(() => restoreDraft({ version: 1, draft: { ...draft, paymentMethod: { type: 'wrong' } } }));
+});
 
 test('draft persists incomplete data but never team passwords', () => {
   const draft = newEventDraft();

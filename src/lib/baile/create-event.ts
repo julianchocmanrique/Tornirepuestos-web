@@ -1,3 +1,4 @@
+import { parsePaymentMethod } from "./payment-method";
 import { audit, ensure, validDate } from "./domain";
 import { EVENT_CATEGORIES, colombiaDay, type EventListing } from "./event-catalog";
 import { initialState } from "./types";
@@ -60,7 +61,9 @@ export function prepareEvent(input: unknown, actor: string, customCover: boolean
   ensure(new Set(passes.map(p => p.name.toLowerCase())).size === passes.length, "No repitas nombres de pases.");
   ensure(new Set(state.categories.map(categoryIdentity)).size === state.categories.length, "No repitas categorías con el mismo nombre, modalidad, disciplina y división.");
   const scoring = scoringConfiguration(d.scoring, d.criteria);
-  state.settings = { name: listing.name, tagline: str(d.tagline, "la frase del evento", 200), demo, eventStart: start, eventEnd: end, eventLocation: str(d.venue, "la sede y dirección", 200), fullPassFee: passes[0].fee, passPlans: passes, paymentInstructions: str(d.paymentInstructions, "las instrucciones de pago", 3000), ...scoring, registrationOpen: bool(d.registrationOpen), categoryRegistrationOpen: bool(d.categoryRegistrationOpen) };
+  let paymentMethod;
+  try { paymentMethod = parsePaymentMethod(d.paymentMethod); } catch (e) { ensure(false, e instanceof Error ? e.message : "Revisa el medio de pago."); }
+  state.settings = { name: listing.name, tagline: str(d.tagline, "la frase del evento", 200), demo, eventStart: start, eventEnd: end, eventLocation: str(d.venue, "la sede y dirección", 200), fullPassFee: passes[0].fee, passPlans: passes, paymentMethod, paymentInstructions: str(d.paymentInstructions, "las instrucciones de pago", 3000, !!paymentMethod), ...scoring, registrationOpen: bool(d.registrationOpen), categoryRegistrationOpen: bool(d.categoryRegistrationOpen) };
   const accounts: { name: string; email: string; password: string; role: User["role"]; categories: string[] }[] = [];
   function account(value: unknown, role: "contractor" | "judge") {
     const a = record(value), email = str(a.email, "el correo del equipo").toLowerCase(), password = str(a.password, "la contraseña", 160);

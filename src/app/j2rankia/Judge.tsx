@@ -4,6 +4,7 @@ import { dateTime, usesWeightedScoring, scoringCriteria, SUNFEST_CRITERIA, weigh
 import { Empty, Form, type Run } from "./ui";
 import { judgeQueue, searchText } from "@/lib/baile/judge-workspace";
 import "./judge.css";
+import { JudgeAvatar, JudgePhotoEditor } from "./JudgeAvatar";
 
 type Criteria = ReturnType<typeof scoringCriteria>;
 type Values = (number | "")[];
@@ -35,7 +36,8 @@ export function Judge({ s, run }: { s: Snapshot; run: Run }) {
   const weighted = usesWeightedScoring(s.settings);
   const nextPending = queue.pending.find(e => e.id !== entry?.id);
   return <section className="dance-container judge-workspace">
-    <header className="judge-heading"><div><p className="dance-eyebrow">MESA DE JURADOS / {s.user?.name}</p><h1>Panel de calificación</h1><p>{s.settings.name}</p></div><div className="judge-progress"><span><strong>{queue.completed}</strong> de {queue.entries.length} presentaciones calificadas</span><progress aria-label="Progreso de calificación" value={queue.completed} max={queue.entries.length || 1} /><small>{queue.pending.length} pendientes · {s.categories.length} categorías</small></div></header>
+    <header className="judge-heading"><div className="judge-identity"><JudgeAvatar name={s.user?.name || "Jurado"} photoId={s.user?.photoId} demo={s.settings.demo} size="large" /><div><p className="dance-eyebrow">MESA DE JURADOS / {s.user?.name}</p><h1>Panel de calificación</h1><p>{s.settings.name}</p></div></div><div className="judge-progress"><span><strong>{queue.completed}</strong> de {queue.entries.length} presentaciones calificadas</span><progress aria-label="Progreso de calificación" value={queue.completed} max={queue.entries.length || 1} /><small>{queue.pending.length} pendientes · {s.categories.length} categorías</small></div></header>
+    {s.user && <JudgePhotoEditor judge={s.user} demo={s.settings.demo} run={run} />}
     <details className="judge-help"><summary>Criterios y guía de calificación <span>Notas de 1 a 10</span></summary><div className="judge-criteria">{scoringCriteria(s.settings).map(c => <span key={c.name}>{c.name}<strong>{weighted ? `${c.weight}%` : "Igual peso"}</strong></span>)}</div><p>Califica con hasta dos decimales. {weighted ? "El total de cada jurado es ponderado sobre 10." : "El total se calcula como el promedio de los criterios."} Las notas quedan bloqueadas al enviarlas.</p></details>
     <div className="judge-layout"><aside className="judge-sidebar" aria-label="Seleccionar presentación">
       <div className="judge-sidebar-controls"><p className="dance-eyebrow">01 / SELECCIONA</p><h2>Categoría y competidor</h2>

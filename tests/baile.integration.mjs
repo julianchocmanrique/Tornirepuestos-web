@@ -453,7 +453,7 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     const original = await switcher.snapshot();
     const response = await switcher.profiles(); assert.equal(response.status, 200); assert.equal(response.headers.get('cache-control'), 'no-store');
     const { profiles } = await response.json(); assert.ok(profiles.length >= 4);
-    for (const profile of profiles) assert.deepEqual(Object.keys(profile).sort(), ['id', 'name', 'role']);
+    for (const profile of profiles) assert.deepEqual(Object.keys(profile).sort(), ['demo', 'id', 'name', 'role']);
     const participant = (await p.snapshot()).user;
     const judge = (await judge1.snapshot()).user;
     await switcher.post('switch-profile', { profileId: 'inexistente' }, 401);

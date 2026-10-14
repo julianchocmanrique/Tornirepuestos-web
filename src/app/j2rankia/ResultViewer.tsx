@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useId, useRef, useState } from "react";
+import { JudgeAvatar } from "./JudgeAvatar";
 import type { ResultBreakdown } from "@/lib/baile/results";
 
 type Props = { category: string; name: string; value: number | null; breakdown: ResultBreakdown | null; final?: boolean };
@@ -32,7 +33,7 @@ function ResultModal({ category, name, value, breakdown, final = true, onClose }
     <div className="dance-table-wrap dance-result-table" role="region" aria-label="Desglose de calificaciones" tabIndex={0}><table>
       <caption className="dance-sr-only">Notas por jurado y aportes al resultado de {name}</caption>
       <thead><tr><th scope="col">Jurado</th>{criteria.map((c, i) => <th scope="col" key={i}>{c.name}{mode !== "sum" && <small>{Number(c.weight.toFixed(2))}%</small>}</th>)}<th scope="col">{mode === "average" ? "Promedio" : "Total"}</th></tr></thead>
-      <tbody>{judges.map((j, i) => <tr key={i}><th scope="row">{j.name}</th>{j.values.map((v, n) => <td key={n}>{v.toFixed(2)}</td>)}<td className="dance-result-judge-total">{j.total.toFixed(2)}</td></tr>)}</tbody>
+      <tbody>{judges.map((j, i) => <tr key={i}><th scope="row"><span className="judge-name-photo"><JudgeAvatar name={j.name} photoId={j.photoId} demo={j.demo} />{j.name}</span></th>{j.values.map((v, n) => <td key={n}>{v.toFixed(2)}</td>)}<td className="dance-result-judge-total">{j.total.toFixed(2)}</td></tr>)}</tbody>
       <tfoot><tr><th scope="row">{footer}</th>{contributions.map((v, i) => <td key={i}>{v.toFixed(2)}</td>)}<td className="dance-result-final-total">{value.toFixed(2)}</td></tr></tfoot>
     </table></div>
     <p className="dance-result-note">{mode === "sum" ? "El resultado suma las notas de todos los criterios y jurados." : "Cada aporte corresponde al promedio del criterio multiplicado por su porcentaje. El total se calcula sin redondeos intermedios."} Se muestran dos decimales.</p>

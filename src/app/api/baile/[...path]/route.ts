@@ -1,4 +1,5 @@
 import { passPlans, passAvailable, type PassPlan } from "@/lib/baile/pricing";
+import sharp from "sharp";
 import { parsePaymentMethod } from "@/lib/baile/payment-method";
 import { scoringConfiguration } from "@/lib/baile/scoring-config";
 import { parseCategoryWorkbook, categoryIdentity } from "@/lib/baile/category-excel";
@@ -68,6 +69,14 @@ function putFile(file: Upload, owner: string) {
 async function handleGET(req: NextRequest, ctx: Context) {
   try {
     const parts = (await ctx.params).path;
+    if (parts[0] === "judge-photo") {
+      const state = readState();
+      const judge = state.users.find(u => u.role === "judge" && !u.disabledAt && u.photoId === parts[1]);
+      ensure(parts[1] && judge, "Foto no encontrada.", 404);
+      const file = db().prepare("SELECT content FROM files WHERE id=? AND owner=? AND kind='judge-photo'").get(parts[1], judge.id);
+      ensure(file, "Foto no encontrada.", 404);
+      return new NextResponse(new Uint8Array(file.content as Uint8Array), { headers: { "Content-Type": "image/webp", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } });
+    }
     if (parts[0] === "snapshot" || parts[0] === "public") {
       const data = scope(readState(), sessionUser(req.cookies.get(sessionCookieName())?.value));
       const demo = withEvent(undefined, () => readState().settings.demo);
@@ -89,7 +98,7 @@ async function handleGET(req: NextRequest, ctx: Context) {
       actor(req);
       const state = readState();
       ensure(state.settings.demo, "El selector solo está disponible durante las pruebas.", 403);
-      return json({ profiles: state.users.filter(u => !u.disabledAt).map(({ id, name, role }) => ({ id, name, role })).sort((a, b) => a.name.localeCompare(b.name, "es")) });
+      return json({ profiles: state.users.filter(u => !u.disabledAt).map(({ id, name, role, photoId }) => ({ id, name, role, photoId, demo: state.settings.demo })).sort((a, b) => a.name.localeCompare(b.name, "es")) });
     }
     if (parts[0] === "music-export") {
       admin(actor(req));
@@ -229,6 +238,34 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       const res = json({ role: "participant", code: participant.code }, 201); res.cookies.set(sessionCookieName(), createSession(id), cookieOptions); return res;
     }
     const user = actor(req); rateLimit(`mutation:${user.id}`, 240);
+    if (action === "judge-photo" || action === "judge-photo-remove") {
+      const judgeId = text(f, "judgeId", 100);
+      const allowed = () => {
+        ensure(user.role === "superadmin" || (user.role === "judge" && user.id === judgeId), "Solo puedes cambiar tu propia foto.", 403);
+        const judge = readState().users.find(u => u.id === judgeId && u.role === "judge" && !u.disabledAt);
+        ensure(judge, "Jurado no encontrado.", 404);
+      };
+      allowed();
+      let buffer: Buffer | undefined;
+      if (action === "judge-photo") {
+        const file = f.get("file");
+        ensure(file instanceof File && file.size > 0 && file.size <= 5 * 1024 ** 2, "Sube una foto JPG, PNG o WebP de máximo 5 MB.");
+        try {
+          const photo = sharp(Buffer.from(await file.arrayBuffer()), { limitInputPixels: 25000000 });
+          const info = await photo.metadata();
+          ensure(["jpeg", "png", "webp"].includes(info.format || "") && (info.pages || 1) === 1, "Usa JPG, PNG o WebP sin animación.");
+          // Re-encode uploads to strip metadata and never serve user-supplied active content.
+          buffer = await photo.rotate().resize(512, 512, { fit: "cover", position: "attention" }).webp({ quality: 85 }).toBuffer();
+        } catch (e) { if (e instanceof DanceError) throw e; throw new DanceError("No se pudo leer la foto. Usa una imagen JPG, PNG o WebP válida."); }
+      }
+      transaction(s => {
+        allowed(); const judge = s.users.find(u => u.id === judgeId)!;
+        if (buffer) { const id = randomUUID(); putFile({ id, name: "foto-jurado.webp", mime: "image/webp", kind: "judge-photo", buffer }, judge.id); judge.photoId = id; }
+        else delete judge.photoId;
+        audit(s, user.id, buffer ? "Foto de jurado actualizada" : "Foto de jurado retirada", judge.id);
+      });
+      return json({ ok: true });
+    }
     if (action === "logout") {
       db().prepare("DELETE FROM sessions WHERE token=?").run(tokenHash(req.cookies.get(sessionCookieName())!.value));
       const res = json({ ok: true }); res.cookies.set(sessionCookieName(), "", { ...cookieOptions, maxAge: 0 }); return res;

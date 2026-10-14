@@ -2,6 +2,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode, type FormEvent } from "react";
 import { dateTime, type PublicUser, type Snapshot } from "@/lib/baile/types";
 import { judgeDeletionBlock } from "@/lib/baile/judge-policy";
+import { JudgeAvatar, JudgePhotoEditor } from "./JudgeAvatar";
 import { JudgeForm } from "./Competition";
 import { Empty, type Run } from "./ui";
 
@@ -56,14 +57,14 @@ export function JudgesDesk({ s, run }: { s: Snapshot; run: Run }) {
     <div className="dance-judges-grid">{s.judges.map(judge => {
       const blocked = judgeDeletionBlock(s, judge);
       return <article className="dance-panel dance-judge-card" key={judge.id}>
-        <h2>{judge.name}</h2><p>{judge.email}</p>
+        <JudgeAvatar name={judge.name} photoId={judge.photoId} demo={s.settings.demo} size="large" /><h2>{judge.name}</h2><p>{judge.email}</p>
         <p className="dance-muted">{judge.categories.length} categorías asignadas · {s.scores.filter(score => score.judgeId === judge.id).length} calificaciones</p>
         <div className="dance-actions"><button className="dance-btn secondary small" onClick={() => setViewId(judge.id)} aria-label={`Visualizar a ${judge.name}`}>Visualizar</button><button className="dance-btn dance-danger small" disabled={Boolean(blocked)} aria-label={`Eliminar a ${judge.name}`} aria-describedby={blocked ? `judge-block-${judge.id}` : undefined} onClick={() => setDeleteId(judge.id)}>Eliminar</button></div>
         {blocked && <p className="dance-muted" id={`judge-block-${judge.id}`}>{blocked}</p>}
       </article>;
     })}</div>
     {viewed && <JudgeDialog title="Ficha del jurado" onClose={() => setViewId(null)}>
-      <dl className="dance-entry-facts"><div><dt>Nombre</dt><dd>{viewed.name}</dd></div><div><dt>Correo</dt><dd>{viewed.email}</dd></div>{viewed.username && <div><dt>Usuario</dt><dd>{viewed.username}</dd></div>}</dl>
+      <JudgeAvatar name={viewed.name} photoId={viewed.photoId} demo={s.settings.demo} size="large" /><JudgePhotoEditor judge={viewed} demo={s.settings.demo} run={run} /><dl className="dance-entry-facts"><div><dt>Nombre</dt><dd>{viewed.name}</dd></div><div><dt>Correo</dt><dd>{viewed.email}</dd></div>{viewed.username && <div><dt>Usuario</dt><dd>{viewed.username}</dd></div>}</dl>
       <h3>Categorías asignadas</h3><ul>{viewed.categories.map(id => <li key={id}>{s.categories.find(category => category.id === id)?.name || "Categoría no disponible"}</li>)}</ul>
       <h3>Calificaciones del jurado</h3>
       {!s.scores.some(score => score.judgeId === viewed.id) && <p className="dance-muted">Todavía no ha enviado calificaciones.</p>}

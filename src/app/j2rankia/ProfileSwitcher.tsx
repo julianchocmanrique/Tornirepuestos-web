@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import type { User } from "@/lib/baile/types";
 import type { Run } from "./ui";
 
-type Profile = Pick<User, "id" | "name" | "role">;
+import { JudgeAvatar } from "./JudgeAvatar";
+type Profile = Pick<User, "id" | "name" | "role" | "photoId"> & { demo?: boolean };
 const labels = { superadmin: "Superadministrador", contractor: "Contratista del evento", participant: "Participante", judge: "Jurado" };
 const initials = (name: string) => name.trim().split(/\s+/).slice(0, 2).map(word => word[0]).join("").toUpperCase();
 
@@ -49,7 +50,7 @@ export function ProfileSwitcher({ currentId, run, onCancel }: { currentId: strin
       {loading ? <p role="status">Cargando perfiles…</p> : error ? <div role="alert"><p>{error}</p><button className="dance-btn secondary small" onClick={() => setRetry(n => n + 1)}>Reintentar</button></div> : <>
         {profiles.length > 6 && <label className="dance-field dance-profile-search"><span>Buscar perfil</span><input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Nombre o rol" /></label>}
         <div className="dance-profile-grid" aria-busy={busy}>{visible.map(p => <button className="dance-profile-card" key={p.id} disabled={busy} onClick={() => enter(p)} aria-label={`Entrar como ${p.name}, ${labels[p.role]}`}>
-          <span className={`dance-profile-avatar ${p.role}`} aria-hidden="true">{initials(p.name)}<span className="dance-profile-lock">↗</span></span>
+          {p.role === "judge" ? <JudgeAvatar name={p.name} photoId={p.photoId} demo={p.demo} size="profile" /> : <span className={`dance-profile-avatar ${p.role}`} aria-hidden="true">{initials(p.name)}<span className="dance-profile-lock">↗</span></span>}
           <strong>{p.name}</strong><span>{labels[p.role]}</span><small>{p.id === currentId ? "Tu sesión actual" : "Entrar con un clic"}</small>
         </button>)}</div>
         {!visible.length && <p>No hay perfiles con ese nombre.</p>}

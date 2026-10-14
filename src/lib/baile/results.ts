@@ -29,7 +29,7 @@ export function resultBreakdown(s: Pick<Snapshot, "settings" | "judges" | "score
   return {
     mode, criteria,
     judges: judges.map((j, i) => ({
-      name: j.name, values: [...scores[i]!.values],
+      name: j.name, ...(j.photoId ? { photoId: j.photoId } : {}), ...(s.settings.demo ? { demo: true } : {}), values: [...scores[i]!.values],
       total: weighted ? weightedScore(scores[i]!.values, criteria) : scores[i]!.values.reduce((a, b) => a + b, 0) / (mode === "average" ? criteria.length : 1),
     })),
     contributions: criteria.map((c, i) => {

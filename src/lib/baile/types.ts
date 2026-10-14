@@ -33,7 +33,7 @@ export function synchronizeJudges(s: State) {
 export function weightedScore(values: number[], criteria = SUNFEST_CRITERIA) {
   return values.reduce((total, value, i) => total + value * criteria[i].weight, 0) / 100;
 }
-export type User = { id: string; name: string; username?: string; demoOnly?: boolean; disabledAt?: string; email: string; passwordHash: string; role: Role; categories: string[] };
+export type User = { id: string; name: string; username?: string; photoId?: string; demoOnly?: boolean; disabledAt?: string; email: string; passwordHash: string; role: Role; categories: string[] };
 export type PublicUser = Omit<User, "passwordHash">;
 export type Participant = { id: string; code: string; name: string; document: string; birthDate: string; city: string; phone: string; email: string; academy: string; extra: string; createdAt: string; fullPassFee?: number; pass?: PurchasedPass; registration?: Registration };
 export type Payment = { id: string; participantId: string; enrollmentId: string | null; kind: "fullpass" | "category"; amount: number; date: string; receiptId: string; reference?: string; status: Status; note: string; reviewedBy: string | null; reviewedAt: string | null; createdAt: string };

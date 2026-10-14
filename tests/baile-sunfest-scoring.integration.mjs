@@ -35,6 +35,10 @@ test('desglose público: ponderaciones, fórmulas anteriores y notas privadas', 
   assert.deepEqual(detail.contributions.map(v => v.toFixed(2)), ['1.93', '1.18', '1.57', '2.37', '0.78']);
   assert.equal(detail.contributions.reduce((a, b) => a + b, 0).toFixed(2), '7.83');
   for (const judge of detail.judges) assert.deepEqual(Object.keys(judge).sort(), ['name', 'total', 'values']);
+  s.judges[0].photoId = 'foto-publica';
+  const withPhoto = resultBreakdown(s, 'cat', 'entry').judges[0];
+  assert.equal(withPhoto.photoId, 'foto-publica');
+  assert.deepEqual(Object.keys(withPhoto).sort(), ['name', 'photoId', 'total', 'values']);
   s.scores[0].locked = false;
   assert.equal(resultBreakdown(s, 'cat', 'entry'), null, 'No incluye borradores ni publica desgloses incompletos');
   assert.equal(resultBreakdown(s, 'otra-categoria', 'entry'), null);
@@ -109,7 +113,7 @@ test('Sun Fest: valida cinco notas, conserva historia y publica el promedio pond
   assert.deepEqual(breakdown.judges.map(j => j.values), notes);
   assert.deepEqual(breakdown.criteria, SUNFEST_CRITERIA);
   assert.deepEqual(breakdown.contributions.map(v => v.toFixed(2)), ['1.93', '1.18', '1.57', '2.37', '0.78']);
-  for (const judge of breakdown.judges) assert.deepEqual(Object.keys(judge).sort(), ['name', 'total', 'values']);
+  for (const judge of breakdown.judges) assert.deepEqual(Object.keys(judge).sort(), ['demo', 'name', 'total', 'values']);
   assert.deepEqual(await original.get('snapshot'), before, 'Otros eventos no cambian');
   const db = new DatabaseSync(path.join(dir, 'events', 'thesunfest', 'event.sqlite')); t.after(() => db.close());
   const saved = JSON.parse(db.prepare('SELECT data FROM state WHERE id=1').get().data);

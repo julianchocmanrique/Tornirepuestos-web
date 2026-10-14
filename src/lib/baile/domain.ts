@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { State, User, Snapshot, Status, Payment, Enrollment } from "./types";
-import { scoringCriteria } from "./types";
+import { scoringCriteria, SCORE_SCALE, validScore } from "./types";
 
 export class DanceError extends Error {
   constructor(message: string, public status = 400) { super(message); }
@@ -72,7 +72,7 @@ export function saveScore(s: State, judge: User, enrollmentId: string, values: n
   ensure(e && currentJudge.categories.includes(e.categoryId), "Competidor no asignado a este jurado.", 403);
   ensure(!s.schedule.some(x => x.categoryId === e.categoryId && x.status === "finished"), "La categoría ya finalizó y sus resultados están cerrados.", 409);
   ensure(eligible(s, e) && e.competitionNumber !== null, "El competidor aún no está habilitado.");
-  ensure(values.length === scoringCriteria(s.settings).length && values.every(v => Number.isFinite(v) && v >= 1 && v <= 10), "Cada criterio debe tener una nota entre 1 y 10.");
+  ensure(values.length === scoringCriteria(s.settings).length && values.every(validScore), `Cada criterio debe tener una nota entre ${SCORE_SCALE.min} y ${SCORE_SCALE.max}, con un máximo de ${SCORE_SCALE.decimals} decimales.`);
   const old = s.scores.find(x => x.enrollmentId === e.id && x.judgeId === judge.id);
   ensure(!old?.locked, "La calificación está bloqueada. La organización debe autorizar su edición.", 409);
   const score = { id: old?.id || randomUUID(), enrollmentId: e.id, judgeId: judge.id, values, locked: true, submittedAt: new Date().toISOString() };

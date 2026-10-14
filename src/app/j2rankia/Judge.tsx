@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { dateTime, usesWeightedScoring, scoringCriteria, SUNFEST_CRITERIA, weightedScore, type Snapshot, type Enrollment } from "@/lib/baile/types";
+import { useId, useState } from "react";
+import { dateTime, usesWeightedScoring, scoringCriteria, SUNFEST_CRITERIA, weightedScore, SCORE_SCALE, validScore, type Snapshot, type Enrollment } from "@/lib/baile/types";
 import { Empty, Form, type Run } from "./ui";
 import { judgeQueue, searchText } from "@/lib/baile/judge-workspace";
 import "./judge.css";
@@ -8,9 +8,20 @@ import { JudgeAvatar, JudgePhotoEditor } from "./JudgeAvatar";
 
 type Criteria = ReturnType<typeof scoringCriteria>;
 type Values = (number | "")[];
-function validValues(values: Values) { return values.every(v => typeof v === "number" && Number.isFinite(v) && v >= 1 && v <= 10); }
+// Historical scores may predate the two-decimal input rule; keep their totals visible.
+function validValues(values: Values) { return values.every(v => typeof v === "number" && Number.isFinite(v) && v >= SCORE_SCALE.min && v <= SCORE_SCALE.max); }
+function ScoreInput({ name, weight, value, onChange }: { name: string; weight?: number; value: number | ""; onChange: (value: number | "") => void }) {
+  const id = useId(), [error, setError] = useState("");
+  return <label><span>{name}{weight !== undefined && <strong className="dance-score-weight">{weight}%</strong>}</span><input aria-label={name} aria-describedby={`${id}-hint`} aria-invalid={!!error} type="number" inputMode="decimal" min={SCORE_SCALE.min} max={SCORE_SCALE.max} step={SCORE_SCALE.step} value={value} required onChange={event => {
+    const raw = event.currentTarget.value, next = raw === "" ? "" : Number(raw);
+    const message = next !== "" && !validScore(next) ? `Valor no aplicado. Usa una nota de ${SCORE_SCALE.min} a ${SCORE_SCALE.max}, con máximo ${SCORE_SCALE.decimals} decimales.` : "";
+    event.currentTarget.setCustomValidity(message);
+    setError(message);
+    if (!message) onChange(next);
+  }} /><small id={`${id}-hint`} className={error ? "judge-score-error" : "judge-score-hint"} role={error ? "alert" : undefined}>{error || `${SCORE_SCALE.min} a ${SCORE_SCALE.max} · Hasta ${SCORE_SCALE.decimals} decimales`}</small></label>;
+}
 function ScoreInputs({ criteria, values, setValues, weighted }: { criteria: Criteria; values: Values; setValues: (values: Values) => void; weighted: boolean }) {
-  return <div className="dance-score-grid">{criteria.map((c, i) => <label key={c.name}><span>{c.name}{weighted && <strong className="dance-score-weight">{c.weight}%</strong>}</span><input aria-label={c.name} type="number" inputMode="decimal" min={1} max={10} step={0.01} value={values[i]} required onChange={event => { const next = [...values]; next[i] = event.target.value === "" ? "" : Number(event.target.value); setValues(next); }} /><small>De 1 a 10 · admite dos decimales</small></label>)}</div>;
+  return <div className="dance-score-grid">{criteria.map((c, i) => <ScoreInput key={c.name} name={c.name} weight={weighted ? c.weight : undefined} value={values[i]} onChange={value => { const next = [...values]; next[i] = value; setValues(next); }} />)}</div>;
 }
 function ScoreTotal({ values, criteria, weighted }: { values: Values; criteria: Criteria; weighted: boolean }) {
   const complete = validValues(values), numbers = values.map(Number), total = numbers.reduce((a, b) => a + b, 0);

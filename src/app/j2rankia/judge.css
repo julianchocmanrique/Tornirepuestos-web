@@ -47,6 +47,9 @@
 .dance-app .judge-workspace .dance-score-grid .dance-score-weight { display: inline-block; font-size: 12px; margin: 0 0 0 9px; }
 .judge-workspace .dance-score-grid input { font-size: 22px !important; padding: 8px !important; font-variant-numeric: tabular-nums; }
 .judge-workspace .dance-score-grid small { display: none; }
+.judge-workspace .dance-score-grid .judge-score-hint, .judge-workspace .dance-score-grid .judge-score-error { display: block; grid-column: 1 / -1; font-size: 11px; margin-top: -5px; }
+.judge-workspace .dance-score-grid .judge-score-error { color: #ffb6b6; }
+.judge-workspace .dance-score-grid input[aria-invalid="true"] { border-color: #ee8585; }
 .judge-workspace .dance-score-grid > div > strong { text-align: center; font-size: 23px; color: var(--dance-gold); }
 .judge-workspace .dance-score-total { border: 0; background: var(--dance-raised); border-radius: 7px; padding: 12px 16px; margin-bottom: 16px; }
 .judge-workspace .dance-score-total > span { display: flex; align-items: center; gap: 16px; }

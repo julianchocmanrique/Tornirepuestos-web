@@ -17,7 +17,7 @@ const output = '/tmp/baile-events-screenshots'; mkdirSync(output, { recursive: t
     }
     for (const width of [320,375,768,1440]) {
       await page.setViewportSize({ width, height: 900 });
-      await page.goto(root + '/prueba-baile');
+      await page.goto(root + '/j2rankia');
       await page.locator('.event-cover-card[data-position="active"]').waitFor();
       await fits(`home ${width}`);
       const filters = page.getByRole('group', { name: 'Filtrar eventos por categoría' });
@@ -49,7 +49,7 @@ const output = '/tmp/baile-events-screenshots'; mkdirSync(output, { recursive: t
     await page.setViewportSize({ width: 375, height: 812 });
     const email = `browser-${Date.now()}@example.test`;
     for (const id of ['encuentro-salsa','encuentro-bachata']) {
-      await page.goto(root + '/prueba-baile/eventos/' + id + '/registro');
+      await page.goto(root + '/j2rankia/eventos/' + id + '/registro');
       for (const [name,value] of Object.entries({ firstName: 'Persona', lastName: 'Prueba', birthDate: '2000-01-01', city: 'Santa Marta', phone: '3000000000', email })) await page.locator('[name="' + name + '"]').fill(value);
       await page.locator('[name="sex"]').selectOption('Otro');
       await page.getByRole('button', { name: 'Siguiente', exact: true }).click();
@@ -71,14 +71,14 @@ const output = '/tmp/baile-events-screenshots'; mkdirSync(output, { recursive: t
       const request = page.waitForResponse(r => r.url().endsWith(`/api/baile/eventos/${id}/register`) && r.request().method() === 'POST');
       await page.getByRole('button', { name: 'Enviar registro', exact: true }).click();
       assert.equal((await request).status(), 201);
-      await page.waitForURL(root + '/prueba-baile/eventos/' + id + '/participante');
+      await page.waitForURL(root + '/j2rankia/eventos/' + id + '/participante');
       await page.getByRole('heading', { name: 'Tu Full Pass', exact: true }).waitFor();
       await fits('participant ' + id);
     }
     const cookies = await context.cookies();
     assert.ok(cookies.some(c => c.name === 'baile_session_encuentro-salsa'));
     assert.ok(cookies.some(c => c.name === 'baile_session_encuentro-bachata'));
-    await page.goto(root + '/prueba-baile/eventos/encuentro-salsa/participante');
+    await page.goto(root + '/j2rankia/eventos/encuentro-salsa/participante');
     await page.getByRole('heading', { name: 'Tu Full Pass', exact: true }).waitFor();
     assert.deepEqual(errors, []); console.log('OK same-browser independent registration and persistent sessions; no browser errors');
     await context.close();

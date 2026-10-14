@@ -10,7 +10,7 @@ const settle = () => new Promise(r => setTimeout(r,100));
   for (const width of [375,1440]) {
    const page = await browser.newPage({viewport:{width,height:1000},reducedMotion:'no-preference',hasTouch:width===375});
    const errors=[]; page.on('pageerror',e=>errors.push(e.message));
-   await page.clock.install(); await page.goto(root+'/prueba-baile');
+   await page.clock.install(); await page.goto(root+'/j2rankia');
    await page.getByRole('button',{name:'Pausar carrusel',exact:true}).waitFor();
    await page.addStyleTag({content:'*,*::before,*::after{transition:none!important;animation:none!important}'});
    const card=page.locator('.event-cover-card[data-position="active"]');

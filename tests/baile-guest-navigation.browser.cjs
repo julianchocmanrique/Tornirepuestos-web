@@ -9,7 +9,7 @@ assert.ok(['localhost','127.0.0.1'].includes(new URL(root).hostname));
     for (const width of [375,1280]) for (const eventId of ['', 'thesunfest']) {
       const page = await browser.newPage({ viewport: { width, height: 900 } });
       const errors = []; page.on('pageerror', e => errors.push(e.message));
-      const base = '/prueba-baile' + (eventId ? '/eventos/' + eventId : '');
+      const base = '/j2rankia' + (eventId ? '/eventos/' + eventId : '');
       const api = '/api/baile' + (eventId ? '/eventos/' + eventId : '');
       let release; const loading = new Promise(r => release = r);
       const data = { user: null, settings: { name: 'Evento de prueba', tagline: 'Prueba', demo: false, fullPassFee: 180000, registrationOpen: true, categoryRegistrationOpen: true }, participants: [], categories: [], payments: [], enrollments: [], scores: [], judges: [], audit: [], notes: [], schedule: [], accreditations: [], exampleCreated: false };

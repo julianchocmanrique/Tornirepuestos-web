@@ -1,14 +1,14 @@
 # Competencia de baile
 
-El módulo está en `/prueba-baile`, con identidad visual y cuentas propias. Conserva la competencia original Ritmo Caribe y permite competencias independientes desde el catálogo de eventos; las tarifas iniciales son ficticias. No recibe pagos bancarios: registra comprobantes que la organización valida manualmente.
+El módulo está en `/j2rankia`, con identidad visual y cuentas propias. Conserva la competencia original Ritmo Caribe y permite competencias independientes desde el catálogo de eventos; las tarifas iniciales son ficticias. No recibe pagos bancarios: registra comprobantes que la organización valida manualmente.
 
 ## Accesos
 
-- `/prueba-baile/registro`: registro de participantes.
-- `/prueba-baile/acceso`: inicio de sesión y redirección según rol.
-- `/prueba-baile/participante`: Full Pass, categorías y pistas.
-- `/prueba-baile/admin`: centro de control con módulos de registros, inscripciones, acreditación, contabilidad, música, programación, categorías, jurados, resultados y ajustes. Cada módulo tiene un enlace directo, por ejemplo `/prueba-baile/admin#registros`.
-- `/prueba-baile/jurado`: categorías asignadas y calificaciones propias.
+- `/j2rankia/registro`: registro de participantes.
+- `/j2rankia/acceso`: inicio de sesión y redirección según rol.
+- `/j2rankia/participante`: Full Pass, categorías y pistas.
+- `/j2rankia/admin`: centro de control con módulos de registros, inscripciones, acreditación, contabilidad, música, programación, categorías, jurados, resultados y ajustes. Cada módulo tiene un enlace directo, por ejemplo `/j2rankia/admin#registros`.
+- `/j2rankia/jurado`: categorías asignadas y calificaciones propias.
 
 La cuenta inicial de organización se crea desde el servidor, nunca con un formulario público. Tras abrir `/api/baile/public`, ejecutar `node scripts/baile-admin.cjs` en el mismo entorno de datos. El comando genera una contraseña aleatoria una sola vez y no reemplaza cuentas existentes. También admite `BAILE_ADMIN_HASH` (salt hexadecimal de 16 bytes, dos puntos y scrypt de 64 bytes) y `BAILE_ADMIN_EMAIL`.
 
@@ -56,10 +56,10 @@ La migración de versión 1 a 2 completa los campos nuevos al leer, conservando 
 - `superadmin`: control completo del evento actual: configuración, categorías, registros, pagos, jurados, programación y resultados. Las cuentas antiguas con rol `admin` migran a `superadmin` conservando IDs y claves.
 - `contractor`: consulta participantes e inscripciones por categoría y revisa comprobantes (aprobar/rechazar). Puede descargar recibos y reproducir/descargar las pistas actualmente asociadas a una inscripción. No puede modificar configuración, accesos, categorías, notas, acreditaciones ni calificaciones, ni exportar el ZIP de música o acceder a pistas antiguas sin inscripción.
 
-La tabla de Inscripciones no muestra importes y su exportación tampoco los incluye. La acción Ver abre una ficha completa en /prueba-baile/inscripciones/[id], con datos del titular, categoría, integrantes declarados, música, comprobante y observaciones. Superadministración puede editar datos, cambiar categoría y reemplazar archivos mientras no haya calificaciones ni competencia iniciada. El contratista consulta y valida pagos; no edita los datos. Cambiar categoría conserva la pista y exige la misma tarifa si existe un pago. Reemplazar un comprobante conserva importe y fecha, pero vuelve el pago a En revisión. Las notas internas no se muestran a participantes ni jurados. La referencia del pago es un ID interno, no una referencia bancaria. Los integrantes se muestran tal como fueron registrados; no se infiere una cantidad a partir de texto libre.
+La tabla de Inscripciones no muestra importes y su exportación tampoco los incluye. La acción Ver abre una ficha completa en /j2rankia/inscripciones/[id], con datos del titular, categoría, integrantes declarados, música, comprobante y observaciones. Superadministración puede editar datos, cambiar categoría y reemplazar archivos mientras no haya calificaciones ni competencia iniciada. El contratista consulta y valida pagos; no edita los datos. Cambiar categoría conserva la pista y exige la misma tarifa si existe un pago. Reemplazar un comprobante conserva importe y fecha, pero vuelve el pago a En revisión. Las notas internas no se muestran a participantes ni jurados. La referencia del pago es un ID interno, no una referencia bancaria. Los integrantes se muestran tal como fueron registrados; no se infiere una cantidad a partir de texto libre.
 - `participant`: conserva registro, inscripciones, comprobantes y pistas propios, con los requisitos de pago y plazos existentes.
 - `judge`: conserva categorías asignadas y calificaciones propias.
-- Visitantes: información general y `/prueba-baile/resultados`, sin sesión. La API `/api/baile/results` solo proyecta nombre de participante/equipo, número, posición y puntuación de categorías finalizadas con todas las notas. No publica documentos, contactos, pagos, recibos ni notas internas.
+- Visitantes: información general y `/j2rankia/resultados`, sin sesión. La API `/api/baile/results` solo proyecta nombre de participante/equipo, número, posición y puntuación de categorías finalizadas con todas las notas. No publica documentos, contactos, pagos, recibos ni notas internas.
 
 El ingreso acepta usuario o correo. `scripts/baile-test-profiles.cjs` configura únicamente los alias `superadmin`, `admin` (contratista) y `participante1`, mediante hashes scrypt recibidos en `BAILE_TEST_PROFILE_HASHES`; no contiene claves predeterminadas. Requiere modo de ejemplo, crea un backup SQLite consistente y no reemplaza cuentas ajenas. Sus cuentas `demoOnly` quedan bloqueadas, incluidas sus sesiones, al desactivar `settings.demo`. El workflow permite aplicar estos hashes de manera explícita; los despliegues normales no cambian claves. Este script configura la competencia original; no propaga sus participantes ni contratistas a los eventos independientes.
 
@@ -81,8 +81,8 @@ El catálogo se configura en `src/lib/baile/event-catalog.ts`. Los tres ejemplos
 
 ## Eventos independientes
 
-- Página pública: `/prueba-baile/eventos/<id>`, resumen, fecha, ciudad, categorías y botón Registrarse.
-- Registro y paneles: `/prueba-baile/eventos/<id>/registro`, `acceso`, `participante`, `admin`, `contratista`, `jurado`, `resultados`. La ficha usa `inscripciones/<inscripción>`.
+- Página pública: `/j2rankia/eventos/<id>`, resumen, fecha, ciudad, categorías y botón Registrarse.
+- Registro y paneles: `/j2rankia/eventos/<id>/registro`, `acceso`, `participante`, `admin`, `contratista`, `jurado`, `resultados`. La ficha usa `inscripciones/<inscripción>`.
 - API: `/api/baile/eventos/<id>/<acción>`. Solo se permiten identificadores del catálogo inicial o del registro persistente `events-index.sqlite`; los ejemplos se ocultan si se desactiva la demostración global.
 - Persistencia: `BAILE_DATA_DIR/events/<id>/event.sqlite`. El volumen existente conserva toda la carpeta, incluidos los archivos almacenados en SQLite. Respaldar cada base con SQLite backup/VACUUM INTO, o detener escrituras y copiar la carpeta completa; no copiar solo el archivo principal durante escrituras WAL.
 - La base original sigue en `BAILE_DATA_DIR/event.sqlite`; no se copian participantes, recibos, cuentas, calificaciones ni categorías entre eventos.
@@ -96,7 +96,7 @@ Verificación: `npm run build`, `npm run test:baile`, `node --test tests/baile-m
 
 ## Registro público en cinco pasos
 
-La ruta `/prueba-baile/registro` tiene una línea de progreso: Datos, Nivel,
+La ruta `/j2rankia/registro` tiene una línea de progreso: Datos, Nivel,
 ID, Exoneración y Documentos. Conserva los campos y archivos al retroceder;
 no guarda contraseñas ni documentos en localStorage. Recargar pierde el borrador.
 
@@ -131,7 +131,7 @@ identidades ficticias y trazos sintéticos; no crean participantes en producció
 
 ## Pases y tarifas por evento
 
-The Sun Fest tiene su propio ejemplo en `/prueba-baile/eventos/thesunfest`:
+The Sun Fest tiene su propio ejemplo en `/j2rankia/eventos/thesunfest`:
 competidor $70.000, congreso $95.000 y acompañante $20.000 COP por persona.
 Categorías de ejemplo: solista $80.000, pareja/dúo $105.000 y grupo $250.000
 por inscripción. La ciudad, los ritmos y divisiones deben definirse antes de
@@ -169,7 +169,7 @@ los gestos, el foco, la visibilidad y las preferencias en celular y escritorio.
 
 ## Publicación
 
-Por indicación del responsable, los cambios de este proyecto se publican en la página oficial (`https://tornirepuestos.com/prueba-baile`) después de integrar y verificar la versión completa. No dar por entregado un cambio solamente por estar guardado localmente. Conservar el volumen de datos, no reinicializar cuentas y comprobar el despliegue y los registros existentes antes de confirmar la publicación.
+Por indicación del responsable, los cambios de este proyecto se publican en la página oficial (`https://tornirepuestos.com/j2rankia`) después de integrar y verificar la versión completa. No dar por entregado un cambio solamente por estar guardado localmente. Conservar el volumen de datos, no reinicializar cuentas y comprobar el despliegue y los registros existentes antes de confirmar la publicación.
 
 ### Perfil de jurado de prueba e inventario de cuentas
 

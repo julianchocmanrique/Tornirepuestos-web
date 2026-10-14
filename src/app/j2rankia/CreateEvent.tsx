@@ -86,7 +86,7 @@ export function CreateEvent({ run, events = [], demoEnabled, userId }: { run: Ru
           {error && <p className="dance-notice error" role="alert">{error}</p>}
           {step === 0 && <>
             <div className="dance-form-grid"><Input label="Nombre del evento" value={draft.name} onValue={v => change("name", v)} maxLength={100} /><Input label="Identificador del enlace" value={draft.id} onValue={v => change("id", v)} pattern="[a-z0-9][a-z0-9-]{2,59}" minLength={3} maxLength={60} placeholder="festival-caribe-2027" /></div>
-            <p className="dance-muted event-builder-url">Página: /prueba-baile/eventos/{draft.id || "tu-evento"}. Este identificador es único y no se cambia después.</p>
+            <p className="dance-muted event-builder-url">Página: /j2rankia/eventos/{draft.id || "tu-evento"}. Este identificador es único y no se cambia después.</p>
             <div className="dance-form-grid"><label className="dance-field"><span>Tipo de evento</span><select value={draft.category} onChange={e => change("category", e.target.value as EventDraft["category"])}>{EVENT_CATEGORIES.map(c => <option key={c}>{c}</option>)}</select></label><Input label="Ritmos o disciplinas" value={draft.genre} onValue={v => change("genre", v)} maxLength={80} placeholder="Salsa y bachata" /></div>
             <Input label="Frase del evento" value={draft.tagline} onValue={v => change("tagline", v)} maxLength={200} />
             <Input label="Resumen para la página de inicio" value={draft.description} onValue={v => change("description", v)} multiline maxLength={2000} />

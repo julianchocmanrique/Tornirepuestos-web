@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import ts from 'typescript';
 
-const source = readFileSync(new URL('../src/app/prueba-baile/admin-navigation.ts', import.meta.url), 'utf8');
+const source = readFileSync(new URL('../src/app/j2rankia/admin-navigation.ts', import.meta.url), 'utf8');
 const { outputText } = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } });
 const { adminModules, contractorModules, normalizeModuleHash } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`);
 

@@ -36,7 +36,7 @@ test('ejemplos identificados y fotografías locales disponibles', () => {
 });
 
 test('enlaces de eventos y posiciones cíclicas del carrusel', () => {
-  assert.equal(eventHref('encuentro-salsa'), '/prueba-baile/eventos/encuentro-salsa');
+  assert.equal(eventHref('encuentro-salsa'), '/j2rankia/eventos/encuentro-salsa');
   assert.equal(findEvent('no-existe'), undefined);
   for (const event of eventCatalog) assert.equal(findEvent(event.id), event);
   assert.deepEqual([0,1,2].map(i => slideOffset(i, 0, 3)), [0,1,-1]);

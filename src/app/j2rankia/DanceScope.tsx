@@ -8,7 +8,7 @@ export function DanceScope({ eventId, children }: { eventId?: string; children: 
 }
 export function useDanceScope() {
   const eventId = useContext(EventContext);
-  const base = eventId ? eventHref(eventId) : "/prueba-baile";
+  const base = eventId ? eventHref(eventId) : "/j2rankia";
   const apiBase = eventId ? `/api/baile/eventos/${encodeURIComponent(eventId)}` : "/api/baile";
   return { eventId, base, apiBase, fileUrl: (id: string) => `${apiBase}/files/${encodeURIComponent(id)}` };
 }

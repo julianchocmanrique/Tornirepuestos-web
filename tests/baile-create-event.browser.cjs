@@ -17,9 +17,9 @@ assert.ok(['localhost', '127.0.0.1'].includes(new URL(root).hostname));
         assert.ok(url.pathname.endsWith('/create-event'));
         payload = route.request().postData();
         data.events = [{ id: 'evento-nuevo', name: 'Evento nuevo', date: '2099-11-10', city: 'Santa Marta', demo: true }];
-        return route.fulfill({ status: 201, json: { ok: true, eventId: 'evento-nuevo', eventUrl: '/prueba-baile/eventos/evento-nuevo' } });
+        return route.fulfill({ status: 201, json: { ok: true, eventId: 'evento-nuevo', eventUrl: '/j2rankia/eventos/evento-nuevo' } });
       });
-      await page.goto(root + '/prueba-baile/admin#crear-evento');
+      await page.goto(root + '/j2rankia/admin#crear-evento');
       await page.getByRole('heading', { name: 'Evento', exact: true }).waitFor();
       async function fits() { assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)); }
       async function saved() { await page.getByText('Borrador guardado en este navegador.', {exact:true}).waitFor(); }
@@ -70,10 +70,10 @@ assert.ok(['localhost', '127.0.0.1'].includes(new URL(root).hostname));
       assert.equal(await page.getByLabel('Nombre del evento',{exact:true}).inputValue(), '');
       data.user.id = 'admin'; await page.reload();
       await page.getByRole('heading', {name:'Fecha y portada',exact:true}).waitFor();
-      await page.goto(root + '/prueba-baile/eventos/thesunfest/admin#crear-evento');
+      await page.goto(root + '/j2rankia/eventos/thesunfest/admin#crear-evento');
       await page.getByRole('heading', {name:'Evento',exact:true}).waitFor();
       assert.equal(await page.getByLabel('Nombre del evento',{exact:true}).inputValue(), '');
-      await page.goto(root + '/prueba-baile/admin#crear-evento');
+      await page.goto(root + '/j2rankia/admin#crear-evento');
       await page.getByRole('heading', {name:'Fecha y portada',exact:true}).waitFor();
       await next('Pases y pagos');
       await page.getByLabel('Precio del pase 1 (COP)', {exact:true}).fill('70000');

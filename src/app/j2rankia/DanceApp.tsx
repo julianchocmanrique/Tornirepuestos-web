@@ -67,7 +67,7 @@ function DanceAppBody({ view, enrollmentId }: { view: View; enrollmentId?: strin
         {view === "jurado" && <Judge s={s} run={run} />}
       </>}
     </main>
-    <footer className="dance-footer"><Link className="dance-brand" href="/prueba-baile"><RankiaBrand /></Link><div><Link href={`${base}/acceso`}>Acceso organización</Link><Link href={`${base}/jurado`}>Acceso jurados</Link><span>Hora de Colombia · UTC−5</span></div></footer>
+    <footer className="dance-footer"><Link className="dance-brand" href="/j2rankia"><RankiaBrand /></Link><div><Link href={`${base}/acceso`}>Acceso organización</Link><Link href={`${base}/jurado`}>Acceso jurados</Link><span>Hora de Colombia · UTC−5</span></div></footer>
   </div>;
 }
 function Home({ s }: { s: Snapshot }) {

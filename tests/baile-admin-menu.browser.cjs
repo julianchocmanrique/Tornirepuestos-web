@@ -22,7 +22,7 @@ const snapshot = {
         assert.ok(new URL(route.request().url()).pathname.endsWith('/snapshot'));
         return route.fulfill({ json: snapshot });
       });
-      await page.goto(`${root}/prueba-baile${event}/admin#acreditacion`);
+      await page.goto(`${root}/j2rankia${event}/admin#acreditacion`);
       await page.getByRole('heading', { name: 'Tu evento, bajo control.', exact: true }).waitFor();
       await page.waitForURL('**#resumen');
       const nav = page.locator('nav[aria-label="Módulos administrativos"]');

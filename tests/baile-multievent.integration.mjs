@@ -152,8 +152,8 @@ test('Eventos independientes: permisos, registros, pagos, archivos y sesiones', 
     assert.deepEqual((await owner.snapshot()).scores, original.scores);
   });
   await t.test('rutas dedicadas, eventos inválidos y páginas públicas sin datos privados', async () => {
-    for (const suffix of ['', '/registro','/acceso','/admin','/participante','/resultados','/inscripciones/' + entry.id]) assert.equal((await fetch(root + '/prueba-baile/eventos/' + a + suffix)).status, 200);
-    assert.equal((await fetch(root + '/prueba-baile/eventos/no-existe')).status, 404);
+    for (const suffix of ['', '/registro','/acceso','/admin','/participante','/resultados','/inscripciones/' + entry.id]) assert.equal((await fetch(root + '/j2rankia/eventos/' + a + suffix)).status, 200);
+    assert.equal((await fetch(root + '/j2rankia/eventos/no-existe')).status, 404);
     assert.equal((await fetch(root + '/api/baile/eventos/no-existe/snapshot')).status, 404);
     assert.equal(existsSync(path.join(dir,'events','no-existe')), false);
     assert.equal((await fetch(root + '/api/baile/eventos/' + a)).status, 404);

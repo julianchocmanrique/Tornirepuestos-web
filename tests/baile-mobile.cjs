@@ -52,7 +52,7 @@ function fixture(role) {
       }
       for (const width of [320, 375, 430, 768, 1280]) {
         await page.setViewportSize({ width, height: 812 });
-        await page.goto(`${root}/prueba-baile/${panel}#registros`);
+        await page.goto(`${root}/j2rankia/${panel}#registros`);
         await page.getByRole('heading', { name: 'Registro general' }).waitFor();
         await fits(`Registro ${width}`);
         assert.equal(await page.locator('.dance-card-table tbody tr').first().evaluate(el => getComputedStyle(el).display), width <= 750 ? 'grid' : 'table-row');
@@ -97,7 +97,7 @@ function fixture(role) {
           data.judges = [{ id: 'editable', role: 'judge', name: 'Jurado de prueba', email: 'jurado@example.test', categories: ['bachata'] }, { id: 'protected', role: 'judge', name: 'Jurado protegido', email: 'protegido@example.test', categories: ['salsa'] }];
           data.scores = [{ id: 'score', judgeId: 'protected', enrollmentId: 'entry', values: [8, 8, 8, 8, 8, 8], locked: true, submittedAt: '2026-10-11T20:00:00Z' }];
           await page.setViewportSize({ width, height: 812 });
-          await page.goto(`${root}/prueba-baile/admin#jurados`);
+          await page.goto(`${root}/j2rankia/admin#jurados`);
           await page.reload();
           await page.getByRole('button', { name: 'Visualizar a Jurado de prueba', exact: true }).waitFor();
           await fits(`Jurados ${width}`);

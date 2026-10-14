@@ -41,11 +41,11 @@ test('no cambia nombres ni lemas personalizados de los eventos', () => {
 
 test('marca compartida en inicio y eventos, sin estilos globales sobre la tienda', () => {
   for (const file of ['DanceApp.tsx', 'eventos/[eventId]/page.tsx']) {
-    const content = readFileSync(new URL('../src/app/prueba-baile/' + file, import.meta.url), 'utf8');
+    const content = readFileSync(new URL('../src/app/j2rankia/' + file, import.meta.url), 'utf8');
     assert.match(content, /<RankiaBrand \/>/);
     assert.doesNotMatch(content, /Ritmo Caribe/);
   }
-  const css = readFileSync(new URL('../src/app/prueba-baile/rankia.css', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../src/app/j2rankia/rankia.css', import.meta.url), 'utf8');
   assert.doesNotMatch(css, /(?:^|\n)(?:body|html|:root)\s*\{/);
   assert.match(css, /prefers-reduced-motion/);
 });

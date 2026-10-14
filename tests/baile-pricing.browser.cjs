@@ -9,7 +9,7 @@ assert.ok(['localhost','127.0.0.1'].includes(new URL(root).hostname));
  try {
   const page = await browser.newPage({reducedMotion:'reduce'}), errors=[];
   page.on('pageerror',e=>errors.push(e.message));
-  const base=root+'/prueba-baile/eventos/thesunfest';
+  const base=root+'/j2rankia/eventos/thesunfest';
   mkdirSync('/tmp/baile-pricing-screenshots',{recursive:true});
   async function fits(label){ const width=await page.evaluate(()=>[innerWidth,document.documentElement.scrollWidth]);assert.ok(width[1]<=width[0]+1, label+': '+width); }
   for(const width of [320,375,768,1440]){

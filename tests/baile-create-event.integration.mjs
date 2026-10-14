@@ -60,7 +60,7 @@ test('Crear eventos: publicación, aislamiento, accesos, tarifas y persistencia'
   });
   await t.test('crea página, portada, pases, categorías y cuentas sin filtrar secretos', async () => {
     const created = await admin.post('create-event', { ...fields(draft), cover: file() }, 201);
-    assert.equal(created.eventUrl, '/prueba-baile/eventos/' + draft.id);
+    assert.equal(created.eventUrl, '/j2rankia/eventos/' + draft.id);
     await admin.post('create-event', fields(draft), 409);
     const publicState = await client(draft.id).get();
     assert.equal(publicState.settings.name, draft.name);
@@ -145,7 +145,7 @@ test('Crear eventos: publicación, aislamiento, accesos, tarifas y persistencia'
     const listing=(await guest.get()).events;
     assert.ok(!listing.some(e=>[retired.id,'encuentro-salsa'].includes(e.id)));
     assert.ok(listing.some(e=>e.id===kept.id)); assert.ok(listing.some(e=>e.id===draft.id));
-    for(const url of ['/api/baile/eventos/'+retired.id+'/public','/api/baile/event-cover/'+retired.id,'/prueba-baile/eventos/'+retired.id]) assert.equal((await fetch(root+url)).status,404,url);
+    for(const url of ['/api/baile/eventos/'+retired.id+'/public','/api/baile/event-cover/'+retired.id,'/j2rankia/eventos/'+retired.id]) assert.equal((await fetch(root+url)).status,404,url);
     await admin.post('create-event',fields(retired),409);
     await admin.post('create-event',fields({...retired,id:'encuentro-salsa'}),409);
     const db=new DatabaseSync(path.join(dir,'events',retired.id,'event.sqlite'));

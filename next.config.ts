@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/prueba-baile/:path*",
+        destination: "/j2rankia/:path*",
+        permanent: true,
+      },
+      {
         source: "/transmisiones-fuller",
         destination: "/categorias/transmision",
         permanent: true,

@@ -536,7 +536,7 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     await admin.post('enrollment-music', { enrollmentId: scored.id, file: music() }, 409);
     await admin.post('enrollment-receipt', { enrollmentId: scored.id, file: receipt(), reason: 'No permitido' }, 409);
     await admin.post('enrollment-edit', { ...fields, enrollmentId: 'missing' }, 404);
-    assert.equal((await fetch(root + '/prueba-baile/inscripciones/' + entry.id)).status, 200);
+    assert.equal((await fetch(root + '/j2rankia/inscripciones/' + entry.id)).status, 200);
   });
   await t.test('eliminar jurados exige confirmación, permisos y preserva calificaciones', async () => {
     const contractor = client(); await contractor.post('login', { email: 'admin', password: 'DemoKey99' });

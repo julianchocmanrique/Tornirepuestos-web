@@ -8,6 +8,8 @@ export function useSavedEventDraft(key: string, demoEnabled: boolean, paymentDef
   const freshDraft = () => ({ ...newEventDraft(), demo: demoEnabled, paymentMethod: paymentDefaults?.paymentMethod ? { ...paymentDefaults.paymentMethod } : null, paymentInstructions: paymentDefaults?.paymentMethod ? paymentDefaults.paymentInstructions : "" });
   const [draft, setDraft] = useState(freshDraft);
   const [step, setStep] = useState(0), [cover, setCover] = useState<File | null>(null);
+  const [judgePhotos, setJudgePhotos] = useState<(File | null)[]>([]);
+  const savedJudgePhotos = useRef<(File | null)[] | undefined>(undefined);
   const [ready, setReady] = useState(false), [restored, setRestored] = useState(false);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const queue = useRef(Promise.resolve()), revision = useRef(0), suspended = useRef(false);
@@ -18,6 +20,7 @@ export function useSavedEventDraft(key: string, demoEnabled: boolean, paymentDef
       if (!active) return;
       if (saved) {
         setDraft({ ...saved.draft, demo: demoEnabled && saved.draft.demo }); setStep(saved.step); setCover(saved.cover);
+        setJudgePhotos(saved.judgePhotos); savedJudgePhotos.current = saved.judgePhotos;
         savedPhoto.current = saved.cover; setRestored(true); setStatus("saved");
       }
     }).catch(() => { if (active) setStatus("error"); }).finally(() => { if (active) setReady(true); });
@@ -30,11 +33,12 @@ export function useSavedEventDraft(key: string, demoEnabled: boolean, paymentDef
     if (skipInitial.current) { skipInitial.current = false; return; }
     const current = ++revision.current; setStatus("saving");
     queue.current = queue.current.catch(() => {}).then(async () => {
-      await writeEventDraft(key, draft, step, cover, savedPhoto.current !== cover);
+      await writeEventDraft(key, draft, step, cover, savedPhoto.current !== cover, judgePhotos, savedJudgePhotos.current !== judgePhotos);
+      savedJudgePhotos.current = judgePhotos;
       savedPhoto.current = cover;
     }).then(() => { if (alive.current && current === revision.current) setStatus("saved"); })
       .catch(() => { if (alive.current && current === revision.current) setStatus("error"); });
-  }, [key, ready, draft, step, cover]);
+  }, [key, ready, draft, step, cover, judgePhotos]);
 
   useEffect(() => {
     if (status !== "saving" && status !== "error") return;
@@ -55,8 +59,8 @@ export function useSavedEventDraft(key: string, demoEnabled: boolean, paymentDef
   async function reset() {
     if (!await clear()) { suspended.current = false; return false; }
     suspended.current = false;
-    setDraft(freshDraft()); setStep(0); setCover(null);
+    setDraft(freshDraft()); setStep(0); setCover(null); setJudgePhotos([]);
     return true;
   }
-  return { draft, setDraft, step, setStep, cover, setCover, ready, restored, status, clear, reset };
+  return { draft, setDraft, step, setStep, cover, setCover, judgePhotos, setJudgePhotos, ready, restored, status, clear, reset };
 }

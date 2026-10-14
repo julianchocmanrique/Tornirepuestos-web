@@ -1,11 +1,11 @@
 import { passPlans, passAvailable, type PassPlan } from "@/lib/baile/pricing";
-import sharp from "sharp";
+import { normalizeJudgePhoto } from "@/lib/baile/judge-photo";
 import { parsePaymentMethod } from "@/lib/baile/payment-method";
 import { scoringConfiguration } from "@/lib/baile/scoring-config";
 import { parseCategoryWorkbook, categoryIdentity } from "@/lib/baile/category-excel";
 import { protectedJudgeCategories } from "@/lib/baile/types";
-import { withEvent, sessionCookieName } from "@/lib/baile/event-scope";
-import { findRegisteredEvent as findEvent, listEvents, insertEvent, eventCover, archiveDemoEvents } from "@/lib/baile/event-registry";
+import { withEvent, currentEventId, sessionCookieName } from "@/lib/baile/event-scope";
+import { findRegisteredEvent as findEvent, listEvents, insertEvent, eventCover, archiveDemoEvents, initialJudgePhoto, type InitialJudgePhoto } from "@/lib/baile/event-registry";
 import { prepareEvent } from "@/lib/baile/create-event";
 import { eventHref } from "@/lib/baile/event-catalog";
 import { DOCUMENT_TYPES, LEVELS, WAIVER_VERSION, colombiaDate, isMinor, validSignature, waiverText, type Registration } from "@/lib/baile/registration";
@@ -73,7 +73,7 @@ async function handleGET(req: NextRequest, ctx: Context) {
       const state = readState();
       const judge = state.users.find(u => u.role === "judge" && !u.disabledAt && u.photoId === parts[1]);
       ensure(parts[1] && judge, "Foto no encontrada.", 404);
-      const file = db().prepare("SELECT content FROM files WHERE id=? AND owner=? AND kind='judge-photo'").get(parts[1], judge.id);
+      const file = db().prepare("SELECT content FROM files WHERE id=? AND owner=? AND kind='judge-photo'").get(parts[1], judge.id) || initialJudgePhoto(currentEventId(), parts[1], judge.id);
       ensure(file, "Foto no encontrada.", 404);
       return new NextResponse(new Uint8Array(file.content as Uint8Array), { headers: { "Content-Type": "image/webp", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } });
     }
@@ -246,18 +246,7 @@ async function handlePOST(req: NextRequest, ctx: Context) {
         ensure(judge, "Jurado no encontrado.", 404);
       };
       allowed();
-      let buffer: Buffer | undefined;
-      if (action === "judge-photo") {
-        const file = f.get("file");
-        ensure(file instanceof File && file.size > 0 && file.size <= 5 * 1024 ** 2, "Sube una foto JPG, PNG o WebP de máximo 5 MB.");
-        try {
-          const photo = sharp(Buffer.from(await file.arrayBuffer()), { limitInputPixels: 25000000 });
-          const info = await photo.metadata();
-          ensure(["jpeg", "png", "webp"].includes(info.format || "") && (info.pages || 1) === 1, "Usa JPG, PNG o WebP sin animación.");
-          // Re-encode uploads to strip metadata and never serve user-supplied active content.
-          buffer = await photo.rotate().resize(512, 512, { fit: "cover", position: "attention" }).webp({ quality: 85 }).toBuffer();
-        } catch (e) { if (e instanceof DanceError) throw e; throw new DanceError("No se pudo leer la foto. Usa una imagen JPG, PNG o WebP válida."); }
-      }
+      const buffer = action === "judge-photo" ? await normalizeJudgePhoto(f.get("file")) : undefined;
       transaction(s => {
         allowed(); const judge = s.users.find(u => u.id === judgeId)!;
         if (buffer) { const id = randomUUID(); putFile({ id, name: "foto-jurado.webp", mime: "image/webp", kind: "judge-photo", buffer }, judge.id); judge.photoId = id; }
@@ -342,13 +331,19 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       const { listing, state, accounts } = prepareEvent(input, user.id, !!cover);
       ensure(!listing.demo || withEvent(undefined, () => readState().settings.demo), "La plataforma tiene desactivados los eventos de prueba.");
       ensure(!findEvent(listing.id), "Ese enlace ya pertenece a otro evento. Elige otro identificador.", 409);
+      const photos: InitialJudgePhoto[] = [];
+      let judgeIndex = 0;
       for (const a of accounts) {
         const reserved = withEvent(undefined, () => readState().users.some(u => u.role === "superadmin" && (u.email === a.email || u.username?.toLowerCase() === a.email)));
         ensure(!reserved, "El correo del equipo no puede pertenecer a superadministración.", 409);
-        state.users.push({ id: randomUUID(), name: a.name, email: a.email, passwordHash: await hashPassword(a.password), role: a.role, categories: a.categories });
+        const id = randomUUID();
+        const buffer = a.role === "judge" ? await normalizeJudgePhoto(f.get("judgePhoto" + judgeIndex++), true) : undefined;
+        const photoId = buffer ? randomUUID() : undefined;
+        if (buffer && photoId) photos.push({ id: photoId, owner: id, buffer });
+        state.users.push({ id, name: a.name, email: a.email, passwordHash: await hashPassword(a.password), role: a.role, categories: a.categories, ...(photoId ? { photoId } : {}) });
       }
       ensure(rootAdmin(), "Tu sesión cambió. Vuelve a iniciar sesión.", 401);
-      insertEvent(listing, state, cover);
+      insertEvent(listing, state, cover, photos);
       return json({ ok: true, eventId: listing.id, eventUrl: eventHref(listing.id) }, 201);
     }
     if (action === "enrollment-edit") {
@@ -524,6 +519,7 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       const id = text(f, "id", 100, false);
       const name = text(f, "name", 120); const address = email(f); const password = text(f, "password", 160, false);
       const passwordHash = password ? await hashPassword(password) : null;
+      const photo = await normalizeJudgePhoto(f.get("photo"), true);
       transaction(s => {
         const old = s.users.find(x => x.id === id && x.role === "judge");
         const protectedIds = protectedJudgeCategories(s);
@@ -534,6 +530,12 @@ async function handlePOST(req: NextRequest, ctx: Context) {
           Object.assign(old, { name, email: address, categories, ...(passwordHash ? { passwordHash } : {}) });
           if (passwordHash) db().prepare("DELETE FROM sessions WHERE userId=?").run(old.id);
         } else { ensure(passwordHash, "Define una contraseña para el nuevo jurado."); s.users.push({ id: randomUUID(), name, email: address, categories, passwordHash, role: "judge" }); }
+        if (photo) {
+          const judge = old || s.users.find(x => x.email === address && x.role === "judge")!;
+          const photoId = randomUUID();
+          putFile({ id: photoId, name: "foto-jurado.webp", mime: "image/webp", kind: "judge-photo", buffer: photo }, judge.id);
+          judge.photoId = photoId;
+        }
         audit(s, user.id, "Acceso de jurado actualizado", address);
       }); return json({ ok: true });
     }

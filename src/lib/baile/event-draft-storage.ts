@@ -51,9 +51,10 @@ function open(): Promise<IDBDatabase> {
 
 export async function readEventDraft(key: string) {
   const db = await open();
-  return new Promise<{ draft: EventDraft; step: number; cover: File | null } | null>((resolve, reject) => {
+  return new Promise<{ draft: EventDraft; step: number; cover: File | null; judgePhotos: (File | null)[] } | null>((resolve, reject) => {
     const tx = db.transaction(["drafts", "photos"], "readonly");
     const data = tx.objectStore("drafts").get(key), photo = tx.objectStore("photos").get(key);
+    const judgePhotos = tx.objectStore("photos").get(key + ":judges");
     tx.oncomplete = () => {
       db.close();
       try {
@@ -61,14 +62,16 @@ export async function readEventDraft(key: string) {
         const restored = restoreDraft(data.result);
         const cover = photo.result;
         if (cover != null && (!(cover instanceof File) || cover.size > 5 * 1024 ** 2 || !["image/png", "image/jpeg"].includes(cover.type))) throw new Error("Invalid photo");
-        resolve({ ...restored, cover: cover || null });
+        const portraits: unknown = judgePhotos.result || [];
+        if (!Array.isArray(portraits) || portraits.length > 20 || portraits.some(p => p !== null && (!(p instanceof File) || p.size > 5 * 1024 ** 2 || !["image/png", "image/jpeg", "image/webp"].includes(p.type)))) throw new Error("Invalid judge photos");
+        resolve({ ...restored, cover: cover || null, judgePhotos: restored.draft.judges.map((_, i) => portraits[i] || null) });
       } catch (error) { reject(error); }
     };
     tx.onabort = () => { db.close(); reject(tx.error); };
   });
 }
 
-export async function writeEventDraft(key: string, draft: EventDraft, step: number, cover: File | null, updatePhoto: boolean) {
+export async function writeEventDraft(key: string, draft: EventDraft, step: number, cover: File | null, updatePhoto: boolean, judgePhotos: (File | null)[] = [], updateJudgePhotos = true) {
   const db = await open();
   return new Promise<void>((resolve, reject) => {
     const tx = db.transaction(["drafts", "photos"], "readwrite");
@@ -76,6 +79,7 @@ export async function writeEventDraft(key: string, draft: EventDraft, step: numb
     tx.onabort = () => { db.close(); reject(tx.error); };
     try {
       tx.objectStore("drafts").put({ version: 1, draft: withoutPasswords(draft), step }, key);
+      if (updateJudgePhotos) tx.objectStore("photos").put(judgePhotos, key + ":judges");
       // Save the photo only when it changes, in the same transaction as its draft.
       if (updatePhoto) {
         if (cover) tx.objectStore("photos").put(cover, key);
@@ -89,7 +93,7 @@ export async function deleteEventDraft(key: string) {
   const db = await open();
   return new Promise<void>((resolve, reject) => {
     const tx = db.transaction(["drafts", "photos"], "readwrite");
-    tx.objectStore("drafts").delete(key); tx.objectStore("photos").delete(key);
+    tx.objectStore("drafts").delete(key); tx.objectStore("photos").delete(key); tx.objectStore("photos").delete(key + ":judges");
     tx.oncomplete = () => { db.close(); resolve(); };
     tx.onabort = () => { db.close(); reject(tx.error); };
   });

@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { once } from 'node:events';
 import ts from 'typescript';
+import sharp from 'sharp';
 import { DatabaseSync } from 'node:sqlite';
 
 test('Crear eventos: publicación, aislamiento, accesos, tarifas y persistencia', { timeout: 120000 }, async t => {
@@ -42,6 +43,8 @@ test('Crear eventos: publicación, aislamiento, accesos, tarifas y persistencia'
     contractor: { name: 'Contratista', email: 'contratista@example.test', password: 'prueba-contratista-123' },
     judges: [{ name: 'Jurado', email: 'jurado@example.test', password: 'prueba-jurado-123', categories: [0] }],
   };
+  const portrait = await sharp({create:{width:80,height:100,channels:3,background:'#993322'}}).png().toBuffer();
+  const judgePhoto = () => new File([portrait], 'judge.png', {type:'image/png'});
   const fields = d => ({ event: JSON.stringify(d), confirm: 'publish', cover: file() });
   const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aWQAAAABJRU5ErkJggg==', 'base64');
   const file = () => new File([png], 'portada.png', { type: 'image/png' });
@@ -56,10 +59,11 @@ test('Crear eventos: publicación, aislamiento, accesos, tarifas y persistencia'
     }
     await admin.post('create-event', fields({ ...draft, id: 'thesunfest' }), 409);
     await admin.post('create-event', { ...fields(draft), cover: new File(['<svg/>'], 'unsafe.png', { type: 'image/png' }) }, 400);
+    await admin.post('create-event', {...fields(draft), judgePhoto0:new File(['bad'], 'bad.png')}, 400);
     assert.equal((await guest.get()).events.length, before.events.length);
   });
   await t.test('crea página, portada, pases, categorías y cuentas sin filtrar secretos', async () => {
-    const created = await admin.post('create-event', { ...fields(draft), cover: file() }, 201);
+    const created = await admin.post('create-event', { ...fields(draft), cover: file(), judgePhoto0:judgePhoto() }, 201);
     assert.equal(created.eventUrl, '/j2rankia/eventos/' + draft.id);
     await admin.post('create-event', fields(draft), 409);
     const publicState = await client(draft.id).get();
@@ -80,6 +84,11 @@ test('Crear eventos: publicación, aislamiento, accesos, tarifas y persistencia'
     assert.equal(cover.headers.get('content-type'), 'image/png'); assert.deepEqual(Buffer.from(await cover.arrayBuffer()), png);
     const owner = client(draft.id); await owner.post('login', credentials);
     assert.equal((await owner.get()).judges.length, 1);
+    const savedJudge=(await owner.get()).judges[0];assert.ok(savedJudge.photoId);
+    const portraitResponse=await fetch(root+'/api/baile/eventos/'+draft.id+'/judge-photo/'+savedJudge.photoId);
+    assert.equal(portraitResponse.status,200);
+    const metadata=await sharp(Buffer.from(await portraitResponse.arrayBuffer())).metadata();assert.equal(metadata.format,'webp');assert.equal(metadata.width,512);
+    assert.equal((await fetch(root+'/api/baile/eventos/encuentro-salsa/judge-photo/'+savedJudge.photoId)).status,404);
     assert.equal((await owner.get()).payments.length, 0);
     const contractor = client(draft.id); await contractor.post('login', draft.contractor);
     assert.equal((await contractor.get()).user.role, 'contractor');

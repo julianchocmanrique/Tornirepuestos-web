@@ -22,6 +22,16 @@ test('Fotos de jurados: permisos, imagen segura, perfiles y aislamiento', {timeo
   await admin.post('judge',{id:'',name:'Otro Jurado',email:'otro@judge.test',password:'OtroJurado1234'});
   const before=await(await admin.get()).json(),target=before.judges.find(j=>j.email==='foto@judge.test'),otherJudge=before.judges.find(j=>j.email==='otro@judge.test');
   const buffer=await sharp({create:{width:900,height:600,channels:3,background:'#8a1b2c'}}).jpeg().toBuffer();
+  await admin.post('judge',{id:'',name:'Invalid',email:'invalid@judge.test',password:'InvalidPhoto1234',photo:new File(['bad'],'bad.png')},400);
+  assert.ok(!(await(await admin.get()).json()).judges.some(j=>j.email==='invalid@judge.test'));
+  await admin.post('judge',{id:'',name:'With photo',email:'with@judge.test',password:'WithPhoto1234',photo:new File([buffer],'photo.jpg')});
+  let created=(await(await admin.get()).json()).judges.find(j=>j.email==='with@judge.test');
+  const initialId=created.photoId;assert.ok(initialId);assert.equal((await guest.get('judge-photo/'+initialId)).status,200);
+  await admin.post('judge',{id:created.id,name:'Updated name',email:created.email,password:'',photo:new File([],'')});
+  assert.equal((await(await admin.get()).json()).judges.find(j=>j.id===created.id).photoId,initialId);
+  await admin.post('judge',{id:created.id,name:'Updated name',email:created.email,password:'',photo:new File([buffer],'new.jpg')});
+  created=(await(await admin.get()).json()).judges.find(j=>j.id===created.id);assert.notEqual(created.photoId,initialId);
+  assert.equal((await guest.get('judge-photo/'+initialId)).status,404);
   const fields=()=>({judgeId:target.id,file:new File([buffer],'foto.jpg',{type:'image/jpeg'})});
   await guest.post('judge-photo',fields(),401);
   await judge.post('login',{email:'foto@judge.test',password:'JuradoFoto1234'});

@@ -10,6 +10,7 @@ import { useDanceScope } from "./DanceScope";
 import { money } from "@/lib/baile/types";
 import { categoryIdentity } from "@/lib/baile/category-identity";
 import { CategoryExcel } from "./CategoryExcel";
+import { JudgePhotoInput } from "./JudgePhotoInput";
 import { ScoringEditor } from "./ScoringEditor";
 import type { Run } from "./ui";
 import "./create-event.css";
@@ -25,7 +26,7 @@ function Check({ label, value, onValue }: { label: string; value: boolean; onVal
 export function CreateEvent({ run, events = [], demoEnabled, userId, paymentDefaults }: { run: Run; events?: EventListing[]; demoEnabled: boolean; userId: string; paymentDefaults?: Settings }) {
   const { eventId } = useDanceScope();
   const saved = useSavedEventDraft(JSON.stringify([userId, eventId || "root"]), demoEnabled, paymentDefaults);
-  const { draft, setDraft, step, setStep, cover, setCover, ready } = saved;
+  const { draft, setDraft, step, setStep, cover, setCover, judgePhotos, setJudgePhotos, ready } = saved;
   const [busy, setBusy] = useState(false), [error, setError] = useState("");
   const [preview, setPreview] = useState("");
   const [confirm, setConfirm] = useState(false), [created, setCreated] = useState("");
@@ -66,12 +67,13 @@ export function CreateEvent({ run, events = [], demoEnabled, userId, paymentDefa
     setBusy(true); setError("");
     try {
       const data = new FormData(); data.set("event", JSON.stringify(draft)); data.set("confirm", "publish"); if (cover) data.set("cover", cover);
+      judgePhotos.forEach((photo, i) => { if (photo && i < draft.judges.length) data.set("judgePhoto" + i, photo); });
       const result = await run("create-event", data, setError);
       if (result?.eventUrl) {
         await saved.clear();
         setCreated(result.eventUrl);
         setDraft(d => ({ ...d, contractor: null, judges: [] }));
-        setCover(null);
+        setCover(null); setJudgePhotos([]);
       }
     } finally { setBusy(false); }
   }
@@ -81,7 +83,7 @@ export function CreateEvent({ run, events = [], demoEnabled, userId, paymentDefa
     {saved.status === "error" && <p className="dance-notice error" role="alert">No se pudo acceder al borrador en este navegador. No cierres ni recargues si tienes cambios pendientes; comprueba que el almacenamiento del navegador esté disponible.</p>}
     {created ? <section className="dance-panel"><p className="dance-eyebrow">EVENTO PUBLICADO</p><h2 ref={title} tabIndex={-1}>{draft.name} ya tiene su espacio</h2><p>La página pública, los pases y las categorías están listos. Los registros están {draft.registrationOpen ? "abiertos" : "cerrados"}.</p><p>Ingresa al nuevo panel con tu cuenta de superadministración. Los accesos del equipo solo funcionan en este evento.</p><div className="dance-actions"><Link className="dance-btn" href={created}>Ver página del evento</Link><Link className="dance-btn secondary" href={`${created}/acceso`}>Administrar evento</Link><button className="dance-btn secondary" onClick={reset}>Crear otro evento</button></div><p className="dance-muted">Desde el nuevo panel puedes completar el minuto a minuto, añadir jurados y ajustar las tarifas antes de recibir inscripciones.</p></section> : <>
       <div className="dance-callout">Cada evento tendrá su propia página, participantes, inscripciones, comprobantes, pistas y resultados. No se copiarán registros de otros eventos.</div>
-      <div className="event-draft-status"><div><p role="status" aria-live="polite">{saved.status === "saving" ? "Guardando borrador…" : saved.status === "saved" ? "Borrador guardado en este navegador." : saved.status === "error" ? "Borrador sin guardar." : "Guardado automático activado."}</p><small>{saved.restored ? "Recuperamos tus datos y fotografía. " : "Puedes recargar después de que termine el guardado. "}Las contraseñas no se guardan. El borrador no se publica ni se sincroniza con otros dispositivos.</small></div><button type="button" className="dance-btn secondary small" disabled={busy} onClick={() => { if (window.confirm("¿Descartar los datos y la fotografía de este borrador? Los eventos publicados no se modificarán.")) void reset(); }}>Descartar borrador</button></div>
+      <div className="event-draft-status"><div><p role="status" aria-live="polite">{saved.status === "saving" ? "Guardando borrador…" : saved.status === "saved" ? "Borrador guardado en este navegador." : saved.status === "error" ? "Borrador sin guardar." : "Guardado automático activado."}</p><small>{saved.restored ? "Recuperamos tus datos y fotografías. " : "Puedes recargar después de que termine el guardado. "}Las contraseñas no se guardan. El borrador no se publica ni se sincroniza con otros dispositivos.</small></div><button type="button" className="dance-btn secondary small" disabled={busy} onClick={() => { if (window.confirm("¿Descartar los datos y la fotografía de este borrador? Los eventos publicados no se modificarán.")) void reset(); }}>Descartar borrador</button></div>
       <ol className="event-builder-steps" aria-label="Pasos para crear el evento">{steps.map((label, i) => <li key={label} aria-current={step === i ? "step" : undefined}><span>{String(i + 1).padStart(2, "0")}</span>{label}</li>)}</ol>
       <form ref={form} className="dance-form dance-panel" onSubmit={e => { e.preventDefault(); if (step === steps.length - 1) void publish(); else next(); }}>
         <fieldset disabled={busy}><p className="dance-eyebrow">PASO {step + 1} DE {steps.length}</p><h2 ref={title} tabIndex={-1}>{steps[step]}</h2>
@@ -135,7 +137,7 @@ export function CreateEvent({ run, events = [], demoEnabled, userId, paymentDefa
             <p>Tu cuenta global de superadministración podrá gestionar el nuevo evento. Estos accesos son opcionales y exclusivos del evento; también puedes crearlos después desde Ajustes y Jurados.</p>
             <Check label="Crear acceso para el contratista" value={!!draft.contractor} onValue={v => change("contractor", v ? { name: "", email: "", password: "" } : null)} />
             {draft.contractor && <section className="event-builder-item"><h3>Contratista del evento</h3><p>Visualiza registros e inscripciones y valida los comprobantes de pago.</p><div className="dance-form-grid">{(["name", "email", "password"] as const).map(key => <Input key={key} label={{ name: "Nombre del contratista", email: "Correo del contratista", password: "Contraseña del contratista" }[key]} value={draft.contractor![key]} type={key === "name" ? "text" : key} minLength={key === "password" ? 10 : undefined} maxLength={key === "password" ? 160 : 200} autoComplete={key === "password" ? "new-password" : "off"} onValue={v => change("contractor", { ...draft.contractor!, [key]: v })} />)}</div></section>}
-            {draft.judges.map((j, i) => <section className="event-builder-item" key={i}><div className="dance-panel-title"><h3>Jurado {i + 1}</h3><button type="button" className="dance-text-link" onClick={() => change("judges", draft.judges.filter((_, n) => n !== i))}>Quitar jurado {i + 1}</button></div><div className="dance-form-grid">{(["name", "email", "password"] as const).map(key => <Input key={key} label={`${{ name: "Nombre", email: "Correo", password: "Contraseña" }[key]} del jurado ${i + 1}`} type={key === "name" ? "text" : key} value={j[key]} minLength={key === "password" ? 10 : undefined} maxLength={key === "password" ? 160 : 200} autoComplete={key === "password" ? "new-password" : "off"} onValue={v => change("judges", draft.judges.map((x, n) => n === i ? { ...x, [key]: v } : x))} />)}</div><p>Calificará todas las categorías de este evento, incluidas las que añadas después.</p></section>)}
+            {draft.judges.map((j, i) => <section className="event-builder-item" key={i}><div className="dance-panel-title"><h3>Jurado {i + 1}</h3><button type="button" className="dance-text-link" onClick={() => { change("judges", draft.judges.filter((_, n) => n !== i)); setJudgePhotos(photos => draft.judges.map((_, n) => photos[n] || null).filter((_, n) => n !== i)); }}>Quitar jurado {i + 1}</button></div><div className="dance-form-grid">{(["name", "email", "password"] as const).map(key => <Input key={key} label={`${{ name: "Nombre", email: "Correo", password: "Contraseña" }[key]} del jurado ${i + 1}`} type={key === "name" ? "text" : key} value={j[key]} minLength={key === "password" ? 10 : undefined} maxLength={key === "password" ? 160 : 200} autoComplete={key === "password" ? "new-password" : "off"} onValue={v => change("judges", draft.judges.map((x, n) => n === i ? { ...x, [key]: v } : x))} />)}</div><JudgePhotoInput name={`judgePhoto${i}`} label={`Foto del jurado ${i + 1}`} file={judgePhotos[i] || null} onChange={photo => { setJudgePhotos(photos => draft.judges.map((_, n) => n === i ? photo : photos[n] || null)); setConfirm(false); }} /><p>Calificará todas las categorías de este evento, incluidas las que añadas después.</p></section>)}
             <button type="button" className="dance-btn secondary small" disabled={draft.judges.length >= 20} onClick={() => change("judges", [...draft.judges, { name: "", email: "", password: "", categories: [] }])}>Añadir jurado</button>
             <p className="dance-muted">Contraseñas de al menos 10 caracteres. No se envían por correo ni se publican. Compártelas de forma privada con cada integrante.</p>
           </>}

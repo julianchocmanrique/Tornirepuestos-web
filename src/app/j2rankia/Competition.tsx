@@ -4,6 +4,7 @@ import type { Snapshot, Category, PublicUser } from "@/lib/baile/types";
 import { usesWeightedScoring } from "@/lib/baile/types";
 import { ranking, resultBreakdown } from "@/lib/baile/results";
 import { Field, Form, Empty, Music, exportCsv, type Run } from "./ui";
+import { JudgePhotoInput } from "./JudgePhotoInput";
 import { JudgeAvatar } from "./JudgeAvatar";
 import { ResultViewer } from "./ResultViewer";
 export function CategoryForm({ c, run }: { c?: Category; run: Run }) {
@@ -12,7 +13,7 @@ export function CategoryForm({ c, run }: { c?: Category; run: Run }) {
   return <Form action="category" run={adjustedRun}><input type="hidden" name="id" value={c?.id || ""} /><div className="dance-form-grid"><Field name="name" label="Nombre" value={c?.name} maxLength={120} /><Field name="rhythm" label="Ritmo" value={c?.rhythm} maxLength={80} /><Field name="modality" label="Modalidad"><select name="modality" defaultValue={c?.modality || "Solista"}><option>Solista</option><option>Pareja</option><option>Grupo</option></select></Field><Field name="division" label="División" value={c?.division || "Abierta"} maxLength={80} /><Field name="fee" label="Valor de inscripción (COP)" type="number" min={1} value={c?.fee || 60000} /><Field name="validUntil" label="Vigencia de la tarifa (vacío: sin vencimiento)" type="date" value={c?.validUntil || ""} required={false} /><Field name="deadline" label="Plazo de pistas (hora de Colombia)" type="datetime-local" value={date} required={false} /></div><label className="dance-check"><input type="checkbox" name="active" defaultChecked={c?.active ?? true} /> Disponible para nuevas inscripciones</label></Form>;
 }
 export function JudgeForm({ s, run, judge }: { s: Snapshot; run: Run; judge?: PublicUser }) {
-  return <Form action="judge" run={run}><input type="hidden" name="id" value={judge?.id || ""} /><div className="dance-form-grid"><Field name="name" label="Nombre del jurado" value={judge?.name} maxLength={120} /><Field name="email" label="Correo" type="email" value={judge?.email} /><Field name="password" label={judge ? "Nueva contraseña (deja vacío para conservarla)" : "Contraseña inicial"} type="password" required={!judge} minLength={10} maxLength={160} /></div><p>Todos los jurados activos califican todas las categorías de este evento, incluidas las nuevas. Las categorías que ya tienen notas o iniciaron conservan su equipo original.</p></Form>;
+  return <Form action="judge" run={run}><input type="hidden" name="id" value={judge?.id || ""} /><div className="dance-form-grid"><Field name="name" label="Nombre del jurado" value={judge?.name} maxLength={120} /><Field name="email" label="Correo" type="email" value={judge?.email} /><Field name="password" label={judge ? "Nueva contraseña (deja vacío para conservarla)" : "Contraseña inicial"} type="password" required={!judge} minLength={10} maxLength={160} /></div><JudgePhotoInput /><p>Todos los jurados activos califican todas las categorías de este evento, incluidas las nuevas. Las categorías que ya tienen notas o iniciaron conservan su equipo original.</p></Form>;
 }
 export function CompetitionList({ s, categoryId }: { s: Snapshot; categoryId: string }) {
   const rows = ranking(s, categoryId).sort((a, b) => a.enrollment.competitionNumber! - b.enrollment.competitionNumber!);

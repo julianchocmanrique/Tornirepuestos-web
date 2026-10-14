@@ -14,6 +14,7 @@ function registry() {
     conn = new DatabaseSync(path.join(root, "events-index.sqlite"));
     conn.exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;
       CREATE TABLE IF NOT EXISTS events (id TEXT PRIMARY KEY, listing TEXT NOT NULL, seed TEXT NOT NULL, cover BLOB, mime TEXT);
+      CREATE TABLE IF NOT EXISTS event_judge_photos (eventId TEXT NOT NULL, id TEXT NOT NULL, owner TEXT NOT NULL, content BLOB NOT NULL, PRIMARY KEY(eventId,id));
       CREATE TABLE IF NOT EXISTS archived_events (id TEXT PRIMARY KEY, actor TEXT NOT NULL, archivedAt TEXT NOT NULL, replacementId TEXT NOT NULL);`);
     connections.set(root, conn);
   }
@@ -39,7 +40,11 @@ export function eventSeed(id: string): State | undefined {
 export function eventCover(id: string) {
   return registry().prepare("SELECT cover,mime FROM events WHERE id=? AND cover IS NOT NULL").get(id);
 }
-export function insertEvent(listing: EventListing, seed: State, cover?: { buffer: Buffer; mime: string }) {
+export type InitialJudgePhoto = { id: string; owner: string; buffer: Buffer };
+export function initialJudgePhoto(eventId: string | undefined, id: string, owner: string) {
+  return eventId ? registry().prepare("SELECT content FROM event_judge_photos WHERE eventId=? AND id=? AND owner=?").get(eventId, id, owner) : undefined;
+}
+export function insertEvent(listing: EventListing, seed: State, cover?: { buffer: Buffer; mime: string }, photos: InitialJudgePhoto[] = []) {
   const conn = registry();
   conn.exec("BEGIN IMMEDIATE");
   try {
@@ -47,6 +52,7 @@ export function insertEvent(listing: EventListing, seed: State, cover?: { buffer
     // The listing, initial configuration and public cover are committed together.
     // The event database initializes lazily with this seed and never replaces existing data.
     conn.prepare("INSERT INTO events VALUES (?,?,?,?,?)").run(listing.id, JSON.stringify(listing), JSON.stringify(seed), cover?.buffer || null, cover?.mime || null);
+    for (const photo of photos) conn.prepare("INSERT INTO event_judge_photos VALUES (?,?,?,?)").run(listing.id, photo.id, photo.owner, photo.buffer);
     conn.exec("COMMIT");
   } catch (error) { conn.exec("ROLLBACK"); throw error; }
 }

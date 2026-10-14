@@ -505,8 +505,18 @@ async function handlePOST(req: NextRequest, ctx: Context) {
       transaction(s => { const score = s.scores.find(x => x.id === id); ensure(score, "Calificación no encontrada.", 404); const entry = s.enrollments.find(e => e.id === score.enrollmentId)!; ensure(!s.schedule.some(x => x.categoryId === entry.categoryId && x.status === "finished"), "No se pueden reabrir notas de una categoría finalizada.", 409); score.locked = false; audit(s, user.id, `Edición autorizada: ${note}`, id); }); return json({ ok: true });
     }
     if (action === "reset-password") {
-      const id = text(f, "userId"); const passwordHash = await hashPassword(text(f, "password", 160));
-      transaction(s => { const target = s.users.find(x => x.id === id); ensure(target, "Cuenta no encontrada.", 404); target.passwordHash = passwordHash; db().prepare("DELETE FROM sessions WHERE userId=?").run(id); audit(s, user.id, "Contraseña restablecida", id); }); return json({ ok: true });
+      const id = text(f, "userId"); const password = text(f, "password", 160);
+      const passwordHash = await hashPassword(password, true);
+      transaction(s => {
+        const target = s.users.find(x => x.id === id); ensure(target, "Cuenta no encontrada.", 404);
+        if (password.length < 10) {
+          ensure(s.settings.demo && target.role !== "superadmin", "Las claves cortas son solo para perfiles de eventos de prueba.");
+          target.demoOnly = true;
+        }
+        target.passwordHash = passwordHash;
+        db().prepare("DELETE FROM sessions WHERE userId=?").run(id);
+        audit(s, user.id, "Contraseña restablecida", id);
+      }); return json({ ok: true });
     }
     if (action === "example") {
       const access = await Promise.all(["Valentina Demo", "Mateo Demo", "Jurado 1 Demo", "Jurado 2 Demo", "Jurado 3 Demo"].map(async (name, i) => {

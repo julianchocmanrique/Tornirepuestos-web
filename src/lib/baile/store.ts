@@ -60,8 +60,9 @@ export function transaction<T>(fn: (state: State) => T): T {
   } catch (error) { conn.exec("ROLLBACK"); throw error; }
 }
 const scrypt = promisify(scryptCallback);
-export async function hashPassword(password: string) {
-  ensure(password.length >= 10 && password.length <= 160, "Usa una contraseña de entre 10 y 160 caracteres.");
+export async function hashPassword(password: string, demoReset = false) {
+  const minimum = demoReset && currentEventId() && readState().settings.demo ? 6 : 10;
+  ensure(password.length >= minimum && password.length <= 160, `Usa una contraseña de entre ${minimum} y 160 caracteres.`);
   const salt = randomBytes(16).toString("hex");
   const key = await scrypt(password, salt, 64) as Buffer;
   return `${salt}:${key.toString("hex")}`;

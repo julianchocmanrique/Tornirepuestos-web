@@ -78,3 +78,9 @@
   .judge-workspace .dance-score-total > span { justify-content: space-between; width: 100%; }
   .judge-main .dance-form .dance-btn { width: 100%; }
 }
+.competitor-identity { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.competitor-identity > div { min-width: 0; overflow-wrap: anywhere; }
+.competitor-avatar { display: inline-flex; flex: 0 0 56px; width: 56px; height: 56px; padding: 2px; border: 1px solid var(--dance-gold); border-radius: 50%; background: var(--dance-raised); overflow: hidden; }
+.competitor-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.competitor-avatar svg { width: 100%; height: 100%; fill: var(--dance-gold); opacity: .7; }
+@media (max-width: 650px) { .competitor-avatar { flex-basis: 44px; width: 44px; height: 44px; } .competitor-identity { gap: 9px; } }

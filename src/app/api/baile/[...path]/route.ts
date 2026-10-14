@@ -69,6 +69,19 @@ function putFile(file: Upload, owner: string) {
 async function handleGET(req: NextRequest, ctx: Context) {
   try {
     const parts = (await ctx.params).path;
+    if (parts[0] === "competitor-photo") {
+      const user = actor(req);
+      ensure(user.role === "judge", "Acceso reservado al jurado asignado.", 403);
+      const state = readState();
+      const entry = state.enrollments.find(e => e.id === parts[1]);
+      ensure(entry && user.categories.includes(entry.categoryId) && eligible(state, entry), "Foto no disponible para este jurado.", 404);
+      const photoId = state.participants.find(p => p.id === entry.participantId)?.registration?.photoId;
+      ensure(photoId, "El participante no tiene foto registrada.", 404);
+      const file = db().prepare("SELECT content FROM files WHERE id=? AND owner=? AND kind='photo'").get(photoId, entry.participantId);
+      ensure(file, "Foto no encontrada.", 404);
+      const buffer = await normalizeJudgePhoto(new File([new Uint8Array(file.content as Uint8Array)], "participante"));
+      return new NextResponse(new Uint8Array(buffer!), { headers: { "Content-Type": "image/webp", "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" } });
+    }
     if (parts[0] === "judge-photo") {
       const state = readState();
       const judge = state.users.find(u => u.role === "judge" && !u.disabledAt && u.photoId === parts[1]);

@@ -1,0 +1,77 @@
+.dance-app .judge-workspace { padding-block: 32px 56px; }
+.judge-heading { display: flex; align-items: center; justify-content: space-between; gap: 32px; margin-bottom: 22px; }
+.dance-app .judge-heading h1 { font-size: clamp(28px, 3.2vw, 40px); margin: 8px 0; letter-spacing: -.035em; }
+.judge-heading p { margin: 0; color: var(--dance-muted); font-size: 13px; }
+.judge-progress { flex: 0 0 265px; display: grid; gap: 8px; font-size: 13px; }
+.judge-progress strong { color: var(--dance-gold); }
+.judge-progress small { color: var(--dance-muted); }
+.judge-progress progress { width: 100%; height: 5px; accent-color: var(--dance-gold); border: 0; border-radius: 6px; overflow: hidden; background: var(--dance-raised); }
+.judge-progress progress::-webkit-progress-bar { background: var(--dance-raised); }
+.judge-progress progress::-webkit-progress-value { background: var(--dance-gold); }
+.judge-progress progress::-moz-progress-bar { background: var(--dance-gold); }
+.judge-help { border-block: 1px solid var(--dance-line); margin: 0 0 24px; font-size: 13px; }
+.judge-help summary { padding: 13px 0; cursor: pointer; color: var(--dance-gold); font-weight: 600; }
+.judge-help summary > span { float: right; font-weight: 400; color: var(--dance-muted); }
+.judge-help > p { color: var(--dance-muted); padding-bottom: 12px; }
+.judge-criteria { display: flex; gap: 10px; flex-wrap: wrap; padding-top: 8px; }
+.judge-criteria > span { display: grid; gap: 5px; padding: 10px 16px; background: var(--dance-surface); border-radius: 6px; }
+.judge-criteria strong { color: var(--dance-gold); }
+.judge-layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 24px; align-items: start; }
+.judge-sidebar { background: var(--dance-surface); border: 1px solid var(--dance-line); border-radius: 12px; overflow: hidden; }
+.judge-sidebar-controls { padding: 20px; display: grid; gap: 17px; }
+.judge-sidebar-controls .dance-eyebrow { margin: 0; }
+.dance-app .judge-sidebar h2 { font-size: 19px; margin: -8px 0 0; }
+.judge-entry-list { max-height: 350px; overflow: auto; border-top: 1px solid var(--dance-line); overscroll-behavior: contain; padding: 8px; }
+.judge-entry-list button { display: flex; gap: 13px; align-items: center; width: 100%; padding: 13px 12px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--dance-ink); text-align: left; font: inherit; margin-bottom: 4px; }
+.judge-entry-list button > strong { font-size: 22px; font-variant-numeric: tabular-nums; color: var(--dance-gold); }
+.judge-entry-list button > span { font-size: 13px; }
+.judge-entry-list button > span:last-child { margin-left: auto; }
+.judge-entry-list button small { display: block; font-size: 11px; color: var(--dance-muted); margin-top: 2px; }
+.judge-entry-list button[aria-pressed="true"] { background: #491724; border-color: #a74755; }
+.judge-entry-list button:hover { background: var(--dance-raised); }
+.judge-entry-list button:focus-visible { outline-offset: -3px; }
+.judge-list-empty { font-size: 13px; color: var(--dance-muted); padding: 12px; }
+.judge-clear { margin: 0 20px 16px; }
+.judge-main { min-width: 0; }
+.judge-category { margin-bottom: 16px; overflow-wrap: anywhere; }
+.judge-category .dance-eyebrow { margin: 0 0 8px; }
+.dance-app .judge-category h2 { font-size: clamp(20px, 2.1vw, 26px); margin: 0 0 6px; line-height: 1.25; }
+.judge-category > p:last-child { margin: 0; font-size: 12px; color: var(--dance-muted); }
+.judge-main .dance-panel { padding: 22px; margin-bottom: 12px; }
+.judge-main .dance-panel-title .dance-eyebrow { display: none; }
+.judge-main .dance-panel-title { margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+.judge-main .dance-panel-title h2 { font-size: 25px; margin: 0; }
+.judge-workspace .dance-score-grid { grid-template-columns: 1fr; gap: 0; margin: 12px 0; }
+.judge-workspace .dance-score-grid label, .judge-workspace .dance-score-grid > div { display: grid; grid-template-columns: minmax(0, 1fr) 100px; align-items: center; gap: 12px; padding: 12px 0; border-radius: 0; border-bottom: 1px solid var(--dance-line); background: transparent; }
+.judge-workspace .dance-score-grid span { min-height: 0; font-size: 14px; }
+.dance-app .judge-workspace .dance-score-grid .dance-score-weight { display: inline-block; font-size: 12px; margin: 0 0 0 9px; }
+.judge-workspace .dance-score-grid input { font-size: 22px !important; padding: 8px !important; font-variant-numeric: tabular-nums; }
+.judge-workspace .dance-score-grid small { display: none; }
+.judge-workspace .dance-score-grid > div > strong { text-align: center; font-size: 23px; color: var(--dance-gold); }
+.judge-workspace .dance-score-total { border: 0; background: var(--dance-raised); border-radius: 7px; padding: 12px 16px; margin-bottom: 16px; }
+.judge-workspace .dance-score-total > span { display: flex; align-items: center; gap: 16px; }
+.judge-workspace .dance-score-total strong { color: var(--dance-gold); white-space: nowrap; }
+.judge-workspace-footer { display: flex; gap: 16px; align-items: center; justify-content: space-between; }
+.judge-workspace-footer p { font-size: 11px; color: var(--dance-muted); max-width: 410px; }
+.judge-workspace-footer button { flex-shrink: 0; }
+.judge-layout + .judge-help { margin-top: 28px; }
+@media (max-width: 850px) {
+  .judge-heading { align-items: start; gap: 16px; }
+  .judge-progress { flex-basis: 215px; }
+  .judge-layout { grid-template-columns: 245px minmax(0, 1fr); gap: 16px; }
+  .judge-sidebar-controls { padding: 16px; }
+  .judge-main .dance-panel { padding: 16px; }
+  .judge-workspace-footer { display: block; }
+}
+@media (max-width: 650px) {
+  .judge-heading { display: block; }
+  .judge-progress { margin-top: 18px; }
+  .judge-help summary > span { display: block; float: none; margin: 4px 0 0 16px; font-size: 11px; }
+  .judge-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .judge-entry-list { max-height: 175px; }
+  .judge-sidebar-controls { gap: 12px; }
+  .judge-workspace .dance-score-grid label, .judge-workspace .dance-score-grid > div { grid-template-columns: minmax(0, 1fr) 85px; }
+  .judge-workspace .dance-score-total { flex-wrap: wrap; gap: 8px; }
+  .judge-workspace .dance-score-total > span { justify-content: space-between; width: 100%; }
+  .judge-main .dance-form .dance-btn { width: 100%; }
+}

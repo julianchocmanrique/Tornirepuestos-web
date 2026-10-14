@@ -86,7 +86,7 @@ test('Sun Fest: valida cinco notas, conserva historia y publica el promedio pond
     const judge = client(); judges.push(judge); await judge.post('login', { email: access[i + 2].email, password: access[i + 2].password });
     await judge.post('score', { enrollmentId: entry.id, values: JSON.stringify([8, 8, 8, 8, 8, 8]) }, 400);
     await judge.post('score', { enrollmentId: entry.id, values: JSON.stringify([8, 8, 8, 8]) }, 400);
-    for (const invalid of [0, 11, null, '8']) await judge.post('score', { enrollmentId: entry.id, values: JSON.stringify([invalid, 8, 8, 8, 8]) }, 400);
+    for (const invalid of [0, 11, -1, 10.01, 0.99, 8.123, null, '8']) await judge.post('score', { enrollmentId: entry.id, values: JSON.stringify([invalid, 8, 8, 8, 8]) }, 400);
     await judge.post('score', { enrollmentId: entry.id, values: JSON.stringify(notes[i]) });
     await judge.post('score', { enrollmentId: entry.id, values: JSON.stringify(notes[i]) }, 409);
     const own = await judge.get('snapshot'); assert.equal(own.scores.length, 1); assert.deepEqual(own.scores[0].values, notes[i]);
@@ -98,6 +98,11 @@ test('Sun Fest: valida cinco notas, conserva historia y publica el promedio pond
   const beforeUnlock = await admin.get('snapshot');
   await admin.post('unlock', { scoreId: beforeUnlock.scores[0].id, note: 'Prueba de corrección' });
   assert.equal(ranking(await admin.get('snapshot'), entry.categoryId)[0].complete, false);
+  const beforeInvalidEdit = await admin.get('snapshot');
+  for (const invalid of [0, 11, 7.555]) {
+    await judges[0].post('score', { enrollmentId: entry.id, values: JSON.stringify([invalid, 8, 8, 8, 8]) }, 400);
+    assert.deepEqual((await admin.get('snapshot')).scores, beforeInvalidEdit.scores, 'La edición inválida no cambia ni vuelve a bloquear las notas');
+  }
   await judges[0].post('score', { enrollmentId: entry.id, values: JSON.stringify(notes[0]) });
   await admin.post('schedule', { id: '', categoryId: entry.categoryId, startAt: '2027-01-10T18:00:00-05:00', duration: '15', stage: 'Principal', status: 'planned', note: '' });
   const slot = (await admin.get('snapshot')).schedule[0];

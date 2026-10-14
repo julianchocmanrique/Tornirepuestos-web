@@ -4,6 +4,10 @@ import type { Registration } from "./registration";
 import type { EventListing } from "./event-catalog";
 export type Role = "participant" | "superadmin" | "contractor" | "judge";
 export type Status = "pending" | "review" | "approved" | "rejected";
+export const SCORE_SCALE = { min: 1, max: 10, step: 0.01, decimals: 2 } as const;
+export function validScore(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= SCORE_SCALE.min && value <= SCORE_SCALE.max && Number(value.toFixed(SCORE_SCALE.decimals)) === value;
+}
 export const CRITERIA = ["Técnica", "Musicalidad", "Interpretación", "Conexión / trabajo en equipo", "Creatividad", "Presentación escénica"];
 export const SUNFEST_CRITERIA = [
   { name: "Técnica", weight: 25 },

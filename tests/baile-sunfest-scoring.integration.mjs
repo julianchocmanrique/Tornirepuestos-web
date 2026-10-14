@@ -11,7 +11,7 @@ const moduleUrl = text => 'data:text/javascript;base64,' + Buffer.from(text).toS
 const compile = name => ts.transpileModule(readFileSync(`src/lib/baile/${name}.ts`, 'utf8'), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
 const typesUrl = moduleUrl(compile('types'));
 const { SUNFEST_CRITERIA, weightedScore } = await import(typesUrl);
-const { ranking } = await import(moduleUrl(compile('results').replace('from "./types"', `from "${typesUrl}"`)));
+const { ranking, resultBreakdown } = await import(moduleUrl(compile('results').replace('from "./types"', `from "${typesUrl}"`)));
 const notes = [[7.50, 7.52, 7.52, 7.67, 7.48], [8.06, 8.01, 8.01, 8.03, 8.00], [7.56, 8.05, 7.96, 8.01, 8.05]];
 
 test('cinco pesos y totales de la referencia, sin redondeos intermedios', () => {
@@ -21,6 +21,34 @@ test('cinco pesos y totales de la referencia, sin redondeos intermedios', () => 
   assert.equal((notes.reduce((sum, v) => sum + weightedScore(v), 0) / 3).toFixed(2), '7.83');
   assert.equal(weightedScore([10, 10, 10, 10, 10]), 10);
   assert.equal(weightedScore([1, 1, 1, 1, 1]), 1);
+});
+
+test('desglose público: ponderaciones, fórmulas anteriores y notas privadas', () => {
+  const s = {
+    settings: { scoringScheme: 'sunfest-v1', formula: 'average' },
+    judges: notes.map((_, i) => ({ id: `j${i}`, name: `Jurado ${i}`, email: 'privado@example.test', passwordHash: 'secreto', categories: ['cat'] })),
+    scores: notes.map((values, i) => ({ judgeId: `j${i}`, enrollmentId: 'entry', values, locked: true })),
+  };
+  const detail = resultBreakdown(s, 'cat', 'entry');
+  assert.equal(detail.mode, 'weighted');
+  assert.deepEqual(detail.judges.map(j => j.total.toFixed(2)), ['7.56', '8.03', '7.90']);
+  assert.deepEqual(detail.contributions.map(v => v.toFixed(2)), ['1.93', '1.18', '1.57', '2.37', '0.78']);
+  assert.equal(detail.contributions.reduce((a, b) => a + b, 0).toFixed(2), '7.83');
+  for (const judge of detail.judges) assert.deepEqual(Object.keys(judge).sort(), ['name', 'total', 'values']);
+  s.scores[0].locked = false;
+  assert.equal(resultBreakdown(s, 'cat', 'entry'), null, 'No incluye borradores ni publica desgloses incompletos');
+  assert.equal(resultBreakdown(s, 'otra-categoria', 'entry'), null);
+  s.scores[0].locked = true;
+  s.settings = { formula: 'average' };
+  s.scores.forEach(score => { score.values = [8, 8, 8, 8, 8, 8]; });
+  let legacy = resultBreakdown(s, 'cat', 'entry');
+  assert.equal(legacy.mode, 'average');
+  assert.deepEqual(legacy.judges.map(j => j.total), [8, 8, 8]);
+  assert.equal(legacy.contributions.reduce((a, b) => a + b, 0).toFixed(2), '8.00');
+  s.settings.formula = 'sum';
+  legacy = resultBreakdown(s, 'cat', 'entry');
+  assert.deepEqual(legacy.judges.map(j => j.total), [48, 48, 48]);
+  assert.equal(legacy.contributions.reduce((a, b) => a + b, 0), 144);
 });
 
 test('Sun Fest: valida cinco notas, conserva historia y publica el promedio ponderado', { timeout: 90000 }, async t => {
@@ -76,7 +104,12 @@ test('Sun Fest: valida cinco notas, conserva historia y publica el promedio pond
   await admin.post('schedule', { ...slot, status: 'live' }); await admin.post('schedule', { ...slot, status: 'finished' });
   const published = await guest.get('results'); assert.equal(published.scoringScheme, 'sunfest-v1');
   assert.equal(published.categories[0].rows[0].value.toFixed(2), '7.83');
-  assert.deepEqual(Object.keys(published.categories[0].rows[0]).sort(), ['name', 'number', 'position', 'value']);
+  assert.deepEqual(Object.keys(published.categories[0].rows[0]).sort(), ['breakdown', 'name', 'number', 'position', 'value']);
+  const breakdown = published.categories[0].rows[0].breakdown;
+  assert.deepEqual(breakdown.judges.map(j => j.values), notes);
+  assert.deepEqual(breakdown.criteria, SUNFEST_CRITERIA);
+  assert.deepEqual(breakdown.contributions.map(v => v.toFixed(2)), ['1.93', '1.18', '1.57', '2.37', '0.78']);
+  for (const judge of breakdown.judges) assert.deepEqual(Object.keys(judge).sort(), ['name', 'total', 'values']);
   assert.deepEqual(await original.get('snapshot'), before, 'Otros eventos no cambian');
   const db = new DatabaseSync(path.join(dir, 'events', 'thesunfest', 'event.sqlite')); t.after(() => db.close());
   const saved = JSON.parse(db.prepare('SELECT data FROM state WHERE id=1').get().data);

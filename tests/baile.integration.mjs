@@ -441,7 +441,7 @@ test('Recorrido completo y aislamiento de la competencia', { timeout: 120000 }, 
     assert.deepEqual(Object.keys(data).sort(), ['categories', 'formula']);
     for (const category of data.categories) {
       assert.ok((await admin.snapshot()).schedule.some(s => s.categoryId === category.id && s.status === 'finished'));
-      for (const row of category.rows) assert.deepEqual(Object.keys(row).sort(), ['name', 'number', 'position', 'value']);
+      for (const row of category.rows) assert.deepEqual(Object.keys(row).sort(), ['breakdown', 'name', 'number', 'position', 'value']);
     }
     assert.equal((await outsider.snapshot()).participants.length, 0);
   });

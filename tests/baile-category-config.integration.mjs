@@ -102,6 +102,8 @@ test('Excel y calificación personalizada por evento, jurados automáticos e his
     const results = await guest.get('results');
     assert.equal(results.scoringScheme, 'custom-v1');
     assert.equal(results.categories[0].rows[0].value, 8.3);
+    assert.deepEqual(results.categories[0].rows[0].breakdown.criteria, criteria);
+    assert.ok(Math.abs(results.categories[0].rows[0].breakdown.contributions.reduce((a, b) => a + b, 0) - 8.3) < 1e-9);
     assert.equal(results.categories[0].rows[0].position, 1);
     assert.deepEqual(s.settings.criteria, criteria);
     assert.deepEqual(await original.get(), before);

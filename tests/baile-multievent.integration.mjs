@@ -223,6 +223,28 @@ test('Eventos independientes: permisos, registros, pagos, archivos y sesiones', 
     await client(event).post('register',{...info,email:'expired@example.test',document:'EXPIRED123',passId:'competidor'},400);
     saved.settings.demo=true; db.prepare('UPDATE state SET data=? WHERE id=1').run(JSON.stringify(saved)); db.close();
   });
+  await t.test('claves cortas solo para cuentas de eventos demo, con revocación y aislamiento', async () => {
+    const id = (await participantA.snapshot()).user.id;
+    const other = await adminB.snapshot();
+    await participantA.post('reset-password', { userId:id, password:'User01' }, 403);
+    await owner.post('reset-password', { userId:original.user.id, password:'Admin1' }, 400);
+    await adminA.post('reset-password', { userId:id, password:'12345' }, 400);
+    await adminA.post('reset-password', { userId:id, password:'User01' });
+    assert.equal((await participantA.snapshot()).user, null);
+    await participantA.post('login', { email:info.email, password:'User01' });
+    assert.equal((await participantA.snapshot()).user.id, id);
+    assert.deepEqual(await adminB.snapshot(), other);
+    const conn = new DatabaseSync(path.join(dir,'events',a,'event.sqlite'));
+    const state = JSON.parse(conn.prepare('SELECT data FROM state WHERE id=1').get().data);
+    assert.equal(state.users.find(u => u.id === id).demoOnly, true);
+    state.settings.demo = false;
+    conn.prepare('UPDATE state SET data=? WHERE id=1').run(JSON.stringify(state));
+    await client(a).post('login', { email:info.email, password:'User01' }, 401);
+    await adminA.post('reset-password', { userId:id, password:'User02' }, 400);
+    state.settings.demo = true;
+    conn.prepare('UPDATE state SET data=? WHERE id=1').run(JSON.stringify(state)); conn.close();
+    await participantA.post('login', { email:info.email, password:'User01' });
+  });
   await t.test('persistencia por evento tras reinicio y revocación del administrador global', async () => {
     const sa = await adminA.snapshot(), sb = await adminB.snapshot();
     const stopped = new Promise(r => server.once('exit', r)); server.kill('SIGTERM'); await stopped; server = start(); await ready();
